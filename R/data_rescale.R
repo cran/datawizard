@@ -1,20 +1,31 @@
-#' Rescale a numeric variable
+#' Rescale Variables to a New Range
 #'
-#' Rescale a numeric variable to a new range.
+#' Rescale variables to a new range.
 #'
 #' @inheritParams standardize.data.frame
 #'
-#' @param x Object.
-#' @param to New range of values of the data after rescaling.
+#' @param x A numeric variable.
+#' @param to New range that the variable will have after rescaling.
 #' @param range Initial (old) range of values. If `NULL`, will take the range of
-#'   data.
+#'   the input vector (\code{range(x)}).
 #' @param ... Arguments passed to or from other methods.
 #'
 #' @examples
-#' change_scale(c(0, 1, 5, -5, -2))
-#' change_scale(c(0, 1, 5, -5, -2), to = c(-5, 5))
+#' data_rescale(c(0, 1, 5, -5, -2))
+#' data_rescale(c(0, 1, 5, -5, -2), to = c(-5, 5))
 #'
-#' head(change_scale(trees))
+#' # Specify the "theoretical" range of the input vector
+#' data_rescale(c(1, 3, 4), to = c(0, 40), range = c(0, 4))
+#'
+#' # Dataframes
+#' head(data_rescale(iris, to = c(0, 1)))
+#' head(data_rescale(iris, to = c(0, 1), select = "Sepal.Length"))
+#'
+#' # One can specify a list of ranges
+#' head(data_rescale(iris, to = list(
+#'   "Sepal.Length" = c(0, 1),
+#'   "Petal.Length" = c(-1, 0)
+#' )))
 #' @seealso [normalize()] [standardize()] [ranktransform()]
 #'
 #' @return A rescaled object.
@@ -22,22 +33,34 @@
 #' @family transform utilities
 #'
 #' @export
+data_rescale <- function(x, ...) {
+  UseMethod("data_rescale")
+}
+
+
+#' @rdname data_rescale
+#' @export
 change_scale <- function(x, ...) {
-  UseMethod("change_scale")
+  # TODO: Don't deprecate for now
+  # so we have time to change it accross the verse, but for next round
+  # .Deprecated("data_rescale")
+  data_rescale(x, ...)
 }
 
 
 
 
-
-
-#' @rdname change_scale
+#' @rdname data_rescale
 #' @export
-change_scale.numeric <- function(x,
+data_rescale.numeric <- function(x,
                                  to = c(0, 100),
                                  range = NULL,
                                  verbose = TRUE,
                                  ...) {
+  if (is.null(to)) {
+    return(x)
+  }
+
   # Warning if all NaNs
   if (all(is.na(x))) {
     return(x)
@@ -68,20 +91,20 @@ change_scale.numeric <- function(x,
 
 
 #' @export
-change_scale.factor <- function(x, ...) {
+data_rescale.factor <- function(x, ...) {
   x
 }
 
 
 
 
-#' @rdname change_scale
+#' @rdname data_rescale
 #' @export
-change_scale.grouped_df <- function(x,
-                                    select = NULL,
-                                    exclude = NULL,
+data_rescale.grouped_df <- function(x,
                                     to = c(0, 100),
                                     range = NULL,
+                                    select = NULL,
+                                    exclude = NULL,
                                     ...) {
   info <- attributes(x)
 
@@ -121,13 +144,14 @@ change_scale.grouped_df <- function(x,
 }
 
 
-#' @rdname change_scale
+#' @importFrom stats setNames
+#' @rdname data_rescale
 #' @export
-change_scale.data.frame <- function(x,
-                                    select = NULL,
-                                    exclude = NULL,
+data_rescale.data.frame <- function(x,
                                     to = c(0, 100),
                                     range = NULL,
+                                    select = NULL,
+                                    exclude = NULL,
                                     ...) {
 
   # check for formula notation, convert to character vector
@@ -146,6 +170,19 @@ change_scale.data.frame <- function(x,
     select <- setdiff(select, exclude)
   }
 
-  x[select] <- lapply(x[select], change_scale, to = to, range = range)
+  # Transform the range so that it is a list now
+  if (!is.null(range)) {
+    if (!is.list(range)) {
+      range <- setNames(rep(list(range), length(select)), select)
+    }
+  }
+  # Transform the 'to' so that it is a list now
+  if (!is.list(to)) {
+    to <- setNames(rep(list(to), length(select)), select)
+  }
+
+  x[select] <- as.data.frame(sapply(select, function(n) {
+    data_rescale(x[[n]], to = to[[n]], range = range[[n]])
+  }, simplify = FALSE))
   x
 }

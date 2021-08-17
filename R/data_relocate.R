@@ -4,17 +4,24 @@
 #' @param cols A character vector indicating the names of the columns to move.
 #' @param before,after Destination of columns. Supplying neither will move
 #'   columns to the left-hand side; specifying both is an error.
-#' @param safe If \code{TRUE}, will disregard non-existing columns.
+#' @param safe If `TRUE`, will disregard non-existing columns.
+#' @inheritParams data_rename
 #'
 #' @examples
 #' # Reorder columns
-#' data_relocate(iris, cols = "Species", before = "Sepal.Length")
-#' data_relocate(iris, cols = "Species", before = "Sepal.Width")
-#' data_relocate(iris, cols = "Sepal.Width", after = "Species")
-#' data_relocate(iris, cols = c("Species", "Petal.Length"), after = "Sepal.Width")
+#' head(data_relocate(iris, cols = "Species", before = "Sepal.Length"))
+#' head(data_relocate(iris, cols = "Species", before = "Sepal.Width"))
+#' head(data_relocate(iris, cols = "Sepal.Width", after = "Species"))
+#' head(data_relocate(iris, cols = c("Species", "Petal.Length"), after = "Sepal.Width"))
 #' @return A data frame with reordered columns.
+#'
 #' @export
-data_relocate <- function(data, cols, before = NULL, after = NULL, safe = TRUE) {
+data_relocate <- function(data,
+                          cols,
+                          before = NULL,
+                          after = NULL,
+                          safe = TRUE,
+                          ...) {
 
   # Sanitize
   if (!is.null(before) && !is.null(after)) {

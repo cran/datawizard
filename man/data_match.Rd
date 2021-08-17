@@ -2,23 +2,24 @@
 % Please edit documentation in R/data_match.R
 \name{data_match}
 \alias{data_match}
-\title{Find rows of a data frame that are matching a specific subset}
+\title{Find row indices of a data frame matching a specific condition}
 \usage{
-data_match(x, to)
+data_match(x, to, ...)
 }
 \arguments{
 \item{x}{A data frame.}
 
-\item{to}{The data frame of which to meet the characteristics.}
+\item{to}{A data frame matching the specified conditions.}
+
+\item{...}{Other arguments passed to or from other functions.}
 }
 \value{
 A dataframe containing rows that match the specified configuration.
 }
 \description{
-Find row indices of a data frame that are matching a specific configuration.
+Find row indices of a data frame that match a specific condition.
 }
 \examples{
-
 matching_rows <- data_match(mtcars, data.frame(vs = 0, am = 1))
 mtcars[matching_rows, ]
 
