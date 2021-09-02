@@ -21,7 +21,7 @@ print.visualisation_recipe <- function(x, ...) {
   for (i in 1:length(x)) {
     l <- x[[paste0("l", i)]]
     insight::print_color(paste0("Layer ", i, "\n--------\n"), "blue")
-    insight::print_color(paste0("Geom type: ", l$geom, "\n"), "yellow")
+    insight::print_color(paste0("Geom type: ", ifelse(is.null(l$geom), "[NULL]", l$geom), "\n"), "yellow")
 
     elements <- names(l)[!sapply(l, is.null)]
 
@@ -69,21 +69,3 @@ print.visualisation_recipe <- function(x, ...) {
     cat("\n")
   }
 }
-
-#' @importFrom graphics plot
-#' @export
-plot.visualisation_recipe <- function(x, ...) {
-  insight::check_if_installed("see", minimum_version = "0.6.5")
-  insight::check_if_installed("ggplot2")
-
-  ggplot2::ggplot(data = attributes(x)$data) +
-    geoms_from_list(x, ...)
-}
-
-
-# TODO: remove once see 0.6.5 is on CRAN
-utils::globalVariables(
-  names = c("geoms_from_list"),
-  package = "datawizard",
-  add = FALSE
-)

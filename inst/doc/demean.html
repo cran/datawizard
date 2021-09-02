@@ -229,7 +229,7 @@ div.csl-indent {
 <li><p>Intercept is removed</p></li>
 <li><p>time-invariant predictors are not allowed to be included</p></li>
 <li><p>the group-level factor is included as predictor</p></li>
-<li><p>time-varying predictors are de-meaned (“person-mean centered,” indicating the “within-subject” effect)</p></li>
+<li><p>time-varying predictors are de-meaned (“person-mean centered”, indicating the “within-subject” effect)</p></li>
 </ul>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fe_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  QoL <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> time <span class="sc">+</span> phq4_within <span class="sc">+</span> ID,</span>
@@ -267,7 +267,7 @@ div.csl-indent {
 <p>There are several ways how to address this using a mixed models approach:</p>
 <ul>
 <li><p>Correlated group factors and predictors are no problem anyway, because <a href="https://www.tjmahr.com/plotting-partial-pooling-in-mixed-effects-models/">partial pooling</a> allows estimates of units o borrow strength from the whole sample and shrink toward a common mean (<span class="citation">Shor et al. (2007)</span>).</p></li>
-<li><p>If predictor and group factors correlate, one can remove this correlation by group-meaning <span class="citation">(or <span>“mean within clusters,”</span> Bafumi and Gelman 2006; Gelman and Hill 2007, Chap. 12.6.)</span>.</p></li>
+<li><p>If predictor and group factors correlate, one can remove this correlation by group-meaning <span class="citation">(or “mean within clusters,” Bafumi and Gelman 2006; Gelman and Hill 2007, chap. 12.6.)</span>.</p></li>
 <li><p>When time-varying predictors are “decomposed” into their time-varying and time-invariant components (demeaning), then mixed models can model <strong>both</strong> within- and between-subject effects <span class="citation">(Bell, Fairbrother, and Jones 2019)</span> - this approach is essentially a further development of a long-known recommendation by Mundlak <span class="citation">(Mundlak 1978)</span>.</p></li>
 </ul>
 <p>For now, we will follow the last recommendation and use the within- and between-version of <code>phq4</code>.</p>
@@ -289,7 +289,7 @@ div.csl-indent {
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># effects = &quot;fixed&quot; will not display random effects, but split the</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># fixed effects into its between- and within-effects components.</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">model_parameters</span>(mixed_2, <span class="at">effects =</span> <span class="st">&quot;fixed&quot;</span>)</span></code></pre></div>
-<p>For more complex models, within-effects will naturally change slightly and are no longer identical to simpler FE models. This is no “bias,” but rather the result of building more complex models: FE models lack information of variation in the group-effects or between-subject effects. Furthermore, FE models cannot include random slopes, which means that fixed effects regressions are neglecting “cross-cluster differences in the effects of lower-level controls (which) reduces the precision of estimated context effects, resulting in (…) low statistical power” <span class="citation">(Heisig, Schaeffer, and Giesecke 2017)</span>.</p>
+<p>For more complex models, within-effects will naturally change slightly and are no longer identical to simpler FE models. This is no “bias”, but rather the result of building more complex models: FE models lack information of variation in the group-effects or between-subject effects. Furthermore, FE models cannot include random slopes, which means that fixed effects regressions are neglecting “cross-cluster differences in the effects of lower-level controls (which) reduces the precision of estimated context effects, resulting in (…) low statistical power” <span class="citation">(Heisig, Schaeffer, and Giesecke 2017)</span>.</p>
 </div>
 <div id="conclusion-complex-random-effects-within-between-models" class="section level1">
 <h1>Conclusion: Complex Random Effects Within-Between Models</h1>
@@ -302,7 +302,7 @@ div.csl-indent {
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p><strong>What about time-constant predictors?</strong></p>
 <p>After demeaning time-varying predictors, “at the higher level, the mean term is no longer constrained by Level 1 effects, so it is free to account for all the higher-level variance associated with that variable” <span class="citation">(Bell and Jones 2015)</span>.</p>
-<p>Thus, <em>time-constant <strong>categorical</strong></em> predictors, that only have a between-effect, can be simply included as fixed effects predictor (since they’re not constrained by level-1 effects). Time-constant <em>continuous</em> <strong>group-level predictors</strong> (for instance, GDP of countries) should be group-meaned, to have a proper “between”-effect <span class="citation">(Gelman and Hill 2007, Chap. 12.6.)</span>.</p>
+<p>Thus, <em>time-constant <strong>categorical</strong></em> predictors, that only have a between-effect, can be simply included as fixed effects predictor (since they’re not constrained by level-1 effects). Time-constant <em>continuous</em> <strong>group-level predictors</strong> (for instance, GDP of countries) should be group-meaned, to have a proper “between”-effect <span class="citation">(Gelman and Hill 2007, chap. 12.6.)</span>.</p>
 <p>The benefit of this kind of model is that you have information on within-, between- and other time-constant (i.e. between) effects or group-level predictors…</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">model_parameters</span>(rewb, <span class="at">effects =</span> <span class="st">&quot;fixed&quot;</span>)</span></code></pre></div>
 <p>… but you can also model the variation of (group) effects across time (and probably space), and you can even include more higher-level units (e.g. nested design or cross-classified design with more than two levels):</p>
@@ -312,7 +312,7 @@ div.csl-indent {
 </div>
 <div id="a-visual-example" class="section level1">
 <h1>A visual example</h1>
-<p>First, we generate some fake data that implies a linear relationship between outcome and independent variable. The objective is that the amount of typing errors depends on how fast (typing speed) you can type, however, the more typing experience you have, the faster you can type. Thus, the outcome measure is “amount of typing errors,” while our predictor is “typing speed.” Furthermore, we have repeated measurements of people with different “typing experience levels.”</p>
+<p>First, we generate some fake data that implies a linear relationship between outcome and independent variable. The objective is that the amount of typing errors depends on how fast (typing speed) you can type, however, the more typing experience you have, the faster you can type. Thus, the outcome measure is “amount of typing errors”, while our predictor is “typing speed”. Furthermore, we have repeated measurements of people with different “typing experience levels”.</p>
 <p>The results show that we will have two sources of variation: Overall, more experienced typists make less mistakes (group-level pattern). When typing faster, typists make more mistakes (individual-level pattern).</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>

@@ -1,7 +1,7 @@
 Type: Package
 Package: datawizard
 Title: Easy Data Wrangling
-Version: 0.2.0
+Version: 0.2.0.1
 Authors@R: 
     c(person(given = "Dominique",
              family = "Makowski",
@@ -47,7 +47,7 @@ Language: en-US
 RoxygenNote: 7.1.1.9001
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-08-17 09:20:58 UTC; patil
+Packaged: 2021-09-01 11:21:20 UTC; IndrajeetPatil
 Author: Dominique Makowski [aut] (<https://orcid.org/0000-0001-5375-9967>,
     @Dom_Makowski),
   Daniel Lüdecke [aut] (<https://orcid.org/0000-0002-8895-3206>,
@@ -58,4 +58,4 @@ Author: Dominique Makowski [aut] (<https://orcid.org/0000-0001-5375-9967>,
   Brenton M. Wiernik [aut] (<https://orcid.org/0000-0001-9560-6336>,
     @bmwiernik)
 Repository: CRAN
-Date/Publication: 2021-08-17 09:50:05 UTC
+Date/Publication: 2021-09-02 21:10:21 UTC
