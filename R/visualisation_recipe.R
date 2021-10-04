@@ -4,7 +4,7 @@
 #' layers with data and geoms that can be easily plotted using for instance
 #' `ggplot2`. See the documentation for your object's class:
 #' \itemize{
-#'  \item{\link[modelbased:visualisation_recipe.estimate_predicted]{modelbased} (`estimate_means`, `estimate_contrasts`, `estimate_slopes`, `estimate_predicted`, `estimate_grouplevel`)}
+#'  \item{[modelbased][modelbased::visualisation_recipe.estimate_predicted] (`estimate_means`, `estimate_contrasts`, `estimate_slopes`, `estimate_predicted`, `estimate_grouplevel`)}
 #' }
 #'
 #' @param x An `easystats` object.
@@ -68,4 +68,12 @@ print.visualisation_recipe <- function(x, ...) {
     }
     cat("\n")
   }
+}
+
+
+
+#' @export
+plot.visualisation_recipe <- function(x, ...) {
+  insight::check_if_installed("see")
+  NextMethod()
 }
