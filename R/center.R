@@ -10,20 +10,29 @@
 #'   well. Factors are converted to numerical values, with the lowest level
 #'   being the value `1` (unless the factor has numeric levels, which are
 #'   converted to the corresponding numeric value).
-#' @param append Logical, if `TRUE` and `x` is a data frame,
-#'   standardized variables will be added as additional columns; if
-#'   `FALSE`, existing variables are overwritten.
-#' @param suffix Character value, will be appended to variable (column) names of
-#'   `x`, if `x` is a data frame and `append = TRUE`.
 #' @param robust Logical, if `TRUE`, centering is done by subtracting the
 #'   median from the variables. If `FALSE`, variables are centered by
 #'   subtracting the mean.
+#' @param append Logical or string. If `TRUE`, centered variables get new
+#'   column names (with the suffix `"_c"`) and are appended (column bind) to `x`,
+#'   thus returning both the original and the centered variables. If `FALSE`,
+#'   original variables in `x` will be overwritten by their centered versions.
+#'   If a character value, centered variables are appended with new column
+#'   names (using the defined suffix) to the original data frame.
 #' @param verbose Toggle warnings and messages.
 #' @param weights Can be `NULL` (for no weighting), or:
 #'   - For data frames: a numeric vector of weights, or a character of the
 #'   name of a column in the `data.frame` that contains the weights.
 #'   - For numeric vectors: a numeric vector of weights.
+#' @param center Numeric value, which can be used as alternative to
+#'   `reference` to define a reference centrality. If `center` is of length 1,
+#'   it will be recycled to match the length of selected variables for centering.
+#'   Else, `center` must be of same length as the number of selected variables.
+#'   Values in `center` will be matched to selected variables in the provided
+#'   order, unless a named vector is given. In this case, names are matched
+#'   against the names of the selected variables.
 #' @param ... Currently not used.
+#' @inheritParams standardize
 #'
 #' @note
 #' **Difference between centering and standardizing**: Standardized variables
@@ -32,16 +41,37 @@
 #' subtraction.
 #'
 #' @seealso If centering within-clusters (instead of grand-mean centering)
-#'   is required, see [demean()].
+#'   is required, see [demean()]. For standardizing, see [standardize()].
 #'
 #' @return The centered variables.
 #'
 #' @examples
 #' data(iris)
+#'
+#' # entire dataframe or a vector
 #' head(iris$Sepal.Width)
 #' head(center(iris$Sepal.Width))
 #' head(center(iris))
 #' head(center(iris, force = TRUE))
+#'
+#' # only the selected columns from a dataframe
+#' center(anscombe, select = c("x1", "x3"))
+#' center(anscombe, exclude = c("x1", "x3"))
+#'
+#' # centering with reference center and scale
+#' d <- data.frame(
+#'   a = c(-2, -1, 0, 1, 2),
+#'   b = c(3, 4, 5, 6, 7)
+#' )
+#'
+#' # default centering at mean
+#' center(d)
+#'
+#' # centering, using 0 as mean
+#' center(d, center = 0)
+#'
+#' # centering, using -5 as mean
+#' center(d, center = -5)
 #' @export
 center <- function(x, ...) {
   UseMethod("center")
@@ -54,48 +84,41 @@ centre <- center
 #' @rdname center
 #' @export
 center.numeric <- function(x,
-                           weights = NULL,
                            robust = FALSE,
+                           weights = NULL,
                            verbose = TRUE,
+                           reference = NULL,
+                           center = NULL,
                            ...) {
+  args <- .process_std_center(x, weights, robust, verbose, reference, center, scale = NULL)
 
-  # Warning if all NaNs
-  if (all(is.na(x))) {
+  if (is.null(args)) { # all NA?
     return(x)
-  }
-
-  if (.are_weights(weights)) {
-    valid_x <- !is.na(x) & !is.na(weights)
-    x <- x[valid_x]
-    weights <- weights[valid_x]
+  } else if (is.null(args$check)) {
+    vals <- rep(0, length(args$vals)) # If only unique value
   } else {
-    valid_x <- !is.na(x)
-    x <- x[valid_x]
-  }
-  centered_x <- rep(NA, length(x))
-
-
-  # Sanity checks
-  check <- .check_center_numeric(x, name = NULL, verbose = verbose)
-  if (is.null(check)) {
-    return(x)
+    vals <- as.vector(args$vals - args$center)
   }
 
-  if (robust) {
-    center <- .median(x, weights, verbose = verbose)
-  } else {
-    center <- .mean(x, weights, verbose = verbose)
-  }
-
-  x <- as.vector(x - center)
-
-  centered_x[valid_x] <- x
+  centered_x <- rep(NA, length(args$valid_x))
+  centered_x[args$valid_x] <- vals
+  attr(centered_x, "center") <- args$center
+  attr(centered_x, "scale") <- args$scale
+  attr(centered_x, "robust") <- robust
   centered_x
 }
 
 
 #' @export
-center.factor <- function(x, weights = NULL, robust = FALSE, verbose = TRUE, ...) {
+center.factor <- function(x,
+                          weights = NULL,
+                          robust = FALSE,
+                          verbose = TRUE,
+                          force = FALSE,
+                          ...) {
+  if (!force) {
+    return(x)
+  }
   center(.factor_to_numeric(x), weights = weights, robust = robust, verbose = verbose, ...)
 }
 
@@ -107,182 +130,83 @@ center.character <- center.factor
 
 
 #' @rdname center
+#' @inheritParams standardize.data.frame
 #' @export
 center.data.frame <- function(x,
+                              robust = FALSE,
+                              weights = NULL,
+                              verbose = TRUE,
+                              reference = NULL,
                               select = NULL,
                               exclude = NULL,
-                              weights = NULL,
-                              robust = FALSE,
+                              remove_na = c("none", "selected", "all"),
                               force = FALSE,
                               append = FALSE,
-                              suffix = "_c",
-                              verbose = TRUE,
+                              center = NULL,
                               ...) {
-  # check for formula notation, convert to character vector
-  if (inherits(select, "formula")) {
-    select <- all.vars(select)
-  }
-  if (inherits(exclude, "formula")) {
-    exclude <- all.vars(exclude)
-  }
-
-  if (!is.null(weights) && is.character(weights)) {
-    if (weights %in% colnames(x)) {
-      exclude <- c(exclude, weights)
-    } else {
-      warning("Could not find weighting column '", weights, "'. Weighting not carried out.")
-      weights <- NULL
-    }
-  }
-
-  select <- .select_c_variables(x, select, exclude, force)
-  if (!is.null(weights) && is.character(weights)) weights <- x[[weights]]
-
-  if (append) {
-    new_variables <- x[select]
-    if (!is.null(suffix)) {
-      colnames(new_variables) <- paste0(colnames(new_variables), suffix)
-    }
-    x <- cbind(x, new_variables)
-    select <- colnames(new_variables)
-  }
-
-  x[select] <- lapply(
-    x[select],
-    center,
-    weights = weights,
-    robust = robust,
-    verbose = FALSE
+  # process arguments
+  args <- .process_std_args(x, select, exclude, weights, append,
+    append_suffix = "_c", force, remove_na, reference,
+    .center = center, .scale = NULL
   )
-  x
-}
 
+  # set new values
+  x <- args$x
 
-# helper ------------------------
-
-
-.select_c_variables <- function(x, select, exclude, force) {
-  if (is.null(select)) {
-    select <- names(x)
+  for (var in args$select) {
+    x[[var]] <- center(
+      x[[var]],
+      robust = robust,
+      weights = args$weights,
+      verbose = FALSE,
+      reference = reference[[var]],
+      center = args$center[var],
+      force = force
+    )
   }
 
-  if (!is.null(exclude)) {
-    select <- setdiff(select, exclude)
-  }
-
-  if (!force) {
-    factors <- sapply(x[select], function(i) is.factor(i) | is.character(i))
-    select <- select[!factors]
-  }
-
-  select
-}
-
-
-
-
-#' @keywords internal
-.check_center_numeric <- function(x, name = NULL, verbose = TRUE) {
-  # Warning if only one value
-  if (length(unique(x)) == 1) {
-    if (verbose) {
-      if (is.null(name)) {
-        message("The variable contains only one unique value and will not be standardized.")
-      } else {
-        message(paste0("The variable `", name, "` contains only one unique value and will not be standardized."))
-      }
-    }
-    return(NULL)
-  }
-
-  # Warning if logical vector
-  if (length(unique(x)) == 2 && !is.factor(x) && !is.character(x)) {
-    if (verbose) {
-      if (is.null(name)) {
-        message(insight::format_message("The variable contains only two different values. Consider converting it to a factor."))
-      } else {
-        message(insight::format_message(paste0("Variable `", name, "` contains only two different values. Consider converting it to a factor.")))
-      }
-    }
-  }
+  attr(x, "center") <- sapply(x[args$select], function(z) attributes(z)$center)
+  attr(x, "scale") <- sapply(x[args$select], function(z) attributes(z)$scale)
+  attr(x, "robust") <- robust
   x
 }
 
 
 
-.are_weights <- function(w) {
-  !is.null(w) && length(w) && !all(w == 1) && !all(w == w[1])
-}
+#' @export
+center.grouped_df <- function(x,
+                              robust = FALSE,
+                              weights = NULL,
+                              verbose = TRUE,
+                              reference = NULL,
+                              select = NULL,
+                              exclude = NULL,
+                              remove_na = c("none", "selected", "all"),
+                              force = FALSE,
+                              append = FALSE,
+                              center = NULL,
+                              ...) {
+  args <- .process_grouped_df(x, select, exclude, append,
+    append_suffix = "_c",
+    reference, weights, force
+  )
 
-
-
-.factor_to_numeric <- function(x) {
-  if (is.numeric(x)) {
-    return(x)
+  for (rows in args$grps) {
+    args$x[rows, ] <- center(
+      args$x[rows, ],
+      select = args$select,
+      exclude = NULL,
+      robust = robust,
+      weights = args$weights,
+      remove_na = remove_na,
+      verbose = verbose,
+      force = force,
+      append = FALSE,
+      center = center,
+      ...
+    )
   }
-
-  if (anyNA(suppressWarnings(as.numeric(as.character(stats::na.omit(x)))))) {
-    if (is.character(x)) {
-      x <- as.factor(x)
-    }
-    levels(x) <- 1:nlevels(x)
-  }
-
-  as.numeric(as.character(x))
-}
-
-
-
-.mean <- function(x, weights = NULL, verbose = TRUE, ...) {
-  if (!.are_weights(weights)) {
-    return(mean(x, na.rm = TRUE))
-  }
-
-  if (!all(weights > 0, na.rm = TRUE)) {
-    if (isTRUE(verbose)) {
-      warning("Some weights were negative. Weighting not carried out.", call. = FALSE)
-    }
-    return(mean(x, na.rm = TRUE))
-  }
-
-  stats::weighted.mean(x, weights, na.rm = TRUE)
-}
-
-
-
-.median <- function(x, weights = NULL, verbose = TRUE, ...) {
-  # From spatstat + wiki
-  if (!.are_weights(weights)) {
-    return(stats::median(x, na.rm = TRUE))
-  }
-
-  if (!all(weights > 0, na.rm = TRUE)) {
-    if (isTRUE(verbose)) {
-      warning("Some weights were negative. Weighting not carried out.", call. = FALSE)
-    }
-    return(stats::median(x, na.rm = TRUE))
-  }
-
-  oo <- order(x)
-  x <- x[oo]
-  weights <- weights[oo]
-  Fx <- cumsum(weights) / sum(weights)
-
-  lefties <- which(Fx <= 0.5)
-  left <- max(lefties)
-  if (length(lefties) == 0) {
-    result <- x[1]
-  } else if (left == length(x)) {
-    result <- x[length(x)]
-  } else {
-    result <- x[left]
-
-    if (!(Fx[left - 1] < 0.5 && 1 - Fx[left] < 0.5)) {
-      right <- left + 1
-      y <- x[left] * Fx[left] + x[right] * Fx[right]
-      if (is.finite(y)) result <- y
-    }
-  }
-
-  result
+  # set back class, so data frame still works with dplyr
+  attributes(args$x) <- args$info
+  args$x
 }

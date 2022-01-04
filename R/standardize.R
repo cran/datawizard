@@ -27,6 +27,47 @@
 #'   name of a column in the `data.frame` that contains the weights.
 #' - For numeric vectors: a numeric vector of weights.
 #' @param verbose Toggle warnings and messages on or off.
+#' @param select Character vector of column names. If `NULL` (the default), all
+#'   variables will be selected.
+#' @param exclude Character vector of column names to be excluded from selection.
+#' @param remove_na How should missing values (`NA`) be treated: if `"none"`
+#'   (default): each column's standardization is done separately, ignoring
+#'   `NA`s. Else, rows with `NA` in the columns selected with `select` /
+#'   `exclude` (`"selected"`) or in all columns (`"all"`) are dropped before
+#'   standardization, and the resulting data frame does not include these cases.
+#' @param force Logical, if `TRUE`, forces standardization of factors and dates
+#'   as well. Factors are converted to numerical values, with the lowest level
+#'   being the value `1` (unless the factor has numeric levels, which are
+#'   converted to the corresponding numeric value).
+#' @param append Logical or string. If `TRUE`, standardized variables get new
+#'   column names (with the suffix `"_z"`) and are appended (column bind) to `x`,
+#'   thus returning both the original and the standardized variables. If `FALSE`,
+#'   original variables in `x` will be overwritten by their standardized versions.
+#'   If a character value, standardized variables are appended with new column
+#'   names (using the defined suffix) to the original data frame.
+#' @param reference A data frame or variable from which the centrality and
+#'   deviation will be computed instead of from the input variable. Useful for
+#'   standardizing a subset or new data according to another data frame.
+#' @param center,scale
+#' * For `standardize()`: \cr
+#'   Numeric values, which can be used as alternative to `reference` to define
+#'   a reference centrality and deviation. If `scale` and `center` are of
+#'   length 1, they will be recycled to match the length of selected variables
+#'   for standardization. Else, `center` and `scale` must be of same length as
+#'   the number of selected variables. Values in `center` and `scale` will be
+#'   matched to selected variables in the provided order, unless a named vector
+#'   is given. In this case, names are matched against the names of the selected
+#'   variables.
+#'
+#' * For `unstandardize()`: \cr
+#'   `center` and `scale` correspond to the center (the mean / median) and the scale (SD / MAD) of
+#'   the original non-standardized data (for data frames, should be named, or
+#'   have column order correspond to the numeric column). However, one can also
+#'   directly provide the original data through `reference`, from which the
+#'   center and the scale will be computed (according to `robust` and `two_sd`).
+#'   Alternatively, if the input contains the attributes `center` and `scale`
+#'   (as does the output of `standardize()`), it will take it from there if the
+#'   rest of the arguments are absent.
 #' @param ... Arguments passed to or from other methods.
 #'
 #' @return The standardized object (either a standardize data frame or a
@@ -36,13 +77,44 @@
 #'   missing values are preserved, so the return value has the same length /
 #'   number of rows as the original input.
 #'
+#' @seealso See [center()] for grand-mean centering of variables.
 #'
 #' @family transform utilities
 #' @family standardize
 #'
 #' @examples
+#' d <- iris[1:4, ]
+#'
+#' # vectors
+#' standardise(d$Petal.Length)
+#'
 #' # Data frames
-#' summary(standardize(swiss))
+#' # overwrite
+#' standardise(d, select = c("Sepal.Length", "Sepal.Width"))
+#'
+#' # append
+#' standardise(d, select = c("Sepal.Length", "Sepal.Width"), append = TRUE)
+#'
+#' # append, suffix
+#' standardise(d, select = c("Sepal.Length", "Sepal.Width"), append = "_std")
+#'
+#' # standardizing with reference center and scale
+#' d <- data.frame(
+#'   a = c(-2, -1, 0, 1, 2),
+#'   b = c(3, 4, 5, 6, 7)
+#' )
+#'
+#' # default standardization, based on mean and sd of each variable
+#' standardize(d) # means are 0 and 5, sd ~ 1.581139
+#'
+#' # standardization, based on mean and sd set to the same values
+#' standardize(d, center = c(0, 5), scale = c(1.581, 1.581))
+#'
+#' # standardization, mean and sd for each variable newly defined
+#' standardize(d, center = c(3, 4), scale = c(2, 4))
+#'
+#' # standardization, taking same mean and sd for each variable
+#' standardize(d, center = 1, scale = 3)
 #' @export
 standardize <- function(x,
                         robust = FALSE,
@@ -65,45 +137,28 @@ standardize.numeric <- function(x,
                                 weights = NULL,
                                 verbose = TRUE,
                                 reference = NULL,
+                                center = NULL,
+                                scale = NULL,
                                 ...) {
+  args <- .process_std_center(x, weights, robust, verbose, reference, center, scale)
 
-  # Warning if all NaNs
-  if (all(is.na(x))) {
+  # Perform standardization
+  if (is.null(args)) { # all NA?
     return(x)
-  }
-
-  if (.are_weights(weights)) {
-    valid_x <- !is.na(x) & !is.na(weights)
-    x <- x[valid_x]
-    weights <- weights[valid_x]
+  } else if (is.null(args$check)) {
+    vals <- rep(0, length(args$vals)) # If only unique value
   } else {
-    valid_x <- !is.na(x)
-    x <- x[valid_x]
-  }
-  scaled_x <- rep(NA, length(x))
-
-  # Sanity checks
-  check <- .check_standardize_numeric(x, name = NULL, verbose = verbose, reference = reference)
-
-  if (is.null(check)) {
-    return(x)
+    if (two_sd) {
+      vals <- as.vector((args$vals - args$center) / (2 * args$scale))
+    } else {
+      vals <- as.vector((args$vals - args$center) / args$scale)
+    }
   }
 
-  if (is.factor(x) || is.character(x)) {
-    x <- .factor_to_numeric(x)
-  }
-
-  ref <- .get_center_scale(x, robust, weights, reference)
-
-  if (two_sd) {
-    x <- as.vector((x - ref$center) / (2 * ref$scale))
-  } else {
-    x <- as.vector((x - ref$center) / ref$scale)
-  }
-
-  scaled_x[valid_x] <- x
-  attr(scaled_x, "center") <- ref$center
-  attr(scaled_x, "scale") <- ref$scale
+  scaled_x <- rep(NA, length(args$valid_x))
+  scaled_x[args$valid_x] <- vals
+  attr(scaled_x, "center") <- args$center
+  attr(scaled_x, "scale") <- args$scale
   attr(scaled_x, "robust") <- robust
   scaled_x
 }
@@ -114,6 +169,21 @@ standardize.double <- standardize.numeric
 #' @export
 standardize.integer <- standardize.numeric
 
+#' @export
+standardize.matrix <- function(x, ...) {
+  xl <- lapply(seq_len(ncol(x)), function(i) x[, i])
+
+  xz <- lapply(xl, datawizard::standardize, ...)
+
+  x_out <- do.call(cbind, xz)
+  dimnames(x_out) <- dimnames(x)
+
+  attr(x_out, "center") <- sapply(xz, attr, "center")
+  attr(x_out, "scale") <- sapply(xz, attr, "scale")
+  attr(x_out, "robust") <- sapply(xz, attr, "robust")[1]
+
+  x_out
+}
 
 
 #' @export
@@ -128,7 +198,7 @@ standardize.factor <- function(x,
     return(x)
   }
 
-  standardize(as.numeric(x),
+  standardize(.factor_to_numeric(x),
     robust = robust, two_sd = two_sd, weights = weights, verbose = verbose, ...
   )
 }
@@ -151,27 +221,6 @@ standardize.AsIs <- standardize.numeric
 
 
 #' @rdname standardize
-#' @param select Character vector of column names. If `NULL` (the default), all
-#'   variables will be selected.
-#' @param exclude Character vector of column names to be excluded from selection.
-#' @param remove_na How should missing values (`NA`) be treated: if `"none"`
-#'   (default): each column's standardization is done separately, ignoring
-#'   `NA`s. Else, rows with `NA` in the columns selected with `select` /
-#'   `exclude` (`"selected"`) or in all columns (`"all"`) are dropped before
-#'   standardization, and the resulting data frame does not include these cases.
-#' @param force Logical, if `TRUE`, forces standardization of factors and dates
-#'   as well. Factors are converted to numerical values, with the lowest level
-#'   being the value `1` (unless the factor has numeric levels, which are
-#'   converted to the corresponding numeric value).
-#' @param append Logical, if `TRUE` and `x` is a data frame, standardized
-#'   variables will be added as additional columns; if `FALSE`,
-#'   existing variables are overwritten.
-#' @param suffix Character value, will be appended to variable (column) names of
-#'   `x`, if `x` is a data frame and `append = TRUE`.
-#' @param reference A dataframe or variable from which the centrality and
-#'   deviation will be computed instead of from the input variable. Useful for
-#'   standardizing a subset or new data according to another dataframe.
-#'
 #' @export
 standardize.data.frame <- function(x,
                                    robust = FALSE,
@@ -184,67 +233,35 @@ standardize.data.frame <- function(x,
                                    remove_na = c("none", "selected", "all"),
                                    force = FALSE,
                                    append = FALSE,
-                                   suffix = "_z",
+                                   center = NULL,
+                                   scale = NULL,
                                    ...) {
-  if (!is.null(reference) && !all(names(x) %in% names(reference))) {
-    stop("The 'reference' must have the same columns as the input.")
-  }
-
-  # check for formula notation, convert to character vector
-  if (inherits(select, "formula")) {
-    select <- all.vars(select)
-  }
-  if (inherits(exclude, "formula")) {
-    exclude <- all.vars(exclude)
-  }
-
-  if (!is.null(weights) && is.character(weights)) {
-    if (weights %in% colnames(x)) {
-      exclude <- c(exclude, weights)
-    } else {
-      warning("Could not find weighting column '", weights, "'. Weighting not carried out.")
-      weights <- NULL
-    }
-  }
-
-  select <- .select_z_variables(x, select, exclude, force)
-
-  # drop NAs
-  remove_na <- match.arg(remove_na)
-
-  omit <- switch(remove_na,
-    none = logical(nrow(x)),
-    selected = rowSums(sapply(x[select], is.na)) > 0,
-    all = rowSums(sapply(x, is.na)) > 0
+  # process arguments
+  args <- .process_std_args(x, select, exclude, weights, append,
+    append_suffix = "_z", force, remove_na, reference,
+    .center = center, .scale = scale
   )
-  x <- x[!omit, , drop = FALSE]
 
-  if (!is.null(weights) && is.character(weights)) weights <- x[[weights]]
-
-  if (append) {
-    new_variables <- x[select]
-    if (!is.null(suffix)) {
-      colnames(new_variables) <- paste0(colnames(new_variables), suffix)
-    }
-    x <- cbind(x, new_variables)
-    select <- colnames(new_variables)
-  }
+  # set new values
+  x <- args$x
 
   # Loop through variables and standardize it
-  for (var in select) {
+  for (var in args$select) {
     x[[var]] <- standardize(x[[var]],
       robust = robust,
       two_sd = two_sd,
-      weights = weights,
+      weights = args$weights,
       reference = reference[[var]],
+      center = args$center[var],
+      scale = args$scale[var],
       verbose = FALSE,
       force = force
     )
   }
 
 
-  attr(x, "center") <- sapply(x[select], function(z) attributes(z)$center)
-  attr(x, "scale") <- sapply(x[select], function(z) attributes(z)$scale)
+  attr(x, "center") <- sapply(x[args$select], function(z) attributes(z)$center)
+  attr(x, "scale") <- sapply(x[args$select], function(z) attributes(z)$scale)
   attr(x, "robust") <- robust
   x
 }
@@ -263,136 +280,32 @@ standardize.grouped_df <- function(x,
                                    remove_na = c("none", "selected", "all"),
                                    force = FALSE,
                                    append = FALSE,
-                                   suffix = "_z",
+                                   center = NULL,
+                                   scale = NULL,
                                    ...) {
-  if (!is.null(reference)) {
-    stop("The `reference` argument cannot be used with grouped standardization for now.")
-  }
+  args <- .process_grouped_df(x, select, exclude, append,
+    append_suffix = "_z",
+    reference, weights, force
+  )
 
-  info <- attributes(x)
-  # dplyr >= 0.8.0 returns attribute "indices"
-  grps <- attr(x, "groups", exact = TRUE)
-
-  # check for formula notation, convert to character vector
-  if (inherits(select, "formula")) {
-    select <- all.vars(select)
-  }
-  if (inherits(exclude, "formula")) {
-    exclude <- all.vars(exclude)
-  }
-
-  if (is.numeric(weights)) {
-    warning(
-      "For grouped data frames, 'weights' must be a character, not a numeric vector.\n",
-      "Ignoring weightings."
-    )
-    weights <- NULL
-  }
-
-
-  # dplyr < 0.8.0?
-  if (is.null(grps)) {
-    grps <- attr(x, "indices", exact = TRUE)
-    grps <- lapply(grps, function(x) x + 1)
-  } else {
-    grps <- grps[[".rows"]]
-  }
-
-  x <- as.data.frame(x)
-  select <- .select_z_variables(x, select, exclude, force)
-
-  if (append) {
-    new_variables <- x[select]
-    if (!is.null(suffix)) {
-      colnames(new_variables) <- paste0(colnames(new_variables), suffix)
-    }
-    x <- cbind(x, new_variables)
-    select <- colnames(new_variables)
-    info$names <- c(info$names, select)
-  }
-
-  for (rows in grps) {
-    x[rows, ] <- standardize(
-      x[rows, ],
-      select = select,
+  for (rows in args$grps) {
+    args$x[rows, ] <- standardize(
+      args$x[rows, ],
+      select = args$select,
       exclude = NULL,
       robust = robust,
       two_sd = two_sd,
-      weights = weights,
+      weights = args$weights,
       remove_na = remove_na,
       verbose = verbose,
       force = force,
       append = FALSE,
-      suffix = NULL,
+      center = center,
+      scale = scale,
       ...
     )
   }
   # set back class, so data frame still works with dplyr
-  attributes(x) <- info
-  x
-}
-
-
-
-# helper -----------------------------
-
-.get_center_scale <- function(x, robust = FALSE, weights = NULL, reference = NULL) {
-  if (is.null(reference)) reference <- x
-
-  if (robust) {
-    center <- .median(reference, weights)
-    scale <- .mad(reference, weights)
-  } else {
-    center <- .mean(reference, weights)
-    scale <- .sd(reference, weights)
-  }
-  list(center = center, scale = scale)
-}
-
-
-.select_z_variables <- function(x, select, exclude, force) {
-  if (is.null(select)) {
-    select <- names(x)
-  }
-
-  if (!is.null(exclude)) {
-    select <- setdiff(select, exclude)
-  }
-
-  if (!force) {
-    factors <- sapply(x[select], function(i) is.factor(i) | is.character(i))
-    select <- select[!factors]
-  }
-
-  select
-}
-
-#' @keywords internal
-.check_standardize_numeric <- function(x,
-                                       name = NULL,
-                                       verbose = TRUE,
-                                       reference = NULL) {
-  # Warning if only one value
-  if (length(unique(x)) == 1 && is.null(reference)) {
-    if (verbose) {
-      if (is.null(name)) {
-        message("The variable contains only one unique value and will not be standardized.")
-      } else {
-        message(paste0("The variable `", name, "` contains only one unique value and will not be standardized."))
-      }
-    }
-    return(NULL)
-  }
-
-  # Warning if logical vector
-  if (length(unique(x)) == 2 && !is.factor(x) && !is.character(x)) {
-    if (verbose) {
-      if (is.null(name)) {
-        message("The variable contains only two different values. Consider converting it to a factor.")
-      } else {
-        message(paste0("Variable `", name, "` contains only two different values. Consider converting it to a factor."))
-      }
-    }
-  }
-  x
+  attributes(args$x) <- args$info
+  args$x
 }

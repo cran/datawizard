@@ -1,12 +1,3 @@
-#' @param center,scale Used by `unstandardize()`; `center` and `scale`
-#'   correspond to the center (the mean / median) and the scale (SD / MAD) of
-#'   the original non-standardized data (for data frames, should be named, or
-#'   have column order correspond to the numeric column). However, one can also
-#'   directly provide the original data through `reference`, from which the
-#'   center and the scale will be computed (according to `robust` and `two_sd`.
-#'   Alternatively, if the input contains the attributes `center` and `scale`
-#'   (as does the output of `standardize()`), it will take it from there if the
-#'   rest of the arguments are absent.
 #' @rdname standardize
 #' @export
 unstandardize <- function(x,
@@ -166,14 +157,20 @@ unstandardize.matrix <- function(x,
       x[, col] <- unstandardize.numeric(x[, col], center = center[col], scale = scale[col])
     }
   } else {
-    x <- unstandardize.numeric(
-      x,
-      center = center,
-      scale = scale,
-      reference = reference,
-      robust = robust,
-      two_sd = two_sd
-    )
+    scales <- attr(x, "scale")
+    centers <- attr(x, "center")
+
+    xl <- lapply(seq_len(ncol(x)), function(i) {
+      tmp <- x[, i]
+      attributes(tmp) <- list(center = centers[i], scale = scales[i])
+      tmp
+    })
+
+    xz <- lapply(xl, datawizard::unstandardize, ...)
+    x_out <- do.call(cbind, xz)
+    dimnames(x_out) <- dimnames(x)
+
+    x <- x_out
   }
   x
 }

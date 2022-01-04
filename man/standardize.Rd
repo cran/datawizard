@@ -34,6 +34,8 @@ standardise(
   weights = NULL,
   verbose = TRUE,
   reference = NULL,
+  center = NULL,
+  scale = NULL,
   ...
 )
 
@@ -49,7 +51,8 @@ standardise(
   remove_na = c("none", "selected", "all"),
   force = FALSE,
   append = FALSE,
-  suffix = "_z",
+  center = NULL,
+  scale = NULL,
   ...
 )
 
@@ -100,9 +103,30 @@ name of a column in the \code{data.frame} that contains the weights.
 
 \item{...}{Arguments passed to or from other methods.}
 
-\item{reference}{A dataframe or variable from which the centrality and
+\item{reference}{A data frame or variable from which the centrality and
 deviation will be computed instead of from the input variable. Useful for
-standardizing a subset or new data according to another dataframe.}
+standardizing a subset or new data according to another data frame.}
+
+\item{center, scale}{\itemize{
+\item For \code{standardize()}: \cr
+Numeric values, which can be used as alternative to \code{reference} to define
+a reference centrality and deviation. If \code{scale} and \code{center} are of
+length 1, they will be recycled to match the length of selected variables
+for standardization. Else, \code{center} and \code{scale} must be of same length as
+the number of selected variables. Values in \code{center} and \code{scale} will be
+matched to selected variables in the provided order, unless a named vector
+is given. In this case, names are matched against the names of the selected
+variables.
+\item For \code{unstandardize()}: \cr
+\code{center} and \code{scale} correspond to the center (the mean / median) and the scale (SD / MAD) of
+the original non-standardized data (for data frames, should be named, or
+have column order correspond to the numeric column). However, one can also
+directly provide the original data through \code{reference}, from which the
+center and the scale will be computed (according to \code{robust} and \code{two_sd}).
+Alternatively, if the input contains the attributes \code{center} and \code{scale}
+(as does the output of \code{standardize()}), it will take it from there if the
+rest of the arguments are absent.
+}}
 
 \item{select}{Character vector of column names. If \code{NULL} (the default), all
 variables will be selected.}
@@ -120,22 +144,12 @@ as well. Factors are converted to numerical values, with the lowest level
 being the value \code{1} (unless the factor has numeric levels, which are
 converted to the corresponding numeric value).}
 
-\item{append}{Logical, if \code{TRUE} and \code{x} is a data frame, standardized
-variables will be added as additional columns; if \code{FALSE},
-existing variables are overwritten.}
-
-\item{suffix}{Character value, will be appended to variable (column) names of
-\code{x}, if \code{x} is a data frame and \code{append = TRUE}.}
-
-\item{center, scale}{Used by \code{unstandardize()}; \code{center} and \code{scale}
-correspond to the center (the mean / median) and the scale (SD / MAD) of
-the original non-standardized data (for data frames, should be named, or
-have column order correspond to the numeric column). However, one can also
-directly provide the original data through \code{reference}, from which the
-center and the scale will be computed (according to \code{robust} and \code{two_sd}.
-Alternatively, if the input contains the attributes \code{center} and \code{scale}
-(as does the output of \code{standardize()}), it will take it from there if the
-rest of the arguments are absent.}
+\item{append}{Logical or string. If \code{TRUE}, standardized variables get new
+column names (with the suffix \code{"_z"}) and are appended (column bind) to \code{x},
+thus returning both the original and the standardized variables. If \code{FALSE},
+original variables in \code{x} will be overwritten by their standardized versions.
+If a character value, standardized variables are appended with new column
+names (using the defined suffix) to the original data frame.}
 }
 \value{
 The standardized object (either a standardize data frame or a
@@ -158,10 +172,42 @@ missing values are preserved, so the return value has the same length /
 number of rows as the original input.
 }
 \examples{
+d <- iris[1:4, ]
+
+# vectors
+standardise(d$Petal.Length)
+
 # Data frames
-summary(standardize(swiss))
+# overwrite
+standardise(d, select = c("Sepal.Length", "Sepal.Width"))
+
+# append
+standardise(d, select = c("Sepal.Length", "Sepal.Width"), append = TRUE)
+
+# append, suffix
+standardise(d, select = c("Sepal.Length", "Sepal.Width"), append = "_std")
+
+# standardizing with reference center and scale
+d <- data.frame(
+  a = c(-2, -1, 0, 1, 2),
+  b = c(3, 4, 5, 6, 7)
+)
+
+# default standardization, based on mean and sd of each variable
+standardize(d) # means are 0 and 5, sd ~ 1.581139
+
+# standardization, based on mean and sd set to the same values
+standardize(d, center = c(0, 5), scale = c(1.581, 1.581))
+
+# standardization, mean and sd for each variable newly defined
+standardize(d, center = c(3, 4), scale = c(2, 4))
+
+# standardization, taking same mean and sd for each variable
+standardize(d, center = 1, scale = 3)
 }
 \seealso{
+See \code{\link[=center]{center()}} for grand-mean centering of variables.
+
 Other transform utilities: 
 \code{\link{data_rescale}()},
 \code{\link{normalize}()},

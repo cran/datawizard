@@ -11,18 +11,28 @@ center(x, ...)
 
 centre(x, ...)
 
-\method{center}{numeric}(x, weights = NULL, robust = FALSE, verbose = TRUE, ...)
+\method{center}{numeric}(
+  x,
+  robust = FALSE,
+  weights = NULL,
+  verbose = TRUE,
+  reference = NULL,
+  center = NULL,
+  ...
+)
 
 \method{center}{data.frame}(
   x,
+  robust = FALSE,
+  weights = NULL,
+  verbose = TRUE,
+  reference = NULL,
   select = NULL,
   exclude = NULL,
-  weights = NULL,
-  robust = FALSE,
+  remove_na = c("none", "selected", "all"),
   force = FALSE,
   append = FALSE,
-  suffix = "_c",
-  verbose = TRUE,
+  center = NULL,
   ...
 )
 }
@@ -31,6 +41,10 @@ centre(x, ...)
 
 \item{...}{Currently not used.}
 
+\item{robust}{Logical, if \code{TRUE}, centering is done by subtracting the
+median from the variables. If \code{FALSE}, variables are centered by
+subtracting the mean.}
+
 \item{weights}{Can be \code{NULL} (for no weighting), or:
 \itemize{
 \item For data frames: a numeric vector of weights, or a character of the
@@ -38,28 +52,42 @@ name of a column in the \code{data.frame} that contains the weights.
 \item For numeric vectors: a numeric vector of weights.
 }}
 
-\item{robust}{Logical, if \code{TRUE}, centering is done by subtracting the
-median from the variables. If \code{FALSE}, variables are centered by
-subtracting the mean.}
-
 \item{verbose}{Toggle warnings and messages.}
+
+\item{reference}{A data frame or variable from which the centrality and
+deviation will be computed instead of from the input variable. Useful for
+standardizing a subset or new data according to another data frame.}
+
+\item{center}{Numeric value, which can be used as alternative to
+\code{reference} to define a reference centrality. If \code{center} is of length 1,
+it will be recycled to match the length of selected variables for centering.
+Else, \code{center} must be of same length as the number of selected variables.
+Values in \code{center} will be matched to selected variables in the provided
+order, unless a named vector is given. In this case, names are matched
+against the names of the selected variables.}
 
 \item{select}{Character vector of column names. If \code{NULL} (the default),
 all variables will be selected.}
 
 \item{exclude}{Character vector of column names to be excluded from selection.}
 
+\item{remove_na}{How should missing values (\code{NA}) be treated: if \code{"none"}
+(default): each column's standardization is done separately, ignoring
+\code{NA}s. Else, rows with \code{NA} in the columns selected with \code{select} /
+\code{exclude} (\code{"selected"}) or in all columns (\code{"all"}) are dropped before
+standardization, and the resulting data frame does not include these cases.}
+
 \item{force}{Logical, if \code{TRUE}, forces centering of factors as
 well. Factors are converted to numerical values, with the lowest level
 being the value \code{1} (unless the factor has numeric levels, which are
 converted to the corresponding numeric value).}
 
-\item{append}{Logical, if \code{TRUE} and \code{x} is a data frame,
-standardized variables will be added as additional columns; if
-\code{FALSE}, existing variables are overwritten.}
-
-\item{suffix}{Character value, will be appended to variable (column) names of
-\code{x}, if \code{x} is a data frame and \code{append = TRUE}.}
+\item{append}{Logical or string. If \code{TRUE}, centered variables get new
+column names (with the suffix \code{"_c"}) and are appended (column bind) to \code{x},
+thus returning both the original and the centered variables. If \code{FALSE},
+original variables in \code{x} will be overwritten by their centered versions.
+If a character value, centered variables are appended with new column
+names (using the defined suffix) to the original data frame.}
 }
 \value{
 The centered variables.
@@ -75,12 +103,33 @@ subtraction.
 }
 \examples{
 data(iris)
+
+# entire dataframe or a vector
 head(iris$Sepal.Width)
 head(center(iris$Sepal.Width))
 head(center(iris))
 head(center(iris, force = TRUE))
+
+# only the selected columns from a dataframe
+center(anscombe, select = c("x1", "x3"))
+center(anscombe, exclude = c("x1", "x3"))
+
+# centering with reference center and scale
+d <- data.frame(
+  a = c(-2, -1, 0, 1, 2),
+  b = c(3, 4, 5, 6, 7)
+)
+
+# default centering at mean
+center(d)
+
+# centering, using 0 as mean
+center(d, center = 0)
+
+# centering, using -5 as mean
+center(d, center = -5)
 }
 \seealso{
 If centering within-clusters (instead of grand-mean centering)
-is required, see \code{\link[=demean]{demean()}}.
+is required, see \code{\link[=demean]{demean()}}. For standardizing, see \code{\link[=standardize]{standardize()}}.
 }
