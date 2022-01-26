@@ -10,8 +10,6 @@ knitr::opts_chunk$set(
 
 pkgs <- c(
   "datawizard",
-  # "dplyr",
-  # "tidyr",
   "poorman",
   "see",
   "ggplot2",
@@ -20,10 +18,6 @@ pkgs <- c(
 )
 
 if (!all(sapply(pkgs, requireNamespace, quietly = TRUE))) {
-  knitr::opts_chunk$set(eval = FALSE)
-}
-
-if (!packageVersion("parameters") >= "0.14.1") {
   knitr::opts_chunk$set(eval = FALSE)
 }
 
