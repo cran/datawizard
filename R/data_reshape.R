@@ -5,7 +5,7 @@
 #' `tidyr::pivot_longer()`.
 #'
 #' @param data A data frame to pivot.
-#' @param cols A vector of column names or indices to pivot into longer format.
+#' @param cols Deprecated. Please use `select`.
 #' @param colnames_to The name of the new column that will contain the column
 #'   names.
 #' @param values_to The name of the new column that will contain the values of
@@ -23,7 +23,7 @@
 #'   compatibility with `tidyr::pivot_longer()`.
 #' @param sep The indicating a separating character in the variable names in the
 #'   wide format.
-#'
+#' @inheritParams find_columns
 #'
 #' @examples
 #' wide_data <- data.frame(replicate(5, rnorm(10)))
@@ -35,7 +35,7 @@
 #'
 #' # Customizing the names
 #' data_to_long(wide_data,
-#'   cols = c(1, 2),
+#'   select = c(1, 2),
 #'   colnames_to = "Column",
 #'   values_to = "Numbers",
 #'   rows_to = "Row"
@@ -57,7 +57,7 @@
 #'
 #'   # Pivot long format
 #'   long <- data_to_long(data,
-#'     cols = "\\d", # Select all columns that contain a digit
+#'     select = regex("\\d"), # Select all columns that contain a digit
 #'     colnames_to = "Item",
 #'     values_to = "Score",
 #'     rows_to = "Participant"
@@ -74,13 +74,18 @@
 #'   )
 #'   head(wide)
 #' }
+#'
+#' @inherit data_rename seealso
 #' @return data.frame
 #' @export
 data_to_long <- function(data,
-                         cols = "all",
+                         select = "all",
                          colnames_to = "Name",
                          values_to = "Value",
                          rows_to = NULL,
+                         ignore_case = FALSE,
+                         regex = FALSE,
+                         cols = select,
                          ...,
                          names_to = colnames_to) {
   if (inherits(data, "tbl_df")) {
@@ -90,29 +95,26 @@ data_to_long <- function(data,
     tbl_input <- FALSE
   }
 
-  # Select columns ----------------
-  if (is.character(cols) && length(cols) == 1) {
-    # If only one name
-
-    if (cols == "all") {
-      # If all, take all
-      cols <- names(data)
-    } else {
-      # Surely, a regex
-      cols <- grep(cols, names(data), value = TRUE)
-    }
+  ## TODO deprecate later
+  if (!missing(cols)) {
+    select <- cols
   }
 
-  # If numeric, surely the index of the cols
-  if (is.numeric(cols)) {
-    cols <- names(data)[cols]
-  }
-
+  # evaluate arguments
+  cols <- .select_nse(
+    select,
+    data,
+    exclude = NULL,
+    ignore_case = ignore_case,
+    regex = regex,
+    verbose = FALSE
+  )
 
   # Sanity checks ----------------
-  # Make sure all cols are in data
-  if (!all(cols %in% names(data))) {
-    stop("Some variables as selected by 'cols' are not present in the data.")
+
+  # nothing to select?
+  if (!length(cols)) {
+    stop("No columns found for reshaping data.", call. = FALSE)
   }
 
   # Compatibility with tidyr

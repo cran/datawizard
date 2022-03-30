@@ -7,9 +7,8 @@
 #' @param x A vector, factor or a data frame.
 #' @param na Numeric or character vector (or a list of numeric and character
 #'   vectors) with values that should be converted to `NA`.
-#' @inheritParams standardize
-#' @param verbose Toggle warnings.
 #' @param ... Not used.
+#' @inheritParams find_columns
 #'
 #' @return
 #' `x`, where all values in `na` are converted to `NA`.
@@ -86,17 +85,10 @@ convert_to_na.character <- convert_to_na.factor
 
 #' @rdname convert_to_na
 #' @export
-convert_to_na.data.frame <- function(x, na = NULL, select = NULL, exclude = NULL, verbose = TRUE, ...) {
-  # check for formula notation, convert to character vector
-  if (inherits(select, "formula")) {
-    select <- all.vars(select)
-  }
-  if (inherits(exclude, "formula")) {
-    exclude <- all.vars(exclude)
-  }
+convert_to_na.data.frame <- function(x, na = NULL, select = NULL, exclude = NULL, ignore_case = FALSE, verbose = TRUE, ...) {
+  # evaluate arguments
+  select <- .select_nse(select, x, exclude, ignore_case, verbose = verbose)
 
-  select <- .select_variables(x, select, exclude, force = TRUE)
-
-  x[select] <- lapply(x[select], convert_to_na, na = na, verbose = FALSE, ...)
+  x[select] <- lapply(x[select], convert_to_na, na = na, verbose = verbose, ...)
   x
 }
