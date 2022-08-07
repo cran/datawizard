@@ -12,11 +12,11 @@ data_restoretype(data, reference = NULL, ...)
 \item{reference}{A reference data frame from which to find the correct
 column types.}
 
-\item{...}{Additional arguments passed on to methods.}
+\item{...}{Currently not used.}
 }
 \value{
-A dataframe with columns whose types have been restored based on the
-reference dataframe.
+A data frame with columns whose types have been restored based on the
+reference data frame.
 }
 \description{
 Restore the type of columns according to a reference data frame

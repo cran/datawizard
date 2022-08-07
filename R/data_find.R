@@ -54,16 +54,19 @@
 #'
 #' @inherit data_rename seealso
 #'
-#' @return `find_columns()` returns a character vector with column names that
-#'   matched the pattern in `select` and `exclude`, or `NULL` if no matching
-#'   column name was found. `get_columns()` returns a data frame with matching
-#'   columns.
+#' @return
 #'
-#' @details Note that there are some limitations when calling this from inside
-#' other functions. The following will work as expected, returning all columns
-#' that start with `"Sep"`:
+#' `find_columns()` returns a character vector with column names that matched
+#' the pattern in `select` and `exclude`, or `NULL` if no matching column name
+#' was found. `get_columns()` returns a data frame with matching columns.
 #'
-#' ```
+#' @details
+#'
+#' Note that there are some limitations when calling this from inside other
+#' functions. The following will work as expected, returning all columns that
+#' start with `"Sep"`:
+#'
+#' ```r
 #' foo <- function(data) {
 #'   find_columns(data, select = starts_with("Sep"))
 #' }
@@ -72,7 +75,7 @@
 #'
 #' However, this example won't work as expected!
 #'
-#' ```
+#' ```r
 #' foo <- function(data) {
 #'   i <- "Sep"
 #'   find_columns(data, select = starts_with(i))
@@ -80,13 +83,13 @@
 #' foo(iris)
 #' ```
 #'
-#' One workaround is to use the `regex` argument, which provides at
-#' least a bit more flexibility than exact matching. `regex` in its basic
-#' usage (as seen below) means that `select` behaves like the `contains("")`
-#' select-helper, but can also make the function more flexible by allowing to
-#' define complex regular expression pattern in `select`.
+#' One workaround is to use the `regex` argument, which provides at least a bit
+#' more flexibility than exact matching. `regex` in its basic usage (as seen
+#' below) means that `select` behaves like the `contains("")` select-helper, but
+#' can also make the function more flexible by allowing to define complex
+#' regular expression pattern in `select`.
 #'
-#' ```
+#' ```r
 #' foo <- function(data) {
 #'   i <- "Sep"
 #'   find_columns(data, select = i, regex = TRUE)
@@ -138,68 +141,3 @@ find_columns <- function(data,
 #' @rdname find_columns
 #' @export
 data_find <- find_columns
-
-
-#' @param pattern A regular expression (as character string), representing the
-#'   pattern to be matched in the in column names. Can also be one of the
-#'   following select-helpers: `starts_with("")`, `end_with("")`, `regex("")`,
-#'   `contains("")`, or a range using `:`.
-#' @param starts_with,ends_with Character string, containing the string to be
-#'   matched in the column names. `starts_with` finds matches at the beginning
-#'   of column names, `ends_with` finds matches at the end of column names.
-#'
-#' @note `data_findcols()` is deprecated and will be fully replaced by
-#'   `find_columns()` in a future update.
-#'
-#' @rdname find_columns
-#' @export
-data_findcols <- function(data,
-                          pattern = NULL,
-                          starts_with = NULL,
-                          ends_with = NULL,
-                          ignore_case = FALSE,
-                          ...) {
-  warning(insight::format_message(
-    "'data_findcols()' is deprecated and will be removed in a future update.",
-    "Its usage is discouraged. Please use 'data_find()' instead."
-  ), call. = FALSE)
-
-  # init
-  n <- names(data)
-  match <- c()
-
-  # avoid conflicts
-  conflicting_packages <- .conflicting_packages("poorman")
-
-  # in case pattern is a variable from another function call...
-  p <- try(eval(pattern), silent = TRUE)
-  if (inherits(p, c("try-error", "simpleError"))) {
-    p <- substitute(pattern)
-  }
-
-  # evaluate pattern, can be function like "starts_with()"
-  pattern <- tryCatch(
-    {
-      eval(p)
-    },
-    error = function(e) {
-      .evaluate_pattern(insight::safe_deparse(p))$pattern
-    }
-  )
-
-  # load again
-  .attach_packages(conflicting_packages)
-
-  if (!is.null(pattern)) {
-    for (i in pattern) {
-      match <- c(match, n[grepl(i, n, ignore.case = ignore_case)])
-    }
-  }
-  if (!is.null(starts_with)) {
-    match <- c(match, n[grepl(paste0("^", starts_with), n, ignore.case = ignore_case)])
-  }
-  if (!is.null(ends_with)) {
-    match <- c(match, n[grepl(paste0(ends_with, "$"), n, ignore.case = ignore_case)])
-  }
-  match
-}

@@ -10,7 +10,7 @@
 #' Note that a regular correlation between two "adjusted" variables is
 #' equivalent to the partial correlation between them.
 #'
-#' @param data A dataframe.
+#' @param data A data frame.
 #' @param effect Character vector of column names to be adjusted for (regressed
 #'   out). If `NULL` (the default), all variables will be selected.
 #' @param multilevel If `TRUE`, the factors are included as random factors.
@@ -42,7 +42,7 @@
 #' adjust(attitude, effect = "complaints_LMH", select = "rating", multilevel = TRUE)
 #' }
 #'
-#' if (require("MASS") && require("bayestestR")) {
+#' if (require("bayestestR")) {
 #'   # Generate data
 #'   data <- simulate_correlation(n = 100, r = 0.7)
 #'   data$V2 <- (5 * data$V2) + 20 # Add intercept
@@ -152,7 +152,6 @@ data_adjust <- adjust
                               bayesian = FALSE,
                               formula_random = NULL,
                               keep_intercept = FALSE) {
-
   # Additive -----------------------
   if (additive) {
     # Bayesian

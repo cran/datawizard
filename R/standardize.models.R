@@ -327,8 +327,6 @@ standardize.mediate <- function(x,
                                 verbose = TRUE,
                                 include_response = TRUE,
                                 ...) {
-
-
   # models and data
   y <- x$model.y
   m <- x$model.m
@@ -494,7 +492,7 @@ standardize.biglm <- standardize.wbm
     temp_data_std <- m_data_std
   }
 
-  data_rescale(val,
+  rescale(val,
     to = range(temp_data_std[[cov_nm]]),
     range = range(temp_data[[cov_nm]])
   )

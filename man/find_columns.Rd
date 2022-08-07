@@ -3,7 +3,6 @@
 \name{find_columns}
 \alias{find_columns}
 \alias{data_find}
-\alias{data_findcols}
 \alias{get_columns}
 \alias{data_select}
 \title{Find or get columns in a data frame based on search patterns}
@@ -25,15 +24,6 @@ data_find(
   ignore_case = FALSE,
   regex = FALSE,
   verbose = TRUE,
-  ...
-)
-
-data_findcols(
-  data,
-  pattern = NULL,
-  starts_with = NULL,
-  ends_with = NULL,
-  ignore_case = FALSE,
   ...
 )
 
@@ -110,21 +100,11 @@ functions (see 'Details'), this argument may be used as workaround.}
 \item{verbose}{Toggle warnings.}
 
 \item{...}{Arguments passed down to other functions. Mostly not used yet.}
-
-\item{pattern}{A regular expression (as character string), representing the
-pattern to be matched in the in column names. Can also be one of the
-following select-helpers: \code{starts_with("")}, \code{end_with("")}, \code{regex("")},
-\code{contains("")}, or a range using \code{:}.}
-
-\item{starts_with, ends_with}{Character string, containing the string to be
-matched in the column names. \code{starts_with} finds matches at the beginning
-of column names, \code{ends_with} finds matches at the end of column names.}
 }
 \value{
-\code{find_columns()} returns a character vector with column names that
-matched the pattern in \code{select} and \code{exclude}, or \code{NULL} if no matching
-column name was found. \code{get_columns()} returns a data frame with matching
-columns.
+\code{find_columns()} returns a character vector with column names that matched
+the pattern in \code{select} and \code{exclude}, or \code{NULL} if no matching column name
+was found. \code{get_columns()} returns a data frame with matching columns.
 }
 \description{
 \code{find_columns()} returns column names from a data set that
@@ -133,11 +113,11 @@ match a certain search pattern, while \code{get_columns()} returns the found dat
 for \code{find_columns()}.
 }
 \details{
-Note that there are some limitations when calling this from inside
-other functions. The following will work as expected, returning all columns
-that start with \code{"Sep"}:
+Note that there are some limitations when calling this from inside other
+functions. The following will work as expected, returning all columns that
+start with \code{"Sep"}:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{foo <- function(data) \{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{foo <- function(data) \{
   find_columns(data, select = starts_with("Sep"))
 \}
 foo(iris)
@@ -145,29 +125,25 @@ foo(iris)
 
 However, this example won't work as expected!
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{foo <- function(data) \{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{foo <- function(data) \{
   i <- "Sep"
   find_columns(data, select = starts_with(i))
 \}
 foo(iris)
 }\if{html}{\out{</div>}}
 
-One workaround is to use the \code{regex} argument, which provides at
-least a bit more flexibility than exact matching. \code{regex} in its basic
-usage (as seen below) means that \code{select} behaves like the \code{contains("")}
-select-helper, but can also make the function more flexible by allowing to
-define complex regular expression pattern in \code{select}.
+One workaround is to use the \code{regex} argument, which provides at least a bit
+more flexibility than exact matching. \code{regex} in its basic usage (as seen
+below) means that \code{select} behaves like the \code{contains("")} select-helper, but
+can also make the function more flexible by allowing to define complex
+regular expression pattern in \code{select}.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{foo <- function(data) \{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{foo <- function(data) \{
   i <- "Sep"
   find_columns(data, select = i, regex = TRUE)
 \}
 foo(iris)
 }\if{html}{\out{</div>}}
-}
-\note{
-\code{data_findcols()} is deprecated and will be fully replaced by
-\code{find_columns()} in a future update.
 }
 \examples{
 # Find columns names by pattern
@@ -187,10 +163,10 @@ find_columns(iris, numeric_mean_35)
 \itemize{
 \item Functions to rename stuff: \code{\link[=data_rename]{data_rename()}}, \code{\link[=data_rename_rows]{data_rename_rows()}}, \code{\link[=data_addprefix]{data_addprefix()}}, \code{\link[=data_addsuffix]{data_addsuffix()}}
 \item Functions to reorder or remove columns: \code{\link[=data_reorder]{data_reorder()}}, \code{\link[=data_relocate]{data_relocate()}}, \code{\link[=data_remove]{data_remove()}}
-\item Functions to reshape, pivot or rotate dataframes: \code{\link[=data_to_long]{data_to_long()}}, \code{\link[=data_to_wide]{data_to_wide()}}, \code{\link[=data_rotate]{data_rotate()}}
-\item Functions to recode data: \code{\link[=data_rescale]{data_rescale()}}, \code{\link[=data_reverse]{data_reverse()}}, \code{\link[=data_cut]{data_cut()}}, \code{\link[=data_recode]{data_recode()}}, \code{\link[=data_shift]{data_shift()}}
+\item Functions to reshape, pivot or rotate data frames: \code{\link[=data_to_long]{data_to_long()}}, \code{\link[=data_to_wide]{data_to_wide()}}, \code{\link[=data_rotate]{data_rotate()}}
+\item Functions to recode data: \code{\link[=rescale]{rescale()}}, \code{\link[=reverse]{reverse()}}, \code{\link[=categorize]{categorize()}}, \code{\link[=change_code]{change_code()}}, \code{\link[=slide]{slide()}}
 \item Functions to standardize, normalize, rank-transform: \code{\link[=center]{center()}}, \code{\link[=standardize]{standardize()}}, \code{\link[=normalize]{normalize()}}, \code{\link[=ranktransform]{ranktransform()}}, \code{\link[=winsorize]{winsorize()}}
-\item Split and merge dataframes: \code{\link[=data_partition]{data_partition()}}, \code{\link[=data_merge]{data_merge()}}
+\item Split and merge data frames: \code{\link[=data_partition]{data_partition()}}, \code{\link[=data_merge]{data_merge()}}
 \item Functions to find or select columns: \code{\link[=data_select]{data_select()}}, \code{\link[=data_find]{data_find()}}
 \item Functions to filter rows: \code{\link[=data_match]{data_match()}}, \code{\link[=data_filter]{data_filter()}}
 }

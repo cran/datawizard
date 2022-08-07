@@ -2,7 +2,7 @@
 library(knitr)
 options(knitr.kable.NA = "")
 knitr::opts_chunk$set(
-  comment = ">",
+  comment = "#>",
   message = FALSE,
   warning = FALSE,
   dpi = 300
@@ -35,17 +35,16 @@ hardlyworking$xtra_hours_zr <- standardize(hardlyworking$xtra_hours, robust = TR
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  library(dplyr)
-#  library(tidyr)
 #  
 #  hardlyworking %>%
 #    select(starts_with("xtra_hours")) %>%
-#    pivot_longer(everything()) %>%
-#    group_by(name) %>%
+#    data_to_long() %>%
+#    group_by(Name) %>%
 #    summarise(
-#      mean = mean(value),
-#      sd = sd(value),
-#      median = median(value),
-#      mad = mad(value)
+#      mean = mean(Value),
+#      sd = sd(Value),
+#      median = median(Value),
+#      mad = mad(Value)
 #    )
 
 ## ---- echo=FALSE--------------------------------------------------------------
@@ -53,7 +52,7 @@ library(poorman)
 
 hardlyworking %>%
   select(starts_with("xtra_hours")) %>%
-  reshape_longer(colnames_to = "name", values_to = "value") %>%
+  reshape_longer(names_to = "name", values_to = "value") %>%
   group_by(name) %>%
   summarise(
     mean = mean(value),
@@ -69,19 +68,19 @@ hardlyworking_z <- standardize(hardlyworking)
 ## ---- eval=FALSE--------------------------------------------------------------
 #  hardlyworking_z %>%
 #    select(-xtra_hours_z, -xtra_hours_zr) %>%
-#    pivot_longer(everything()) %>%
-#    group_by(name) %>%
+#    data_to_long() %>%
+#    group_by(Name) %>%
 #    summarise(
-#      mean = mean(value),
-#      sd = sd(value),
-#      median = median(value),
-#      mad = mad(value)
+#      mean = mean(Value),
+#      sd = sd(Value),
+#      median = median(Value),
+#      mad = mad(Value)
 #    )
 
 ## ---- echo=FALSE--------------------------------------------------------------
 hardlyworking_z %>%
   select(-xtra_hours_z, -xtra_hours_zr) %>%
-  reshape_longer(colnames_to = "name", values_to = "value") %>%
+  reshape_longer(names_to = "name", values_to = "value") %>%
   group_by(name) %>%
   summarise(
     mean = mean(value),
@@ -93,7 +92,7 @@ hardlyworking_z %>%
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # Download the 'emotion' dataset
-#  load(url("https://raw.github.com/neuropsychology/psycho.R/master/data/emotion.rda"))
+#  load(url("https://raw.githubusercontent.com/neuropsychology/psycho.R/master/data/emotion.rda"))
 #  
 #  # Discard neutral pictures (keep only negative)
 #  emotion <- emotion %>% filter(Emotion_Condition == "Negative")
@@ -109,7 +108,7 @@ hardlyworking_z %>%
 #    )
 
 ## ---- echo=FALSE--------------------------------------------------------------
-load(url("https://raw.github.com/neuropsychology/psycho.R/master/data/emotion.rda"))
+load(url("https://raw.githubusercontent.com/neuropsychology/psycho.R/master/data/emotion.rda"))
 
 # Discard neutral pictures (keep only negative)
 emotion <- emotion %>% filter(Emotion_Condition == "Negative")

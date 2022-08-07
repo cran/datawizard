@@ -3,7 +3,7 @@
 #' This function describes a distribution by a set of indices (e.g., measures of
 #' centrality, dispersion, range, skewness, kurtosis).
 #'
-#' @param x A numeric vector, a character vector, a dataframe, or a list. See
+#' @param x A numeric vector, a character vector, a data frame, or a list. See
 #' `Details`.
 #' @param range Return the range (min and max).
 #' @param quartiles Return the first and third quartiles (25th and 75pth
@@ -24,7 +24,7 @@
 #' @inheritParams bayestestR::point_estimate
 #' @inheritParams find_columns
 #'
-#' @details If `x` is a dataframe, only numeric variables are kept and will be displayed in the summary.
+#' @details If `x` is a data frame, only numeric variables are kept and will be displayed in the summary.
 #'
 #' If `x` is a list, the behavior is different whether `x` is a stored list. If
 #' `x` is stored (for example, `describe_distribution(mylist)` where `mylist`
@@ -246,7 +246,6 @@ describe_distribution.factor <- function(x,
                                          range = TRUE,
                                          verbose = TRUE,
                                          ...) {
-
   # Missing
   n_missing <- sum(is.na(x))
   x <- stats::na.omit(x)
@@ -307,7 +306,6 @@ describe_distribution.character <- function(x,
                                             range = TRUE,
                                             verbose = TRUE,
                                             ...) {
-
   # Missing
   n_missing <- sum(is.na(x))
   x <- stats::na.omit(x)

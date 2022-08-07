@@ -3,7 +3,7 @@
 #' Rescale variables to a new range.
 #' Can also be used to reverse-score variables (change the keying/scoring direction).
 #'
-#' @inheritParams data_cut
+#' @inheritParams categorize
 #' @inheritParams find_columns
 #' @inheritParams standardize.data.frame
 #'
@@ -17,23 +17,23 @@
 #' @inheritSection center Selection of variables - the `select` argument
 #'
 #' @examples
-#' data_rescale(c(0, 1, 5, -5, -2))
-#' data_rescale(c(0, 1, 5, -5, -2), to = c(-5, 5))
-#' data_rescale(c(1, 2, 3, 4, 5), to = c(-2, 2))
+#' rescale(c(0, 1, 5, -5, -2))
+#' rescale(c(0, 1, 5, -5, -2), to = c(-5, 5))
+#' rescale(c(1, 2, 3, 4, 5), to = c(-2, 2))
 #'
 #' # Specify the "theoretical" range of the input vector
-#' data_rescale(c(1, 3, 4), to = c(0, 40), range = c(0, 4))
+#' rescale(c(1, 3, 4), to = c(0, 40), range = c(0, 4))
 #'
 #' # Reverse-score a variable
-#' data_rescale(c(1, 2, 3, 4, 5), to = c(5, 1))
-#' data_rescale(c(1, 2, 3, 4, 5), to = c(2, -2))
+#' rescale(c(1, 2, 3, 4, 5), to = c(5, 1))
+#' rescale(c(1, 2, 3, 4, 5), to = c(2, -2))
 #'
 #' # Data frames
-#' head(data_rescale(iris, to = c(0, 1)))
-#' head(data_rescale(iris, to = c(0, 1), select = "Sepal.Length"))
+#' head(rescale(iris, to = c(0, 1)))
+#' head(rescale(iris, to = c(0, 1), select = "Sepal.Length"))
 #'
 #' # One can specify a list of ranges
-#' head(data_rescale(iris, to = list(
+#' head(rescale(iris, to = list(
 #'   "Sepal.Length" = c(0, 1),
 #'   "Petal.Length" = c(-1, 0)
 #' )))
@@ -44,22 +44,22 @@
 #' @family transform utilities
 #'
 #' @export
-data_rescale <- function(x, ...) {
-  UseMethod("data_rescale")
+rescale <- function(x, ...) {
+  UseMethod("rescale")
 }
 
 
-#' @rdname data_rescale
+#' @rdname rescale
 #' @export
 change_scale <- function(x, ...) {
-  # Alias for data_rescale()
-  data_rescale(x, ...)
+  # Alias for rescale()
+  rescale(x, ...)
 }
 
 
 
 #' @export
-data_rescale.default <- function(x, verbose = TRUE, ...) {
+rescale.default <- function(x, verbose = TRUE, ...) {
   if (isTRUE(verbose)) {
     message(insight::format_message(paste0("Variables of class '", class(x)[1], "' can't be rescaled and remain unchanged.")))
   }
@@ -68,13 +68,13 @@ data_rescale.default <- function(x, verbose = TRUE, ...) {
 
 
 
-#' @rdname data_rescale
+#' @rdname rescale
 #' @export
-data_rescale.numeric <- function(x,
-                                 to = c(0, 100),
-                                 range = NULL,
-                                 verbose = TRUE,
-                                 ...) {
+rescale.numeric <- function(x,
+                            to = c(0, 100),
+                            range = NULL,
+                            verbose = TRUE,
+                            ...) {
   if (is.null(to)) {
     return(x)
   }
@@ -102,18 +102,21 @@ data_rescale.numeric <- function(x,
   new_max <- ifelse(is.na(to[2]), max, to[2])
 
   out <- as.vector((new_max - new_min) / (max - min) * (x - min) + new_min)
+  attr(out, "min_value") <- min
+  attr(out, "range_difference") <- max - min
+  attr(out, "to_range") <- c(new_min, new_max)
   out
 }
 
 
 #' @export
-data_rescale.grouped_df <- function(x,
-                                    select = NULL,
-                                    exclude = NULL,
-                                    to = c(0, 100),
-                                    range = NULL,
-                                    ignore_case = FALSE,
-                                    ...) {
+rescale.grouped_df <- function(x,
+                               select = NULL,
+                               exclude = NULL,
+                               to = c(0, 100),
+                               range = NULL,
+                               ignore_case = FALSE,
+                               ...) {
   info <- attributes(x)
 
   # dplyr >= 0.8.0 returns attribute "indices"
@@ -132,7 +135,7 @@ data_rescale.grouped_df <- function(x,
 
   x <- as.data.frame(x)
   for (rows in grps) {
-    x[rows, ] <- data_rescale(
+    x[rows, ] <- rescale(
       x[rows, , drop = FALSE],
       select = select,
       exclude = exclude,
@@ -148,15 +151,15 @@ data_rescale.grouped_df <- function(x,
 
 
 
-#' @rdname data_rescale
+#' @rdname rescale
 #' @export
-data_rescale.data.frame <- function(x,
-                                    select = NULL,
-                                    exclude = NULL,
-                                    to = c(0, 100),
-                                    range = NULL,
-                                    ignore_case = FALSE,
-                                    ...) {
+rescale.data.frame <- function(x,
+                               select = NULL,
+                               exclude = NULL,
+                               to = c(0, 100),
+                               range = NULL,
+                               ignore_case = FALSE,
+                               ...) {
   # evaluate arguments
   select <- .select_nse(select, x, exclude, ignore_case)
 
@@ -172,7 +175,7 @@ data_rescale.data.frame <- function(x,
   }
 
   x[select] <- as.data.frame(sapply(select, function(n) {
-    data_rescale(x[[n]], to = to[[n]], range = range[[n]])
+    rescale(x[[n]], to = to[[n]], range = range[[n]])
   }, simplify = FALSE))
   x
 }

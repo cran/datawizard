@@ -13,7 +13,7 @@
 #'
 #' @return
 #'
-#' A dataframe with columns corresponding to confidence intervals reshaped
+#' A data frame with columns corresponding to confidence intervals reshaped
 #' either to wide or long format.
 #'
 #' @examples
@@ -30,7 +30,6 @@
 #' @export
 
 reshape_ci <- function(x, ci_type = "CI") {
-
   # define interval type
   ci_type <- match.arg(ci_type, choices = c("CI", "SI", "HDI", "ETI"))
 

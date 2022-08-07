@@ -7,8 +7,8 @@
 #'
 #' @return
 #'
-#' A dataframe with columns whose types have been restored based on the
-#' reference dataframe.
+#' A data frame with columns whose types have been restored based on the
+#' reference data frame.
 #'
 #' @examples
 #' data <- data.frame(
@@ -23,11 +23,10 @@
 
 data_restoretype <- function(data, reference = NULL, ...) {
   for (col in names(data)) {
-
     # No reference data (regular fixing) ----------------
     if (is.null(reference)) {
       if (is.character(data[[col]])) {
-        data[[col]] <- to_numeric(data[[col]])
+        data[[col]] <- coerce_to_numeric(data[[col]])
       }
     } else {
       if (is.factor(reference[[col]]) && !is.factor(data[[col]])) {
@@ -36,7 +35,7 @@ data_restoretype <- function(data, reference = NULL, ...) {
       }
 
       if (is.numeric(reference[[col]]) && !is.numeric(data[[col]])) {
-        data[[col]] <- to_numeric(as.character(data[[col]]))
+        data[[col]] <- coerce_to_numeric(as.character(data[[col]]))
       }
 
       if (is.character(reference[[col]]) && !is.character(data[[col]])) {
@@ -46,24 +45,4 @@ data_restoretype <- function(data, reference = NULL, ...) {
   }
 
   data
-}
-
-
-#' Convert to Numeric (if possible)
-#'
-#' Tries to convert vector to numeric if possible (if no warnings or errors).
-#' Otherwise, leaves it as is.
-#'
-#' @param x A vector to be converted.
-#'
-#' @examples
-#' to_numeric(c("1", "2"))
-#' to_numeric(c("1", "2", "A"))
-#' @return Numeric vector (if possible)
-#' @export
-to_numeric <- function(x) {
-  tryCatch(as.numeric(as.character(x)),
-    error = function(e) x,
-    warning = function(w) x
-  )
 }

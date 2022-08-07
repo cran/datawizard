@@ -12,16 +12,20 @@
                                 center = NULL,
                                 scale = NULL) {
   # Warning if all NaNs
-  if (all(is.na(x))) {
+  if (all(is.na(x) | is.infinite(x))) {
     return(NULL)
   }
 
   if (.are_weights(weights)) {
-    valid_x <- !is.na(x) & !is.na(weights)
+    valid_x <- !is.na(x) & !is.na(weights) & !is.infinite(x) & !is.infinite(weights)
+    na_values <- is.na(x) | is.na(weights)
+    inf_values <- is.infinite(x) | is.infinite(weights)
     vals <- x[valid_x]
     weights <- weights[valid_x]
   } else {
-    valid_x <- !is.na(x)
+    valid_x <- !is.na(x) & !is.infinite(x)
+    na_values <- is.na(x)
+    inf_values <- is.infinite(x)
     vals <- x[valid_x]
   }
 
@@ -41,7 +45,9 @@
     valid_x = valid_x,
     center = ref$center,
     scale = ref$scale,
-    check = check
+    check = check,
+    na_values = na_values,
+    inf_values = inf_values
   )
 }
 
@@ -62,7 +68,6 @@
                               .scale = NULL,
                               keep_character = FALSE,
                               preserve_value_labels = FALSE) {
-
   # check append argument, and set default
   if (isFALSE(append)) {
     append <- NULL
@@ -122,7 +127,6 @@
 
   # check for reference center and scale
   if (!is.null(.center)) {
-
     # for center(), we have no scale - set it to default value
     if (is.null(.scale)) {
       .scale <- rep(1, length(.center))
@@ -152,7 +156,6 @@
       .scale <- stats::setNames(.scale, select)
     }
   } else {
-
     # use NA if missing, so we can index these as vectors
     .center <- stats::setNames(rep(NA, length(select)), select)
     .scale <- stats::setNames(rep(NA, length(select)), select)

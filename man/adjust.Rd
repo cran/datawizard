@@ -30,7 +30,7 @@ data_adjust(
 )
 }
 \arguments{
-\item{data}{A dataframe.}
+\item{data}{A data frame.}
 
 \item{effect}{Character vector of column names to be adjusted for (regressed
 out). If \code{NULL} (the default), all variables will be selected.}
@@ -115,7 +115,7 @@ attitude$complaints_LMH <- cut(attitude$complaints, 3)
 adjust(attitude, effect = "complaints_LMH", select = "rating", multilevel = TRUE)
 }
 
-if (require("MASS") && require("bayestestR")) {
+if (require("bayestestR")) {
   # Generate data
   data <- simulate_correlation(n = 100, r = 0.7)
   data$V2 <- (5 * data$V2) + 20 # Add intercept
