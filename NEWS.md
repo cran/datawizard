@@ -1,3 +1,7 @@
+# datawizard 0.5.1
+
+* Fixes failing tests due to `{poorman}` update.
+
 # datawizard 0.5.0
 
 MAJOR CHANGES
@@ -58,6 +62,9 @@ CHANGES
   `method = "zscore"`, winsorizes via the median and median absolute deviation
   (MAD); else via the mean and standard deviation. (@rempsyc, #177, #49, #47).
 
+* `convert_na_to` now accepts numeric replacements on character vectors and
+  single replacement for multiple vector classes. (@rempsyc, #214).
+  
 * `data_partition()` now allows to create multiple partitions from the data,
   returning multiple training and a remaining test set.
 
