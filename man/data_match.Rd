@@ -33,7 +33,9 @@ the original data frame.}
 \item{...}{Not used.}
 
 \item{filter}{A logical expression indicating which rows to keep, or a numeric
-vector indicating the row indices of rows to keep.}
+vector indicating the row indices of rows to keep. Can also be a string
+representation of a logical expression. e.g. \code{filter = "x > 4"}. This might
+be useful when used in packages to avoid defining undefined global variables.}
 }
 \value{
 A filtered data frame, or the row indices that match the specified configuration.
@@ -93,13 +95,29 @@ data_filter(mtcars, vs == 0 | am == 1)
 
 # slice data frame by row indices
 data_filter(mtcars, 5:10)
+
+# Define a custom function containing data_filter() and pass variable names
+# to it using curly brackets
+my_filter <- function(data, variable) {
+  data_filter(data, {variable} <= 20)
+}
+my_filter(mtcars, "mpg")
+
+# Pass complete filter-condition as string
+my_filter <- function(data, condition) {
+  data_filter(data, {condition})
+}
+my_filter(mtcars, "am != 0")
+
+# string can also be used directly as argument
+data_filter(mtcars, "am != 0")
 }
 \seealso{
 \itemize{
 \item Functions to rename stuff: \code{\link[=data_rename]{data_rename()}}, \code{\link[=data_rename_rows]{data_rename_rows()}}, \code{\link[=data_addprefix]{data_addprefix()}}, \code{\link[=data_addsuffix]{data_addsuffix()}}
 \item Functions to reorder or remove columns: \code{\link[=data_reorder]{data_reorder()}}, \code{\link[=data_relocate]{data_relocate()}}, \code{\link[=data_remove]{data_remove()}}
 \item Functions to reshape, pivot or rotate data frames: \code{\link[=data_to_long]{data_to_long()}}, \code{\link[=data_to_wide]{data_to_wide()}}, \code{\link[=data_rotate]{data_rotate()}}
-\item Functions to recode data: \code{\link[=rescale]{rescale()}}, \code{\link[=reverse]{reverse()}}, \code{\link[=categorize]{categorize()}}, \code{\link[=change_code]{change_code()}}, \code{\link[=slide]{slide()}}
+\item Functions to recode data: \code{\link[=rescale]{rescale()}}, \code{\link[=reverse]{reverse()}}, \code{\link[=categorize]{categorize()}}, \code{\link[=recode_values]{recode_values()}}, \code{\link[=slide]{slide()}}
 \item Functions to standardize, normalize, rank-transform: \code{\link[=center]{center()}}, \code{\link[=standardize]{standardize()}}, \code{\link[=normalize]{normalize()}}, \code{\link[=ranktransform]{ranktransform()}}, \code{\link[=winsorize]{winsorize()}}
 \item Split and merge data frames: \code{\link[=data_partition]{data_partition()}}, \code{\link[=data_merge]{data_merge()}}
 \item Functions to find or select columns: \code{\link[=data_select]{data_select()}}, \code{\link[=data_find]{data_find()}}

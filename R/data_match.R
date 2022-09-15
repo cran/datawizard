@@ -1,3 +1,4 @@
+# styler: off
 #' Return filtered or sliced data frame, or row indices
 #'
 #' Return a filtered (or sliced) data frame or row indices of a data frame that
@@ -10,7 +11,9 @@
 #'   `match` is a value other than `"and"`, the original row order might be
 #'   changed. See 'Details'.
 #' @param filter A logical expression indicating which rows to keep, or a numeric
-#'   vector indicating the row indices of rows to keep.
+#'   vector indicating the row indices of rows to keep. Can also be a string
+#'   representation of a logical expression. e.g. `filter = "x > 4"`. This might
+#'   be useful when used in packages to avoid defining undefined global variables.
 #' @param match String, indicating with which logical operation matching
 #'   conditions should be combined. Can be `"and"` (or `"&"`), `"or"` (or `"|"`)
 #'   or `"not"` (or `"!"`).
@@ -75,6 +78,22 @@
 #'
 #' # slice data frame by row indices
 #' data_filter(mtcars, 5:10)
+#'
+#' # Define a custom function containing data_filter() and pass variable names
+#' # to it using curly brackets
+#' my_filter <- function(data, variable) {
+#'   data_filter(data, {variable} <= 20)
+#' }
+#' my_filter(mtcars, "mpg")
+#'
+#' # Pass complete filter-condition as string
+#' my_filter <- function(data, condition) {
+#'   data_filter(data, {condition})
+#' }
+#' my_filter(mtcars, "am != 0")
+#'
+#' # string can also be used directly as argument
+#' data_filter(mtcars, "am != 0")
 #' @inherit data_rename seealso
 #' @export
 data_match <- function(x, to, match = "and", return_indices = FALSE, drop_na = TRUE, ...) {
@@ -97,7 +116,9 @@ data_match <- function(x, to, match = "and", return_indices = FALSE, drop_na = T
   # sanity check
   shared_columns <- intersect(colnames(x), colnames(to))
   if (is.null(shared_columns) || length(shared_columns) == 0) {
-    stop(insight::format_message("None of the columns from the data frame with matching conditions were found in `x`."))
+    stop(insight::format_message(
+      "None of the columns from the data frame with matching conditions were found in `x`."
+    ), call. = FALSE)
   }
 
   # only select common columns
@@ -111,7 +132,7 @@ data_match <- function(x, to, match = "and", return_indices = FALSE, drop_na = T
     if (isTRUE(drop_na)) {
       x <- x[stats::complete.cases(x), , drop = FALSE]
     }
-    idx <- 1:nrow(x)
+    idx <- seq_len(nrow(x))
   }
 
   # Find matching rows
@@ -147,12 +168,50 @@ data_match <- function(x, to, match = "and", return_indices = FALSE, drop_na = T
 #' @export
 data_filter <- function(x, filter, ...) {
   condition <- substitute(filter)
+
+  # condition can be a numeric vector, to slice rows by indices,
+  # or a logical condition to filter observations. first, we check
+  # for numeric vector. the logical condition can also be passed
+  # as character vector, which allows to use data_filer() from inside
+  # other function w/o the need to define "globalVariables".
+
   # numeric vector to slice data frame?
   rows <- try(eval(condition, envir = parent.frame()), silent = TRUE)
   if (is.numeric(rows)) {
     out <- x[rows, , drop = FALSE]
   } else {
-    out <- do.call(subset, list(x, subset = condition))
+    if (!is.character(condition)) {
+      condition <- insight::safe_deparse(condition)
+    }
+    # Check syntax of the filter. Must be done *before* calling subset()
+    # (cf easystats/datawizard#237)
+    .check_filter_syntax(condition)
+
+    has_curley <- grepl("{", condition, fixed = TRUE)
+
+    if (has_curley) {
+      condition <- gsub("\\{ ", "\\{", condition)
+      condition <- gsub(" \\}", "\\}", condition)
+
+      curley_vars <- regmatches(condition, gregexpr("[^{\\}]+(?=\\})", condition, perl = TRUE))
+      curley_vars <- unlist(curley_vars)
+
+      for (i in curley_vars) {
+        token <- get(i, envir = parent.frame())
+        condition <- gsub(paste0("{", i, "}"), token, condition, fixed = TRUE)
+      }
+    }
+
+    out <- tryCatch(
+      subset(x, subset = eval(parse(text = condition), envir = new.env())),
+      warning = function(e) NULL,
+      error = function(e) NULL
+    )
+    if (is.null(out)) {
+      stop(insight::format_message(
+        "Filtering did not work. Please check the syntax of your `filter` argument."
+      ), call. = FALSE)
+    }
   }
   # restore value and variable labels
   for (i in colnames(out)) {
@@ -161,3 +220,45 @@ data_filter <- function(x, filter, ...) {
   }
   out
 }
+
+
+# helper -------------------
+
+.check_filter_syntax <- function(condition) {
+  # NOTE: We cannot check for `=` when "filter" is not a character vector
+  # because the function will then fail in general. I.e.,
+  # "data_filter(mtcars, filter = mpg > 10 & cyl = 4)" will not start
+  # running this function and never reaches the first code line,
+  # but immediately stops...
+  tmp <- gsub("==", "", condition, fixed = TRUE)
+  tmp <- gsub("<=", "", tmp, fixed = TRUE)
+  tmp <- gsub(">=", "", tmp, fixed = TRUE)
+  tmp <- gsub("!=", "", tmp, fixed = TRUE)
+
+  # Give more informative message to users
+  # about possible misspelled comparisons / logical conditions
+  # check if "=" instead of "==" was used?
+  if (any(grepl("=", tmp, fixed = TRUE))) {
+    stop(insight::format_message(
+      "Filtering did not work. Please check if you need `==` (instead of `=`) for comparison."
+    ), call. = FALSE)
+  }
+  # check if "&&" etc instead of "&" was used?
+  logical_operator <- NULL
+  if (any(grepl("&&", condition, fixed = TRUE))) {
+    logical_operator <- "&&"
+  }
+  if (any(grepl("||", condition, fixed = TRUE))) {
+    logical_operator <- "||"
+  }
+  if (!is.null(logical_operator)) {
+    stop(insight::format_message(
+      paste0(
+        "Filtering did not work. Please check if you need `",
+        substr(logical_operator, 0, 1),
+        "` (instead of `", logical_operator, "`) as logical operator."
+      )
+    ), call. = FALSE)
+  }
+}
+# styler: on

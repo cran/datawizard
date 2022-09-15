@@ -47,7 +47,12 @@ convert_to_na <- function(x, ...) {
 #' @export
 convert_to_na.default <- function(x, verbose = TRUE, ...) {
   if (isTRUE(verbose)) {
-    message(insight::format_message(sprintf("Converting values into missing values (`NA`) currently not possible for variables of class '%s'.", class(x)[1])))
+    message(insight::format_message(
+      sprintf(
+        "Converting values into missing values (`NA`) currently not possible for variables of class `%s`.",
+        class(x)[1]
+      )
+    ))
   }
   x
 }
@@ -58,7 +63,7 @@ convert_to_na.default <- function(x, verbose = TRUE, ...) {
 convert_to_na.numeric <- function(x, na = NULL, verbose = TRUE, ...) {
   # if we have a list, use first valid element
   if (is.list(na)) {
-    na <- unlist(na[sapply(na, is.numeric)])
+    na <- unlist(na[vapply(na, is.numeric, FUN.VALUE = TRUE)])
   }
 
   if (is_empty_object(na) || !is.numeric(na)) {
@@ -84,7 +89,7 @@ convert_to_na.numeric <- function(x, na = NULL, verbose = TRUE, ...) {
 convert_to_na.factor <- function(x, na = NULL, drop_levels = FALSE, verbose = TRUE, ...) {
   # if we have a list, use first valid element
   if (is.list(na)) {
-    na <- unlist(na[sapply(na, is.character)])
+    na <- unlist(na[vapply(na, is.character, FUN.VALUE = TRUE)])
   }
 
   if (is_empty_object(na) || (!is.factor(na) && !is.character(na))) {
@@ -140,7 +145,7 @@ convert_to_na.Date <- function(x, na = NULL, verbose = TRUE, ...) {
 convert_to_na.logical <- function(x, na = NULL, verbose = TRUE, ...) {
   # if we have a list, use first valid element
   if (is.list(na)) {
-    na <- unlist(na[sapply(na, is.logical)])
+    na <- unlist(na[vapply(na, is.logical, FUN.VALUE = TRUE)])
   }
 
   if (is_empty_object(na) || !is.logical(na)) {
@@ -166,11 +171,26 @@ convert_to_na.data.frame <- function(x,
                                      na = NULL,
                                      drop_levels = FALSE,
                                      ignore_case = FALSE,
+                                     regex = FALSE,
                                      verbose = TRUE,
                                      ...) {
   # evaluate arguments
-  select <- .select_nse(select, x, exclude, ignore_case, verbose = verbose)
+  select <- .select_nse(select,
+    x,
+    exclude,
+    ignore_case,
+    regex = regex,
+    verbose = verbose
+  )
 
-  x[select] <- lapply(x[select], convert_to_na, na = na, drop_levels = drop_levels, verbose = verbose, ...)
+  x[select] <- lapply(
+    x[select],
+    convert_to_na,
+    na = na,
+    drop_levels = drop_levels,
+    verbose = verbose,
+    ...
+  )
+
   x
 }

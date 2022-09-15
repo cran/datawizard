@@ -73,7 +73,13 @@ normalize.numeric <- function(x, include_bounds = TRUE, verbose = TRUE, ...) {
   # Warning if only one value
   if (insight::n_unique(x) == 1) {
     if (verbose) {
-      warning(insight::format_message(paste0("Variable `", name, "` contains only one unique value and will not be normalized.")), call. = FALSE)
+      warning(insight::format_message(
+        paste0(
+          "Variable `",
+          name,
+          "` contains only one unique value and will not be normalized."
+        )
+      ), call. = FALSE)
     }
     return(x)
   }
@@ -82,14 +88,20 @@ normalize.numeric <- function(x, include_bounds = TRUE, verbose = TRUE, ...) {
   # Warning if logical vector
   if (insight::n_unique(x) == 2) {
     if (verbose) {
-      warning(insight::format_message(paste0("Variable `", name, "` contains only two different values. Consider converting it to a factor.")), call. = FALSE)
+      warning(insight::format_message(
+        paste0(
+          "Variable `",
+          name,
+          "` contains only two different values. Consider converting it to a factor."
+        )
+      ), call. = FALSE)
     }
   }
 
 
   out <- as.vector((x - min(x, na.rm = TRUE)) / diff(range(x, na.rm = TRUE), na.rm = TRUE))
 
-  if (!include_bounds && (any(out == 0) | any(out == 1))) {
+  if (!include_bounds && (any(out == 0) || any(out == 1))) {
     out <- (out * (length(out) - 1) + 0.5) / length(out)
   }
 
@@ -119,10 +131,17 @@ normalize.grouped_df <- function(x,
                                  exclude = NULL,
                                  include_bounds = TRUE,
                                  ignore_case = FALSE,
+                                 regex = FALSE,
                                  verbose = TRUE,
                                  ...) {
   # evaluate select/exclude, may be select-helpers
-  select <- .select_nse(select, x, exclude, ignore_case, verbose = verbose)
+  select <- .select_nse(select,
+    x,
+    exclude,
+    ignore_case,
+    regex = regex,
+    verbose = verbose
+  )
 
   info <- attributes(x)
   # dplyr >= 0.8.0 returns attribute "indices"
@@ -168,10 +187,18 @@ normalize.data.frame <- function(x,
                                  exclude = NULL,
                                  include_bounds = TRUE,
                                  ignore_case = FALSE,
+                                 regex = FALSE,
                                  verbose = TRUE,
                                  ...) {
   # evaluate select/exclude, may be select-helpers
-  select <- .select_nse(select, x, exclude, ignore_case, verbose = verbose)
+  select <- .select_nse(select,
+    x,
+    exclude,
+    ignore_case,
+    regex = regex,
+    verbose = verbose
+  )
+
   x[select] <- lapply(x[select], normalize, include_bounds = include_bounds, verbose = verbose)
 
   x

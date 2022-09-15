@@ -2,14 +2,11 @@
 % Please edit documentation in R/slide.R
 \name{slide}
 \alias{slide}
-\alias{data_shift}
 \alias{slide.numeric}
 \alias{slide.data.frame}
 \title{Shift numeric value range}
 \usage{
 slide(x, ...)
-
-data_shift(x, ...)
 
 \method{slide}{numeric}(x, lowest = 0, ...)
 
@@ -20,6 +17,7 @@ data_shift(x, ...)
   lowest = 0,
   append = FALSE,
   ignore_case = FALSE,
+  regex = FALSE,
   verbose = TRUE,
   ...
 )
@@ -43,8 +41,10 @@ vector of variable names (e.g., \code{c("col1", "col2", "col3")}),
 (e.g. \code{1} or \code{c(1, 3, 5)}),
 \item a vector of negative integers, giving the positions counting from the
 right (e.g., \code{-1} or \code{-1:-3}),
-\item one of the following select-helpers: \code{starts_with("")}, \code{ends_with("")},
-\code{contains("")}, a range using \code{:} or \code{regex("")},
+\item one of the following select-helpers: \code{starts_with()}, \code{ends_with()},
+\code{contains()}, a range using \code{:} or \code{regex("")}. \code{starts_with()},
+\code{ends_with()}, and  \code{contains()} accept several patterns, e.g
+\code{starts_with("Sep", "Petal")}.
 \item or a function testing for logical conditions, e.g. \code{is.numeric()} (or
 \code{is.numeric}), or any user-defined function that selects the variables
 for which the function returns \code{TRUE} (like: \code{foo <- function(x) mean(x) > 3}),
@@ -79,6 +79,15 @@ the original data frame.}
 \item{ignore_case}{Logical, if \code{TRUE} and when one of the select-helpers or
 a regular expression is used in \code{select}, ignores lower/upper case in the
 search pattern when matching against variable names.}
+
+\item{regex}{Logical, if \code{TRUE}, the search pattern from \code{select} will be
+treated as regular expression. When \code{regex = TRUE}, select \emph{must} be a
+character string (or a variable containing a character string) and is not
+allowed to be one of the supported select-helpers or a character vector
+of length > 1. \code{regex = TRUE} is comparable to using one of the two
+select-helpers, \code{select = contains("")} or \code{select = regex("")}, however,
+since the select-helpers may not work when called from inside other
+functions (see 'Details'), this argument may be used as workaround.}
 
 \item{verbose}{Toggle warnings.}
 }
@@ -115,7 +124,7 @@ sapply(mtcars, min)
 \item Functions to rename stuff: \code{\link[=data_rename]{data_rename()}}, \code{\link[=data_rename_rows]{data_rename_rows()}}, \code{\link[=data_addprefix]{data_addprefix()}}, \code{\link[=data_addsuffix]{data_addsuffix()}}
 \item Functions to reorder or remove columns: \code{\link[=data_reorder]{data_reorder()}}, \code{\link[=data_relocate]{data_relocate()}}, \code{\link[=data_remove]{data_remove()}}
 \item Functions to reshape, pivot or rotate data frames: \code{\link[=data_to_long]{data_to_long()}}, \code{\link[=data_to_wide]{data_to_wide()}}, \code{\link[=data_rotate]{data_rotate()}}
-\item Functions to recode data: \code{\link[=rescale]{rescale()}}, \code{\link[=reverse]{reverse()}}, \code{\link[=categorize]{categorize()}}, \code{\link[=change_code]{change_code()}}, \code{\link[=slide]{slide()}}
+\item Functions to recode data: \code{\link[=rescale]{rescale()}}, \code{\link[=reverse]{reverse()}}, \code{\link[=categorize]{categorize()}}, \code{\link[=recode_values]{recode_values()}}, \code{\link[=slide]{slide()}}
 \item Functions to standardize, normalize, rank-transform: \code{\link[=center]{center()}}, \code{\link[=standardize]{standardize()}}, \code{\link[=normalize]{normalize()}}, \code{\link[=ranktransform]{ranktransform()}}, \code{\link[=winsorize]{winsorize()}}
 \item Split and merge data frames: \code{\link[=data_partition]{data_partition()}}, \code{\link[=data_merge]{data_merge()}}
 \item Functions to find or select columns: \code{\link[=data_select]{data_select()}}, \code{\link[=data_find]{data_find()}}

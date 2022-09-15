@@ -24,7 +24,8 @@
 #' @inheritParams bayestestR::point_estimate
 #' @inheritParams find_columns
 #'
-#' @details If `x` is a data frame, only numeric variables are kept and will be displayed in the summary.
+#' @details If `x` is a data frame, only numeric variables are kept and will be
+#' displayed in the summary.
 #'
 #' If `x` is a list, the behavior is different whether `x` is a stored list. If
 #' `x` is stored (for example, `describe_distribution(mylist)` where `mylist`
@@ -57,7 +58,10 @@ describe_distribution <- function(x, ...) {
 #' @export
 describe_distribution.default <- function(x, verbose = TRUE, ...) {
   if (verbose) {
-    warning(insight::format_message(paste0("Can't describe variables of class '", class(x)[1], "'.")), call. = FALSE)
+    warning(
+      insight::format_message(paste0("Can't describe variables of class `", class(x)[1], "`.")),
+      call. = FALSE
+    )
   }
   NULL
 }
@@ -375,9 +379,16 @@ describe_distribution.data.frame <- function(x,
                                              iterations = 100,
                                              threshold = .1,
                                              ignore_case = FALSE,
+                                             regex = FALSE,
                                              verbose = TRUE,
                                              ...) {
-  select <- .select_nse(select, x, exclude, ignore_case)
+  select <- .select_nse(select,
+    x,
+    exclude,
+    ignore_case,
+    regex = regex,
+    verbose = verbose
+  )
   # The function currently doesn't support descriptive summaries for character
   # or factor types.
   out <- do.call(rbind, lapply(x[select], function(i) {
@@ -424,14 +435,21 @@ describe_distribution.grouped_df <- function(x,
                                              iterations = 100,
                                              threshold = .1,
                                              ignore_case = FALSE,
+                                             regex = FALSE,
                                              verbose = TRUE,
                                              ...) {
   group_vars <- setdiff(colnames(attributes(x)$groups), ".rows")
   group_data <- expand.grid(lapply(x[group_vars], function(i) unique(sort(i))))
   groups <- split(x, x[group_vars])
-  select <- .select_nse(select, x, exclude, ignore_case)
+  select <- .select_nse(select,
+    x,
+    exclude,
+    ignore_case,
+    regex = regex,
+    verbose = verbose
+  )
 
-  out <- do.call(rbind, lapply(1:length(groups), function(i) {
+  out <- do.call(rbind, lapply(seq_along(groups), function(i) {
     d <- describe_distribution.data.frame(
       groups[[i]][select],
       centrality = centrality,
@@ -445,7 +463,10 @@ describe_distribution.grouped_df <- function(x,
       threshold = threshold,
       ...
     )
-    d[[".group"]] <- paste(sprintf("%s=%s", group_vars, sapply(group_data[i, ], as.character)), collapse = " | ")
+
+    d[[".group"]] <-
+      paste(sprintf("%s=%s", group_vars, sapply(group_data[i, ], as.character)), collapse = " | ")
+
     d
   }))
 
@@ -490,28 +511,4 @@ print.parameters_distribution <- function(x, digits = 2, ...) {
     ci = NULL
   )
   out[[1]]
-}
-
-# distribution_mode ----------------------------------
-
-#' Compute mode for a statistical distribution
-#'
-#' @param x An atomic vector, a list, or a data frame.
-#'
-#' @return
-#'
-#' The value that appears most frequently in the provided data.
-#' The returned data structure will be the same as the entered one.
-#'
-#' @examples
-#'
-#' distribution_mode(c(1, 2, 3, 3, 4, 5))
-#' distribution_mode(c(1.5, 2.3, 3.7, 3.7, 4.0, 5))
-#'
-#' @export
-distribution_mode <- function(x) {
-  uniqv <- unique(x)
-  tab <- tabulate(match(x, uniqv))
-  idx <- which.max(tab)
-  uniqv[idx]
 }

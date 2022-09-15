@@ -1,3 +1,70 @@
+# datawizard 0.6.0
+
+BREAKING CHANGES
+
+* The minimum needed R version has been bumped to `3.6`.
+
+* Following deprecated functions have been removed:
+
+  `data_cut()`, `data_recode()`, `data_shift()`, `data_reverse()`, `data_rescale()`,
+  `data_to_factor()`, `data_to_numeric()`
+
+* New `text_format()` alias is introduced for `format_text()`, latter of which
+  will be removed in the next release.
+  
+* New `recode_values()` alias is introduced for `change_code()`, latter of which
+  will be removed in the next release.
+  
+* `data_merge()` now errors if columns specified in `by` are not in both datasets.
+
+* Using negative values in arguments `select` and `exclude` now removes the columns
+  from the selection/exclusion. The previous behavior was to start the 
+  selection/exclusion from the end of the dataset, which was inconsistent with
+  the use of "-" with other selecting possibilities.
+
+NEW FUNCTIONS
+
+* `data_peek()`: to peek at values and type of variables in a data frame.
+
+* `coef_var()`: to compute the coefficient of variation.
+
+CHANGES
+
+* `data_filter()` will give more informative messages on malformed syntax of
+  the `filter` argument.
+  
+* It is now possible to use curly brackets to pass variable names to `data_filter()`,
+  like the following example. See examples section in the documentation of 
+  `data_filter()`.
+
+* The `regex` argument was added to functions that use select-helpers and did
+  not already have this argument.
+  
+* Select helpers `starts_with()`, `ends_with()`, and  `contains()` now accept
+  several patterns, e.g `starts_with("Sep", "Petal")`.
+  
+* Arguments `select` and `exclude` that are present in most functions have been
+  improved to work in loops and in custom functions. For example, the following 
+  code now works:
+  
+```r
+foo <- function(data) {
+  i <- "Sep"
+  find_columns(data, select = starts_with(i))
+}
+foo(iris)
+
+for (i in c("Sepal", "Sp")) {
+  head(iris) |>
+    find_columns(select = starts_with(i)) |>
+    print()
+}
+```
+
+* There is now a vignette summarizing the various ways to select or exclude
+  variables in most `{datawizard}` functions.
+
+
 # datawizard 0.5.1
 
 * Fixes failing tests due to `{poorman}` update.
@@ -8,7 +75,7 @@ MAJOR CHANGES
 
 * Following statistical transformation functions have been renamed to not have
   `data_*()` prefix, since they do not work exclusively with data frames, but
-  are typically first of all used with vectors, and therefore had misleading 
+  are typically first of all used with vectors, and therefore had misleading
   names:
 
   - `data_cut()` -> `categorize()`
@@ -19,9 +86,9 @@ MAJOR CHANGES
   - `data_to_factor()` -> `to_factor()`
   - `data_to_numeric()` -> `to_numeric()`
 
-  Note that these functions also have `.data.frame()` methods and still work
-  for data frames as well. Former function names are still available as aliases,
-  but will be deprecated and removed in a future release.
+Note that these functions also have `.data.frame()` methods and still work for
+data frames as well. Former function names are still available as aliases, but
+will be deprecated and removed in a future release.
 
 * Bumps the needed minimum R version to `3.5`.
 
@@ -44,13 +111,12 @@ MAJOR CHANGES
 * `reshape_wider()` now follows more consistently `tidyr::pivot_wider()` syntax.
   Arguments `colnames_from`, `sep`, and `rows_from` are deprecated and should be
   replaced by `names_from`, `names_sep`, and `id_cols` respectively.
-  `reshape_wider()` also gains an argument `names_glue` (#182, #198). 
-  
-* Similarly, `reshape_longer()` now follows more consistently 
-  `tidyr::pivot_longer()` syntax.  Argument `colnames_to` is deprecated and 
-  should be replaced by `names_to`. `reshape_longer()` also gains new arguments:
-  `names_prefix`, `names_sep`, `names_pattern`, and `values_drop_na` (#189).  
+  `reshape_wider()` also gains an argument `names_glue` (#182, #198).
 
+* Similarly, `reshape_longer()` now follows more consistently
+  `tidyr::pivot_longer()` syntax. Argument `colnames_to` is deprecated and
+  should be replaced by `names_to`. `reshape_longer()` also gains new arguments:
+  `names_prefix`, `names_sep`, `names_pattern`, and `values_drop_na` (#189).
 
 CHANGES
 
@@ -64,7 +130,7 @@ CHANGES
 
 * `convert_na_to` now accepts numeric replacements on character vectors and
   single replacement for multiple vector classes. (@rempsyc, #214).
-  
+
 * `data_partition()` now allows to create multiple partitions from the data,
   returning multiple training and a remaining test set.
 
@@ -75,6 +141,9 @@ NEW FUNCTIONS
 
 * `row_to_colnames()` and `colnames_to_row()` to move a row to column names, and
   column names to row (@etiennebacher, #169).
+
+* `data_arrange()` to sort the rows of a dataframe according to the values of
+  the selected columns.
 
 BUG FIXES
 

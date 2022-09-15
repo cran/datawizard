@@ -30,7 +30,9 @@ winsorize(data, ...)
 
 \item{method}{One of "percentile" (default), "zscore", or "raw".}
 
-\item{robust}{Logical, if TRUE, winsorizing through the "zscore" method is done via the median and the median absolute deviation (MAD); if FALSE, via the mean and the standard deviation.}
+\item{robust}{Logical, if TRUE, winsorizing through the "zscore" method is
+done via the median and the median absolute deviation (MAD); if FALSE, via
+the mean and the standard deviation.}
 
 \item{verbose}{Toggle warnings.}
 }
@@ -46,7 +48,7 @@ extreme values in the statistical data to reduce the effect of possibly
 spurious outliers. The distribution of many statistics can be heavily
 influenced by outliers. A typical strategy is to set all outliers (values
 beyond a certain threshold) to a specified percentile of the data; for
-example, a 90\\% winsorization would see all data below the 5th percentile set
+example, a \verb{90\%} winsorization would see all data below the 5th percentile set
 to the 5th percentile, and data above the 95th percentile set to the 95th
 percentile. Winsorized estimators are usually more robust to outliers than
 their more standard forms.
@@ -79,7 +81,7 @@ winsorize(iris, threshold = 0.2)
 \item Functions to rename stuff: \code{\link[=data_rename]{data_rename()}}, \code{\link[=data_rename_rows]{data_rename_rows()}}, \code{\link[=data_addprefix]{data_addprefix()}}, \code{\link[=data_addsuffix]{data_addsuffix()}}
 \item Functions to reorder or remove columns: \code{\link[=data_reorder]{data_reorder()}}, \code{\link[=data_relocate]{data_relocate()}}, \code{\link[=data_remove]{data_remove()}}
 \item Functions to reshape, pivot or rotate data frames: \code{\link[=data_to_long]{data_to_long()}}, \code{\link[=data_to_wide]{data_to_wide()}}, \code{\link[=data_rotate]{data_rotate()}}
-\item Functions to recode data: \code{\link[=rescale]{rescale()}}, \code{\link[=reverse]{reverse()}}, \code{\link[=categorize]{categorize()}}, \code{\link[=change_code]{change_code()}}, \code{\link[=slide]{slide()}}
+\item Functions to recode data: \code{\link[=rescale]{rescale()}}, \code{\link[=reverse]{reverse()}}, \code{\link[=categorize]{categorize()}}, \code{\link[=recode_values]{recode_values()}}, \code{\link[=slide]{slide()}}
 \item Functions to standardize, normalize, rank-transform: \code{\link[=center]{center()}}, \code{\link[=standardize]{standardize()}}, \code{\link[=normalize]{normalize()}}, \code{\link[=ranktransform]{ranktransform()}}, \code{\link[=winsorize]{winsorize()}}
 \item Split and merge data frames: \code{\link[=data_partition]{data_partition()}}, \code{\link[=data_merge]{data_merge()}}
 \item Functions to find or select columns: \code{\link[=data_select]{data_select()}}, \code{\link[=data_find]{data_find()}}

@@ -125,6 +125,36 @@ starwars %>%
 starwars %>%
   data_select(select = is.numeric)
 
+## ----arrange1, class.source = "datawizard"------------------------------------
+#  # ---------- datawizard -----------
+#  starwars %>%
+#    data_arrange(c("hair_color", "height"))
+
+## ---- class.source = "tidyverse"----------------------------------------------
+#  # ---------- tidyverse -----------
+#  starwars %>%
+#    arrange(hair_color, height)
+
+## ----arrange1, eval = TRUE, echo = FALSE--------------------------------------
+# ---------- datawizard -----------
+starwars %>%
+  data_arrange(c("hair_color", "height"))
+
+## ----arrange2, class.source = "datawizard"------------------------------------
+#  # ---------- datawizard -----------
+#  starwars %>%
+#    data_arrange(c("-hair_color", "-height"))
+
+## ---- class.source = "tidyverse"----------------------------------------------
+#  # ---------- tidyverse -----------
+#  starwars %>%
+#    arrange(desc(hair_color), -height)
+
+## ----arrange2, eval = TRUE, echo = FALSE--------------------------------------
+# ---------- datawizard -----------
+starwars %>%
+  data_arrange(c("-hair_color", "-height"))
+
 ## ----extract1, class.source = "datawizard"------------------------------------
 #  # ---------- datawizard -----------
 #  starwars %>%
@@ -411,4 +441,16 @@ x2
 
 x2 %>%
   colnames_to_row()
+
+## ----glimpse, class.source = "datawizard"-------------------------------------
+#  # ---------- datawizard -----------
+#  data_peek(iris)
+
+## ---- class.source = "tidyverse"----------------------------------------------
+#  # ---------- tidyverse -----------
+#  glimpse(iris)
+
+## ----glimpse, eval = TRUE, echo = FALSE---------------------------------------
+# ---------- datawizard -----------
+data_peek(iris)
 

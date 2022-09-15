@@ -105,7 +105,10 @@ test_that("convert factor to numeric, dummy factors, with NA", {
   x4 <- factor(c("a", "b", "a", "b", "a", NA_character_))
   x5 <- factor(c(NA_character_, "b", "a", "b", "a", NA_character_))
   x6 <- factor(c(NA_character_, "b", NA_character_, "b", "a", NA_character_))
-  x7 <- factor(c(NA_character_, "b", "a", "b", "a", "b", NA_character_, "b", "a", NA_character_, "a", "b", "a", "b", "a", NA_character_))
+  x7 <- factor(c(
+    NA_character_, "b", "a", "b", "a", "b", NA_character_, "b",
+    "a", NA_character_, "a", "b", "a", "b", "a", NA_character_
+  ))
 
   # same observations are missing
   expect_equal(
@@ -145,4 +148,12 @@ test_that("convert factor to numeric, dummy factors, with NA", {
   expect_equal(nrow(to_numeric(x5, dummy_factors = TRUE)), length(x5))
   expect_equal(nrow(to_numeric(x6, dummy_factors = TRUE)), length(x6))
   expect_equal(nrow(to_numeric(x7, dummy_factors = TRUE)), length(x7))
+})
+
+# select helpers ------------------------------
+test_that("to_numeric regex", {
+  expect_equal(
+    to_numeric(mtcars, select = "pg", regex = TRUE),
+    to_numeric(mtcars, select = "mpg")
+  )
 })

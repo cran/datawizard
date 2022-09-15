@@ -348,6 +348,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <ul>
 <li><a href="#filtering" id="toc-filtering">Filtering</a></li>
 <li><a href="#selecting" id="toc-selecting">Selecting</a></li>
+<li><a href="#sorting" id="toc-sorting">Sorting</a></li>
 <li><a href="#extracting" id="toc-extracting">Extracting</a></li>
 <li><a href="#renaming" id="toc-renaming">Renaming</a></li>
 <li><a href="#relocating" id="toc-relocating">Relocating</a></li>
@@ -369,6 +370,8 @@ and right joins</a></li>
 <li><a href="#work-with-rownames" id="toc-work-with-rownames">Work with
 rownames</a></li>
 <li><a href="#work-with-column-names" id="toc-work-with-column-names">Work with column names</a></li>
+<li><a href="#take-a-quick-look-at-the-data" id="toc-take-a-quick-look-at-the-data">Take a quick look at the
+data</a></li>
 </ul></li>
 </ul>
 </div>
@@ -441,29 +444,33 @@ observations</a></td>
 variables</a></td>
 </tr>
 <tr class="odd">
+<td align="left"><code>data_arrange()</code></td>
+<td align="left"><a href="#sorting">to sort observations</a></td>
+</tr>
+<tr class="even">
 <td align="left"><code>data_extract()</code></td>
 <td align="left"><a href="#extracting">to extract a single
 variable</a></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>data_rename()</code></td>
 <td align="left"><a href="#renaming">to rename variables</a></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>data_relocate()</code></td>
 <td align="left"><a href="#relocating">to reorder a data frame</a></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>data_to_long()</code></td>
 <td align="left"><a href="#reshaping">to convert data from wide to
 long</a></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>data_to_wide()</code></td>
 <td align="left"><a href="#reshaping">to convert data from long to
 wide</a></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>data_join()</code></td>
 <td align="left"><a href="#joining">to join two data frames</a></td>
 </tr>
@@ -492,41 +499,50 @@ summary table of this equivalence.</p>
 <tbody>
 <tr class="odd">
 <td align="left"><code>data_filter()</code></td>
-<td align="left"><code>dplyr::filter()</code></td>
+<td align="left"><code>dplyr::filter()</code>,
+<code>dplyr::slice()</code></td>
 </tr>
 <tr class="even">
 <td align="left"><code>data_select()</code></td>
 <td align="left"><code>dplyr::select()</code></td>
 </tr>
 <tr class="odd">
+<td align="left"><code>data_arrange()</code></td>
+<td align="left"><code>dplyr::arrange()</code></td>
+</tr>
+<tr class="even">
 <td align="left"><code>data_extract()</code></td>
 <td align="left"><code>dplyr::pull()</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>data_rename()</code></td>
 <td align="left"><code>dplyr::rename()</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>data_relocate()</code></td>
 <td align="left"><code>dplyr::relocate()</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>data_to_long()</code></td>
 <td align="left"><code>tidyr::pivot_longer()</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>data_to_wide()</code></td>
 <td align="left"><code>tidyr::pivot_wider()</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>data_join()</code></td>
 <td align="left"><code>dplyr::inner_join()</code>,
 <code>dplyr::left_join()</code>, <code>dplyr::right_join()</code>,</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"></td>
 <td align="left"><code>dplyr::full_join()</code>,
 <code>dplyr::anti_join()</code>, <code>dplyr::semi_join()</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>data_peek()</code></td>
+<td align="left"><code>dplyr::glimpse()</code></td>
 </tr>
 </tbody>
 </table>
@@ -565,8 +581,7 @@ only apply the first condition.</p>
 ## 7 Padmé Amida…    165    45 brown   light   brown        46 fema… femin… Naboo  
 ## # … with 4 more variables: species &lt;chr&gt;, films &lt;list&gt;, vehicles &lt;list&gt;,
 ## #   starships &lt;list&gt;, and abbreviated variable names ¹​hair_color, ²​skin_color,
-## #   ³​eye_color, ⁴​birth_year, ⁵​homeworld
-## # ℹ Use `colnames()` to see all variable names</code></pre>
+## #   ³​eye_color, ⁴​birth_year, ⁵​homeworld</code></pre>
 <!-- Shorten output to make it easier to read: -->
 </div>
 <div id="selecting" class="section level2">
@@ -693,30 +708,89 @@ here and quoting them won't work. Should we comment on that? -->
 <p>You can find a list of all the select helpers with
 <code>?data_select</code>.</p>
 </div>
+<div id="sorting" class="section level2">
+<h2>Sorting</h2>
+<p><code>data_arrange()</code> is the equivalent of
+<code>dplyr::arrange()</code>. It takes two arguments: a data frame, and
+a vector of column names used to sort the rows. Note that contrary to
+most other functions in <code>{datawizard}</code>, it is not possible to
+use select helpers such as <code>starts_with()</code> in
+<code>data_arrange()</code>.</p>
+<div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
+<div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_arrange</span>(<span class="fu">c</span>(<span class="st">&quot;hair_color&quot;</span>, <span class="st">&quot;height&quot;</span>))</span></code></pre></div>
+</div>
+<div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(hair_color, height)</span></code></pre></div>
+</div>
+</div>
+<pre><code>## # A tibble: 6 × 14
+##   name         height  mass hair_…¹ skin_…² eye_c…³ birth…⁴ sex   gender homew…⁵
+##   &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;  
+## 1 Luke Skywal…    172    77 blond   fair    blue       19   male  mascu… Tatooi…
+## 2 Leia Organa     150    49 brown   light   brown      19   fema… femin… Aldera…
+## 3 Owen Lars       178   120 brown,… light   blue       52   male  mascu… Tatooi…
+## 4 Darth Vader     202   136 none    white   yellow     41.9 male  mascu… Tatooi…
+## 5 R2-D2            96    32 &lt;NA&gt;    white,… red        33   none  mascu… Naboo  
+## 6 C-3PO           167    75 &lt;NA&gt;    gold    yellow    112   none  mascu… Tatooi…
+## # … with 4 more variables: species &lt;chr&gt;, films &lt;list&gt;, vehicles &lt;list&gt;,
+## #   starships &lt;list&gt;, and abbreviated variable names ¹​hair_color, ²​skin_color,
+## #   ³​eye_color, ⁴​birth_year, ⁵​homeworld</code></pre>
+<p>You can also sort variables in descending order by putting a
+<code>&quot;-&quot;</code> in front of their name, like below:</p>
+<div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
+<div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_arrange</span>(<span class="fu">c</span>(<span class="st">&quot;-hair_color&quot;</span>, <span class="st">&quot;-height&quot;</span>))</span></code></pre></div>
+</div>
+<div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(hair_color), <span class="sc">-</span>height)</span></code></pre></div>
+</div>
+</div>
+<pre><code>## # A tibble: 6 × 14
+##   name         height  mass hair_…¹ skin_…² eye_c…³ birth…⁴ sex   gender homew…⁵
+##   &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;  
+## 1 Darth Vader     202   136 none    white   yellow     41.9 male  mascu… Tatooi…
+## 2 Owen Lars       178   120 brown,… light   blue       52   male  mascu… Tatooi…
+## 3 Leia Organa     150    49 brown   light   brown      19   fema… femin… Aldera…
+## 4 Luke Skywal…    172    77 blond   fair    blue       19   male  mascu… Tatooi…
+## 5 C-3PO           167    75 &lt;NA&gt;    gold    yellow    112   none  mascu… Tatooi…
+## 6 R2-D2            96    32 &lt;NA&gt;    white,… red        33   none  mascu… Naboo  
+## # … with 4 more variables: species &lt;chr&gt;, films &lt;list&gt;, vehicles &lt;list&gt;,
+## #   starships &lt;list&gt;, and abbreviated variable names ¹​hair_color, ²​skin_color,
+## #   ³​eye_color, ⁴​birth_year, ⁵​homeworld</code></pre>
+</div>
 <div id="extracting" class="section level2">
 <h2>Extracting</h2>
-<p>Although we mostly work on dataframes, it is sometimes useful to
+<p>Although we mostly work on data frames, it is sometimes useful to
 extract a single column as a vector. This can be done with
 <code>data_extract()</code>, which reproduces the behavior of
 <code>dplyr::pull()</code>:</p>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_extract</span>(gender)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_extract</span>(gender)</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(gender)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(gender)</span></code></pre></div>
 </div>
 </div>
 <pre><code>## [1] &quot;masculine&quot; &quot;masculine&quot; &quot;masculine&quot; &quot;masculine&quot; &quot;feminine&quot;  &quot;masculine&quot;</code></pre>
 <p>We can also specify several variables in <code>select</code>. In this
 case, <code>data_extract()</code> is equivalent to
 <code>data_select()</code>:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_extract</span>(<span class="at">select =</span> <span class="fu">contains</span>(<span class="st">&quot;color&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_extract</span>(<span class="at">select =</span> <span class="fu">contains</span>(<span class="st">&quot;color&quot;</span>))</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 3
 ##   hair_color  skin_color  eye_color
 ##   &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;    
@@ -737,20 +811,20 @@ names to rename, and then a vector of new names for these columns that
 must be of the same length.</p>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_rename</span>(</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;hair_color&quot;</span>),</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">replacement =</span> <span class="fu">c</span>(<span class="st">&quot;Sex&quot;</span>, <span class="st">&quot;Hair Color&quot;</span>)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_rename</span>(</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;hair_color&quot;</span>),</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">replacement =</span> <span class="fu">c</span>(<span class="st">&quot;Sex&quot;</span>, <span class="st">&quot;Hair Color&quot;</span>)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sex =</span> sex,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Hair Color&quot;</span> <span class="ot">=</span> hair_color</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sex =</span> sex,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Hair Color&quot;</span> <span class="ot">=</span> hair_color</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 6 × 14
@@ -764,18 +838,17 @@ must be of the same length.</p>
 ## 6 Owen Lars       178   120 brown,… light   blue       52   male  mascu… Tatooi…
 ## # … with 4 more variables: species &lt;chr&gt;, films &lt;list&gt;, vehicles &lt;list&gt;,
 ## #   starships &lt;list&gt;, and abbreviated variable names ¹​`Hair Color`,
-## #   ²​skin_color, ³​eye_color, ⁴​birth_year, ⁵​homeworld
-## # ℹ Use `colnames()` to see all variable names</code></pre>
+## #   ²​skin_color, ³​eye_color, ⁴​birth_year, ⁵​homeworld</code></pre>
 <p>The way <code>data_rename()</code> is designed makes it easy to apply
 the same modifications to a vector of column names. For example, we can
 remove underscores and use TitleCase with the following code:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>to_rename <span class="ot">&lt;-</span> <span class="fu">names</span>(starwars)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_rename</span>(</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> to_rename,</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">replacement =</span> tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">gsub</span>(<span class="st">&quot;_&quot;</span>, <span class="st">&quot; &quot;</span>, to_rename))</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>to_rename <span class="ot">&lt;-</span> <span class="fu">names</span>(starwars)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_rename</span>(</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> to_rename,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">replacement =</span> tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">gsub</span>(<span class="st">&quot;_&quot;</span>, <span class="st">&quot; &quot;</span>, to_rename))</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 14
 ##   Name         Height  Mass Hair …¹ Skin …² Eye C…³ Birth…⁴ Sex   Gender Homew…⁵
 ##   &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;  
@@ -787,22 +860,21 @@ remove underscores and use TitleCase with the following code:</p>
 ## 6 Owen Lars       178   120 brown,… light   blue       52   male  mascu… Tatooi…
 ## # … with 4 more variables: Species &lt;chr&gt;, Films &lt;list&gt;, Vehicles &lt;list&gt;,
 ## #   Starships &lt;list&gt;, and abbreviated variable names ¹​`Hair Color`,
-## #   ²​`Skin Color`, ³​`Eye Color`, ⁴​`Birth Year`, ⁵​Homeworld
-## # ℹ Use `colnames()` to see all variable names</code></pre>
+## #   ²​`Skin Color`, ³​`Eye Color`, ⁴​`Birth Year`, ⁵​Homeworld</code></pre>
 <p>It is also possible to add a prefix or a suffix to all or a subset of
 variables with <code>data_addprefix()</code> and
 <code>data_addsuffix()</code>. The argument <code>select</code> accepts
 all select helpers that we saw above with
 <code>data_select()</code>:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_addprefix</span>(</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">&quot;OLD.&quot;</span>,</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">select =</span> <span class="fu">contains</span>(<span class="st">&quot;color&quot;</span>)</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_addsuffix</span>(</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">&quot;.NEW&quot;</span>,</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">select =</span> <span class="sc">-</span><span class="fu">contains</span>(<span class="st">&quot;color&quot;</span>)</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_addprefix</span>(</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">&quot;OLD.&quot;</span>,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">select =</span> <span class="fu">contains</span>(<span class="st">&quot;color&quot;</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_addsuffix</span>(</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">&quot;.NEW&quot;</span>,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">select =</span> <span class="sc">-</span><span class="fu">contains</span>(<span class="st">&quot;color&quot;</span>)</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 14
 ##   name.NEW       heigh…¹ mass.…² OLD.h…³ OLD.s…⁴ OLD.e…⁵ birth…⁶ sex.NEW gende…⁷
 ##   &lt;chr&gt;            &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;  
@@ -815,8 +887,7 @@ all select helpers that we saw above with
 ## # … with 5 more variables: homeworld.NEW &lt;chr&gt;, species.NEW &lt;chr&gt;,
 ## #   films.NEW &lt;list&gt;, vehicles.NEW &lt;list&gt;, starships.NEW &lt;list&gt;, and
 ## #   abbreviated variable names ¹​height.NEW, ²​mass.NEW, ³​OLD.hair_color,
-## #   ⁴​OLD.skin_color, ⁵​OLD.eye_color, ⁶​birth_year.NEW, ⁷​gender.NEW
-## # ℹ Use `colnames()` to see all variable names</code></pre>
+## #   ⁴​OLD.skin_color, ⁵​OLD.eye_color, ⁶​birth_year.NEW, ⁷​gender.NEW</code></pre>
 </div>
 <div id="relocating" class="section level2">
 <h2>Relocating</h2>
@@ -830,14 +901,14 @@ arguments <code>before</code> and <code>after</code><a href="#fn1" class="footno
 selected columns should be relocated:</p>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_relocate</span>(sex<span class="sc">:</span>homeworld, <span class="at">before =</span> <span class="st">&quot;height&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_relocate</span>(sex<span class="sc">:</span>homeworld, <span class="at">before =</span> <span class="st">&quot;height&quot;</span>)</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(sex<span class="sc">:</span>homeworld, <span class="at">.before =</span> height)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(sex<span class="sc">:</span>homeworld, <span class="at">.before =</span> height)</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 6 × 14
@@ -851,16 +922,15 @@ selected columns should be relocated:</p>
 ## 6 Owen Lars    male  mascu… Tatooi…    178   120 brown,… light   blue       52  
 ## # … with 4 more variables: species &lt;chr&gt;, films &lt;list&gt;, vehicles &lt;list&gt;,
 ## #   starships &lt;list&gt;, and abbreviated variable names ¹​homeworld, ²​hair_color,
-## #   ³​skin_color, ⁴​eye_color, ⁵​birth_year
-## # ℹ Use `colnames()` to see all variable names</code></pre>
+## #   ³​skin_color, ⁴​eye_color, ⁵​birth_year</code></pre>
 <p>In addition to column names, <code>before</code> and
 <code>after</code> accept column indices. Finally, one can use
 <code>before = -1</code> to relocate the selected columns just before
 the last column, or <code>after = -1</code> to relocate them after the
 last column.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_relocate</span>(sex<span class="sc">:</span>homeworld, <span class="at">after =</span> <span class="sc">-</span><span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_relocate</span>(sex<span class="sc">:</span>homeworld, <span class="at">after =</span> <span class="sc">-</span><span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 14
 ##   name        height  mass hair_…¹ skin_…² eye_c…³ birth…⁴ species films vehic…⁵
 ## * &lt;chr&gt;        &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;lis&gt; &lt;list&gt; 
@@ -872,8 +942,7 @@ last column.</p>
 ## 6 Owen Lars      178   120 brown,… light   blue       52   Human   &lt;chr&gt; &lt;chr&gt;  
 ## # … with 4 more variables: starships &lt;list&gt;, sex &lt;chr&gt;, gender &lt;chr&gt;,
 ## #   homeworld &lt;chr&gt;, and abbreviated variable names ¹​hair_color, ²​skin_color,
-## #   ³​eye_color, ⁴​birth_year, ⁵​vehicles
-## # ℹ Use `colnames()` to see all variable names</code></pre>
+## #   ³​eye_color, ⁴​birth_year, ⁵​vehicles</code></pre>
 </div>
 <div id="reshaping" class="section level2">
 <h2>Reshaping</h2>
@@ -888,7 +957,7 @@ However, not all of <code>tidyr::pivot_longer()</code> and
 <code>tidyr::pivot_wider()</code> features are available yet.</p>
 <p>We will use the <code>relig_income</code> dataset, as in the <a href="https://tidyr.tidyverse.org/articles/pivot.html"><code>{tidyr}</code>
 vignette</a>.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>relig_income</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>relig_income</span></code></pre></div>
 <pre><code>## # A tibble: 18 × 11
 ##    religion      `&lt;$10k` $10-2…¹ $20-3…² $30-4…³ $40-5…⁴ $50-7…⁵ $75-1…⁶ $100-…⁷
 ##    &lt;chr&gt;           &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
@@ -912,8 +981,7 @@ vignette</a>.</p>
 ## 18 Unaffiliated      217     299     374     365     341     528     407     321
 ## # … with 2 more variables: `&gt;150k` &lt;dbl&gt;, `Don&#39;t know/refused` &lt;dbl&gt;, and
 ## #   abbreviated variable names ¹​`$10-20k`, ²​`$20-30k`, ³​`$30-40k`, ⁴​`$40-50k`,
-## #   ⁵​`$50-75k`, ⁶​`$75-100k`, ⁷​`$100-150k`
-## # ℹ Use `colnames()` to see all variable names</code></pre>
+## #   ⁵​`$50-75k`, ⁶​`$75-100k`, ⁷​`$100-150k`</code></pre>
 <p>We would like to reshape this dataset to have 3 columns: religion,
 count, and income. The column “religion” doesn’t need to change, so we
 exclude it with <code>-religion</code>. Then, each remaining column
@@ -923,22 +991,22 @@ corresponding to each of these columns will be reshaped to be in a
 single new column, called “count”.</p>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>relig_income <span class="sc">%&gt;%</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_to_long</span>(</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>religion,</span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;income&quot;</span>,</span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;count&quot;</span></span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>relig_income <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_to_long</span>(</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>religion,</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;income&quot;</span>,</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;count&quot;</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>relig_income <span class="sc">%&gt;%</span></span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>religion,</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;income&quot;</span>,</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;count&quot;</span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>relig_income <span class="sc">%&gt;%</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>religion,</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;income&quot;</span>,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;count&quot;</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 180 × 3
@@ -954,11 +1022,10 @@ single new column, called “count”.</p>
 ##  8 Agnostic $100-150k            109
 ##  9 Agnostic &gt;150k                 84
 ## 10 Agnostic Don&#39;t know/refused    96
-## # … with 170 more rows
-## # ℹ Use `print(n = ...)` to see more rows</code></pre>
+## # … with 170 more rows</code></pre>
 <p>To explore a bit more the arguments of <code>data_to_long()</code>,
 we will use another dataset: the <code>billboard</code> dataset.</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>billboard</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>billboard</span></code></pre></div>
 <pre><code>## # A tibble: 317 × 79
 ##    artist track date.ent…¹   wk1   wk2   wk3   wk4   wk5   wk6   wk7   wk8   wk9
 ##    &lt;chr&gt;  &lt;chr&gt; &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
@@ -978,28 +1045,27 @@ we will use another dataset: the <code>billboard</code> dataset.</p>
 ## #   wk25 &lt;dbl&gt;, wk26 &lt;dbl&gt;, wk27 &lt;dbl&gt;, wk28 &lt;dbl&gt;, wk29 &lt;dbl&gt;, wk30 &lt;dbl&gt;,
 ## #   wk31 &lt;dbl&gt;, wk32 &lt;dbl&gt;, wk33 &lt;dbl&gt;, wk34 &lt;dbl&gt;, wk35 &lt;dbl&gt;, wk36 &lt;dbl&gt;,
 ## #   wk37 &lt;dbl&gt;, wk38 &lt;dbl&gt;, wk39 &lt;dbl&gt;, wk40 &lt;dbl&gt;, wk41 &lt;dbl&gt;, wk42 &lt;dbl&gt;,
-## #   wk43 &lt;dbl&gt;, wk44 &lt;dbl&gt;, wk45 &lt;dbl&gt;, wk46 &lt;dbl&gt;, wk47 &lt;dbl&gt;, wk48 &lt;dbl&gt;, …
-## # ℹ Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names</code></pre>
+## #   wk43 &lt;dbl&gt;, wk44 &lt;dbl&gt;, wk45 &lt;dbl&gt;, wk46 &lt;dbl&gt;, wk47 &lt;dbl&gt;, wk48 &lt;dbl&gt;, …</code></pre>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>billboard <span class="sc">%&gt;%</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_to_long</span>(</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;wk&quot;</span>),</span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;week&quot;</span>,</span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;rank&quot;</span>,</span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_drop_na =</span> <span class="cn">TRUE</span></span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>billboard <span class="sc">%&gt;%</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_to_long</span>(</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;wk&quot;</span>),</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;week&quot;</span>,</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;rank&quot;</span>,</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_drop_na =</span> <span class="cn">TRUE</span></span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>billboard <span class="sc">%&gt;%</span></span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;wk&quot;</span>),</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;week&quot;</span>,</span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;rank&quot;</span>,</span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_drop_na =</span> <span class="cn">TRUE</span></span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>billboard <span class="sc">%&gt;%</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">&quot;wk&quot;</span>),</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">&quot;week&quot;</span>,</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;rank&quot;</span>,</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_drop_na =</span> <span class="cn">TRUE</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 5,307 × 5
@@ -1015,15 +1081,14 @@ we will use another dataset: the <code>billboard</code> dataset.</p>
 ##  8 2Ge+her The Hardest Part Of ... 2000-09-02   wk1      91
 ##  9 2Ge+her The Hardest Part Of ... 2000-09-02   wk2      87
 ## 10 2Ge+her The Hardest Part Of ... 2000-09-02   wk3      92
-## # … with 5,297 more rows
-## # ℹ Use `print(n = ...)` to see more rows</code></pre>
+## # … with 5,297 more rows</code></pre>
 </div>
 <div id="wider" class="section level3">
 <h3>Wider</h3>
 <p>Once again, we use an example in the <code>{tidyr}</code> vignette to
 show how close <code>data_to_wide()</code> and
 <code>pivot_wider()</code> are:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>fish_encounters</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>fish_encounters</span></code></pre></div>
 <pre><code>## # A tibble: 114 × 3
 ##    fish  station  seen
 ##    &lt;fct&gt; &lt;fct&gt;   &lt;int&gt;
@@ -1037,26 +1102,25 @@ show how close <code>data_to_wide()</code> and
 ##  8 4842  BCE2        1
 ##  9 4842  BCW2        1
 ## 10 4842  MAE         1
-## # … with 104 more rows
-## # ℹ Use `print(n = ...)` to see more rows</code></pre>
+## # … with 104 more rows</code></pre>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>fish_encounters <span class="sc">%&gt;%</span></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_to_wide</span>(</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> <span class="st">&quot;station&quot;</span>,</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> <span class="st">&quot;seen&quot;</span>,</span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_fill =</span> <span class="dv">0</span></span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>fish_encounters <span class="sc">%&gt;%</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_to_wide</span>(</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> <span class="st">&quot;station&quot;</span>,</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> <span class="st">&quot;seen&quot;</span>,</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_fill =</span> <span class="dv">0</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>fish_encounters <span class="sc">%&gt;%</span></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> station,</span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> seen,</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_fill =</span> <span class="dv">0</span></span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>fish_encounters <span class="sc">%&gt;%</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> station,</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> seen,</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_fill =</span> <span class="dv">0</span></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 19 × 12
@@ -1096,7 +1160,7 @@ right and inner. We will use the datasets <code>band_members</code>and
 <code>band_instruments</code> provided by <code>{dplyr}</code>:</p>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>band_members</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>band_members</span></code></pre></div>
 <pre><code>## # A tibble: 3 × 2
 ##   name  band   
 ##   &lt;chr&gt; &lt;chr&gt;  
@@ -1105,7 +1169,7 @@ right and inner. We will use the datasets <code>band_members</code>and
 ## 3 Paul  Beatles</code></pre>
 </div>
 <div>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>band_instruments</span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>band_instruments</span></code></pre></div>
 <pre><code>## # A tibble: 3 × 2
 ##   name  plays 
 ##   &lt;chr&gt; &lt;chr&gt; 
@@ -1118,14 +1182,14 @@ right and inner. We will use the datasets <code>band_members</code>and
 <h3>Full join</h3>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;full&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;full&quot;</span>)</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(band_instruments)</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(band_instruments)</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 4 × 3
@@ -1140,14 +1204,14 @@ right and inner. We will use the datasets <code>band_members</code>and
 <h3>Left and right joins</h3>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;left&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;left&quot;</span>)</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(band_instruments)</span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(band_instruments)</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 3 × 3
@@ -1158,14 +1222,14 @@ right and inner. We will use the datasets <code>band_members</code>and
 ## 3 Paul  Beatles bass</code></pre>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;right&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;right&quot;</span>)</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">right_join</span>(band_instruments)</span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">right_join</span>(band_instruments)</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 3 × 3
@@ -1179,14 +1243,14 @@ right and inner. We will use the datasets <code>band_members</code>and
 <h3>Inner join</h3>
 <div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
 <div>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;inner&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_join</span>(band_instruments, <span class="at">join =</span> <span class="st">&quot;inner&quot;</span>)</span></code></pre></div>
 </div>
 <div>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
-<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
-<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(band_instruments)</span></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>band_members <span class="sc">%&gt;%</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(band_instruments)</span></code></pre></div>
 </div>
 </div>
 <pre><code>## # A tibble: 2 × 3
@@ -1200,15 +1264,16 @@ right and inner. We will use the datasets <code>band_members</code>and
 <div id="other-useful-functions" class="section level1">
 <h1>Other useful functions</h1>
 <p><code>{datawizard}</code> contains other functions that are not
-necessarily included in <code>{dplyr}</code> or <code>{tidyr}</code>.
-Some of them are inspired from the package <code>janitor</code>.</p>
+necessarily included in <code>{dplyr}</code> or <code>{tidyr}</code> or
+do not directly modify the data. Some of them are inspired from the
+package <code>janitor</code>.</p>
 <div id="work-with-rownames" class="section level2">
 <h2>Work with rownames</h2>
 <p>We can convert a column in rownames and move rownames to a new column
 with <code>rownames_as_column()</code> and
 <code>column_as_rownames()</code>:</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="ot">&lt;-</span> <span class="fu">head</span>(mtcars)</span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>mtcars</span></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>mtcars <span class="ot">&lt;-</span> <span class="fu">head</span>(mtcars)</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>mtcars</span></code></pre></div>
 <pre><code>##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
 ## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
 ## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
@@ -1216,10 +1281,10 @@ with <code>rownames_as_column()</code> and
 ## Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
 ## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
 ## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>mtcars2 <span class="ot">&lt;-</span> mtcars <span class="sc">%&gt;%</span></span>
-<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_as_column</span>(<span class="at">var =</span> <span class="st">&quot;model&quot;</span>)</span>
-<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>mtcars2</span></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>mtcars2 <span class="ot">&lt;-</span> mtcars <span class="sc">%&gt;%</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_as_column</span>(<span class="at">var =</span> <span class="st">&quot;model&quot;</span>)</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>mtcars2</span></code></pre></div>
 <pre><code>##               model  mpg cyl disp  hp drat    wt  qsec vs am gear carb
 ## 1         Mazda RX4 21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
 ## 2     Mazda RX4 Wag 21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
@@ -1227,8 +1292,8 @@ with <code>rownames_as_column()</code> and
 ## 4    Hornet 4 Drive 21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
 ## 5 Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
 ## 6           Valiant 18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</code></pre>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>mtcars2 <span class="sc">%&gt;%</span></span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_as_rownames</span>(<span class="at">var =</span> <span class="st">&quot;model&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>mtcars2 <span class="sc">%&gt;%</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_as_rownames</span>(<span class="at">var =</span> <span class="st">&quot;model&quot;</span>)</span></code></pre></div>
 <pre><code>##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
 ## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
 ## Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
@@ -1242,33 +1307,55 @@ with <code>rownames_as_column()</code> and
 <p>When dealing with messy data, it is sometimes useful to use a row as
 column names, and vice versa. This can be done with
 <code>row_to_colnames()</code> and <code>colnames_to_row()</code>.</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">X_1 =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;Title&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),</span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X_2 =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;Title2&quot;</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>)</span>
-<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>x</span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">X_1 =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;Title&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X_2 =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;Title2&quot;</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>)</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>x</span></code></pre></div>
 <pre><code>##     X_1    X_2
 ## 1  &lt;NA&gt;   &lt;NA&gt;
 ## 2 Title Title2
 ## 3     1      4
 ## 4     2      5
 ## 5     3      6</code></pre>
-<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span></span>
-<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_to_colnames</span>(<span class="at">row =</span> <span class="dv">2</span>)</span>
-<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>x2</span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_to_colnames</span>(<span class="at">row =</span> <span class="dv">2</span>)</span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>x2</span></code></pre></div>
 <pre><code>##   Title Title2
 ## 1  &lt;NA&gt;   &lt;NA&gt;
 ## 3     1      4
 ## 4     2      5
 ## 5     3      6</code></pre>
-<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>x2 <span class="sc">%&gt;%</span></span>
-<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames_to_row</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>x2 <span class="sc">%&gt;%</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames_to_row</span>()</span></code></pre></div>
 <pre><code>##       x1     x2
 ## 1  Title Title2
 ## 11  &lt;NA&gt;   &lt;NA&gt;
 ## 3      1      4
 ## 4      2      5
 ## 5      3      6</code></pre>
+</div>
+<div id="take-a-quick-look-at-the-data" class="section level2">
+<h2>Take a quick look at the data</h2>
+<div style="display: grid; grid-template-columns: 50% 50%; grid-column-gap: 10px;">
+<div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data_peek</span>(iris)</span></code></pre></div>
+</div>
+<div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(iris)</span></code></pre></div>
+</div>
+</div>
+<pre><code>## Data frame with 10 rows and 5 variables
+## 
+## Variable     | Type    | Values                                        
+## -----------------------------------------------------------------------
+## Sepal.Length | numeric | 4.3, 5, 7.7, 4.4, 5.9, 6.5, 5.5, 5.5, 5.8, ...
+## Sepal.Width  | numeric | 3, 3.3, 3.8, 3.2, 3, 3, 2.5, 2.6, 2.7, 3, ... 
+## Petal.Length | numeric | 1.1, 1.4, 6.7, 1.3, 5.1, 5.2, 4, 4.4, 5.1, ...
+## Petal.Width  | numeric | 0.1, 0.2, 2.2, 0.2, 1.8, 2, 1.3, 1.2, 1.9, ...
+## Species      | factor  | setosa, setosa, virginica, setosa, ...</code></pre>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">
