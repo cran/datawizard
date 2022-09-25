@@ -57,7 +57,7 @@ applied internally. This means that they won't be detected by autocompletion
 when we write them.")
 
 ## ----echo=FALSE---------------------------------------------------------------
-row("Note #2: because these functions are not exported, they will not create 
+row("Note #2: because these functions are not exported, they will not create
 conflicts with the ones that come from the `tidyverse` and that have the same name.
 So we can still use `dplyr` and its friends, it won't change anything for selection
 in `datawizard` functions!")

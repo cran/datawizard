@@ -45,7 +45,12 @@ to_numeric <- function(x, ...) {
 #' @export
 to_numeric.default <- function(x, verbose = TRUE, ...) {
   if (isTRUE(verbose)) {
-    message(insight::format_message(sprintf("Converting into numeric values currently not possible for variables of class '%s'.", class(x)[1])))
+    insight::format_alert(
+      sprintf(
+        "Converting into numeric values currently not possible for variables of class '%s'.",
+        class(x)[1]
+      )
+    )
   }
   x
 }
@@ -153,16 +158,22 @@ to_numeric.logical <- to_numeric.numeric
 #' @export
 to_numeric.Date <- function(x, verbose = TRUE, ...) {
   if (verbose) {
-    warning(insight::format_message(
+    insight::format_warning(
       "Converting a date-time variable into numeric.",
-      "Please note that this conversion probably not returns meaningful results."
-    ), call. = FALSE)
+      "Please note that this conversion probably does not return meaningful results."
+    )
   }
   as.numeric(x)
 }
 
 #' @export
 to_numeric.POSIXt <- to_numeric.Date
+
+#' @export
+to_numeric.POSIXct <- to_numeric.Date
+
+#' @export
+to_numeric.POSIXlt <- to_numeric.Date
 
 
 #' @export
@@ -232,11 +243,11 @@ to_numeric.character <- function(x,
                                  verbose = TRUE,
                                  ...) {
   numbers <- sapply(x, function(i) {
-    element <- tryCatch(.str2lang(i), error = function(e) NULL)
+    element <- tryCatch(str2lang(i), error = function(e) NULL)
     !is.null(element) && is.numeric(element)
   })
   if (all(numbers)) {
-    out <- as.numeric(sapply(x, .str2lang))
+    out <- as.numeric(sapply(x, str2lang))
   } else {
     out <- to_numeric(as.factor(x), dummy_factors = dummy_factors)
   }
