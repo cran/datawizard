@@ -24,3 +24,33 @@
 `%||%` <- function(x, y) {
   if (is.null(x)) y else x
 }
+
+
+#' Try to convert object to a dataframe
+#'
+#' @keywords internal
+#' @noRd
+.coerce_to_dataframe <- function(data) {
+  if (!is.data.frame(data)) {
+    data <- tryCatch(
+      as.data.frame(data, stringsAsFactors = FALSE),
+      error = function(e) {
+        insight::format_error(
+          "`data` must be a data frame, or an object that can be coerced to a data frame."
+        )
+      }
+    )
+  }
+  data
+}
+
+
+#' Data only has numbers as rownames
+#'
+#' @keywords internal
+#' @noRd
+
+# TODO replace by insight::object_has_rownames() once insight 0.18.5 is out
+.has_numeric_rownames <- function(data) {
+  identical(attributes(data)$row.names, seq_len(nrow(data)))
+}

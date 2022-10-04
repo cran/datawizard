@@ -387,13 +387,13 @@ standardization via the <code>standardize()</code> function:</p>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># let&#39;s have a look at what the data look like</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;hardlyworking&quot;</span>, <span class="at">package =</span> <span class="st">&quot;effectsize&quot;</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(hardlyworking)</span></code></pre></div>
-<pre><code>#&gt;     salary xtra_hours n_comps age seniority
-#&gt; 1 19744.65   4.161812       1  32         3
-#&gt; 2 11301.95   1.621868       0  34         3
-#&gt; 3 20635.62   1.190859       3  33         5
-#&gt; 4 23047.16   7.190997       1  35         3
-#&gt; 5 27342.15  11.261399       0  33         4
-#&gt; 6 25656.63   3.633346       2  30         5</code></pre>
+<pre><code>#&gt;     salary xtra_hours n_comps age seniority is_senior
+#&gt; 1 19744.65       4.16       1  32         3     FALSE
+#&gt; 2 11301.95       1.62       0  34         3     FALSE
+#&gt; 3 20635.62       1.19       3  33         5      TRUE
+#&gt; 4 23047.16       7.19       1  35         3     FALSE
+#&gt; 5 27342.15      11.26       0  33         4     FALSE
+#&gt; 6 25656.63       3.63       2  30         5      TRUE</code></pre>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># let&#39;s use both methods of standardization</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>hardlyworking<span class="sc">$</span>xtra_hours_z <span class="ot">&lt;-</span> <span class="fu">standardize</span>(hardlyworking<span class="sc">$</span>xtra_hours)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>hardlyworking<span class="sc">$</span>xtra_hours_zr <span class="ot">&lt;-</span> <span class="fu">standardize</span>(hardlyworking<span class="sc">$</span>xtra_hours, <span class="at">robust =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
@@ -424,22 +424,22 @@ variation values:</p>
 <tbody>
 <tr class="odd">
 <td align="left">xtra_hours</td>
-<td align="right">3.9757</td>
-<td align="right">3.9035</td>
-<td align="right">2.7726</td>
-<td align="right">2.8479</td>
+<td align="right">3.9756</td>
+<td align="right">3.9037</td>
+<td align="right">2.7700</td>
+<td align="right">2.8466</td>
 </tr>
 <tr class="even">
 <td align="left">xtra_hours_z</td>
 <td align="right">0.0000</td>
 <td align="right">1.0000</td>
-<td align="right">-0.3082</td>
-<td align="right">0.7296</td>
+<td align="right">-0.3088</td>
+<td align="right">0.7292</td>
 </tr>
 <tr class="odd">
 <td align="left">xtra_hours_zr</td>
-<td align="right">0.4224</td>
-<td align="right">1.3706</td>
+<td align="right">0.4235</td>
+<td align="right">1.3714</td>
 <td align="right">0.0000</td>
 <td align="right">1.0000</td>
 </tr>
@@ -471,38 +471,45 @@ data frame - where each numeric variable is standardized separately:</p>
 <tbody>
 <tr class="odd">
 <td align="left">age</td>
-<td align="right">0</td>
-<td align="right">1</td>
+<td align="right">0.00</td>
+<td align="right">1.0000</td>
 <td align="right">0.0605</td>
 <td align="right">1.2461</td>
 </tr>
 <tr class="even">
+<td align="left">is_senior</td>
+<td align="right">0.44</td>
+<td align="right">0.4969</td>
+<td align="right">0.0000</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="odd">
 <td align="left">n_comps</td>
-<td align="right">0</td>
-<td align="right">1</td>
+<td align="right">0.00</td>
+<td align="right">1.0000</td>
 <td align="right">-0.0606</td>
 <td align="right">1.7968</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">salary</td>
-<td align="right">0</td>
-<td align="right">1</td>
+<td align="right">0.00</td>
+<td align="right">1.0000</td>
 <td align="right">-0.1619</td>
 <td align="right">0.8640</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">seniority</td>
-<td align="right">0</td>
-<td align="right">1</td>
+<td align="right">0.00</td>
+<td align="right">1.0000</td>
 <td align="right">-0.3681</td>
 <td align="right">1.2931</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">xtra_hours</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">-0.3082</td>
-<td align="right">0.7296</td>
+<td align="right">0.00</td>
+<td align="right">1.0000</td>
+<td align="right">-0.3088</td>
+<td align="right">0.7292</td>
 </tr>
 </tbody>
 </table>
