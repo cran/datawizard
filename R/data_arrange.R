@@ -42,7 +42,7 @@ data_arrange.default <- function(data, select = NULL, safe = TRUE) {
   data <- .coerce_to_dataframe(data)
 
   # find which vars should be decreasing
-  desc <- select[grepl("^-", select)]
+  desc <- select[startsWith(select, "-")]
   desc <- gsub("^-", "", desc)
   select <- gsub("^-", "", select)
 
@@ -55,20 +55,28 @@ data_arrange.default <- function(data, select = NULL, safe = TRUE) {
         paste0(
           "The following column(s) don't exist in the dataset: ",
           text_concatenate(dont_exist), "."
-        )
+        ),
+        .misspelled_string(names(data), dont_exist, "Possibly misspelled?")
       )
     } else {
       insight::format_warning(
         paste0(
           "The following column(s) don't exist in the dataset: ",
           text_concatenate(dont_exist), "."
-        )
+        ),
+        .misspelled_string(names(data), dont_exist, "Possibly misspelled?")
       )
     }
     select <- select[-which(select %in% dont_exist)]
   }
 
   if (length(select) == 0) {
+    return(data)
+  }
+
+  already_sorted <- all(vapply(data[, select, drop = FALSE], .is_sorted, logical(1)))
+
+  if (isTRUE(already_sorted)) {
     return(data)
   }
 
@@ -88,7 +96,7 @@ data_arrange.default <- function(data, select = NULL, safe = TRUE) {
     out <- data[do.call(order, out[, select]), ]
   }
 
-  if (.has_numeric_rownames(data)) {
+  if (!insight::object_has_rownames(data)) {
     rownames(out) <- NULL
   }
 
@@ -110,7 +118,7 @@ data_arrange.grouped_df <- function(data, select = NULL, safe = TRUE) {
 
   out <- do.call(rbind, out)
 
-  if (.has_numeric_rownames(data)) {
+  if (!insight::object_has_rownames(data)) {
     rownames(out) <- NULL
   }
 

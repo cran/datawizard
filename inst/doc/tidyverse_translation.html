@@ -376,6 +376,10 @@ data</a></li>
 </ul>
 </div>
 
+<p>This vignette can be referred to by citing the following:</p>
+<p>Patil et al., (2022). datawizard: An R Package for Easy Data
+Preparation and Statistical Transformations. <em>Journal of Open Source
+Software</em>, <em>7</em>(78), 4684, <a href="https://doi.org/10.21105/joss.04684" class="uri">https://doi.org/10.21105/joss.04684</a></p>
 <style type="text/css">
 .datawizard, .datawizard > .sourceCode {
 background-color: #e6e6ff;
@@ -913,7 +917,7 @@ selected columns should be relocated:</p>
 </div>
 <pre><code>## # A tibble: 6 × 14
 ##   name         sex   gender homew…¹ height  mass hair_…² skin_…³ eye_c…⁴ birth…⁵
-## * &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;
+##   &lt;chr&gt;        &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;
 ## 1 Luke Skywal… male  mascu… Tatooi…    172    77 blond   fair    blue       19  
 ## 2 C-3PO        none  mascu… Tatooi…    167    75 &lt;NA&gt;    gold    yellow    112  
 ## 3 R2-D2        none  mascu… Naboo       96    32 &lt;NA&gt;    white,… red        33  
@@ -933,7 +937,7 @@ last column.</p>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_relocate</span>(sex<span class="sc">:</span>homeworld, <span class="at">after =</span> <span class="sc">-</span><span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 14
 ##   name        height  mass hair_…¹ skin_…² eye_c…³ birth…⁴ species films vehic…⁵
-## * &lt;chr&gt;        &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;lis&gt; &lt;list&gt; 
+##   &lt;chr&gt;        &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;lis&gt; &lt;list&gt; 
 ## 1 Luke Skywa…    172    77 blond   fair    blue       19   Human   &lt;chr&gt; &lt;chr&gt;  
 ## 2 C-3PO          167    75 &lt;NA&gt;    gold    yellow    112   Droid   &lt;chr&gt; &lt;chr&gt;  
 ## 3 R2-D2           96    32 &lt;NA&gt;    white,… red        33   Droid   &lt;chr&gt; &lt;chr&gt;  
@@ -1011,7 +1015,7 @@ single new column, called “count”.</p>
 </div>
 <pre><code>## # A tibble: 180 × 3
 ##    religion income             count
-##  * &lt;chr&gt;    &lt;chr&gt;              &lt;dbl&gt;
+##    &lt;chr&gt;    &lt;chr&gt;              &lt;dbl&gt;
 ##  1 Agnostic &lt;$10k                 27
 ##  2 Agnostic $10-20k               34
 ##  3 Agnostic $20-30k               60
@@ -1070,7 +1074,7 @@ we will use another dataset: the <code>billboard</code> dataset.</p>
 </div>
 <pre><code>## # A tibble: 5,307 × 5
 ##    artist  track                   date.entered week   rank
-##  * &lt;chr&gt;   &lt;chr&gt;                   &lt;date&gt;       &lt;chr&gt; &lt;dbl&gt;
+##    &lt;chr&gt;   &lt;chr&gt;                   &lt;date&gt;       &lt;chr&gt; &lt;dbl&gt;
 ##  1 2 Pac   Baby Don&#39;t Cry (Keep... 2000-02-26   wk1      87
 ##  2 2 Pac   Baby Don&#39;t Cry (Keep... 2000-02-26   wk2      82
 ##  3 2 Pac   Baby Don&#39;t Cry (Keep... 2000-02-26   wk3      72
@@ -1125,7 +1129,7 @@ show how close <code>data_to_wide()</code> and
 </div>
 <pre><code>## # A tibble: 19 × 12
 ##    fish  Release I80_1 Lisbon  Rstr Base_TD   BCE   BCW  BCE2  BCW2   MAE   MAW
-##  * &lt;fct&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##    &lt;fct&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ##  1 4842        1     1      1     1       1     1     1     1     1     1     1
 ##  2 4843        1     1      1     1       1     1     1     1     1     1     1
 ##  3 4844        1     1      1     1       1     1     1     1     1     1     1

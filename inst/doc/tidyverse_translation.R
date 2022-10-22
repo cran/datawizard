@@ -1,4 +1,4 @@
-## ----message=FALSE, warning=FALSE, include=FALSE------------------------------
+## ----message=FALSE, warning=FALSE, include=FALSE, eval = TRUE-----------------
 library(knitr)
 options(knitr.kable.NA = "")
 knitr::opts_chunk$set(
@@ -9,20 +9,21 @@ knitr::opts_chunk$set(
 )
 
 pkgs <- c(
-  "datawizard",
-  "tidyr",
   "dplyr",
-  "see",
-  "ggplot2",
-  "parameters",
-  "lme4"
+  "datawizard",
+  "tidyr"
 )
 
+# since we explicitely put eval = TRUE for some chunks, we can't rely on
+# knitr::opts_chunk$set(eval = FALSE) at the beginning of the script. So we make
+# a logical that is FALSE only if deps are not installed (cf easystats/easystats#317)
+evaluate_chunk <- TRUE
+
 if (!all(sapply(pkgs, requireNamespace, quietly = TRUE))) {
-  knitr::opts_chunk$set(eval = FALSE)
+  evaluate_chunk <- FALSE
 }
 
-## ----eval = TRUE--------------------------------------------------------------
+## ---- eval = evaluate_chunk---------------------------------------------------
 library(dplyr)
 library(tidyr)
 library(datawizard)
@@ -41,13 +42,13 @@ library(datawizard)
 #      eye_color == "brown"
 #    )
 
-## ----filter, eval = TRUE, echo = FALSE----------------------------------------
+## ----filter, eval = evaluate_chunk, echo = FALSE------------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_filter(skin_color == "light" &
     eye_color == "brown")
 
-## ---- echo = FALSE, eval = TRUE-----------------------------------------------
+## ---- echo = FALSE, eval = evaluate_chunk-------------------------------------
 starwars <- head(starwars)
 
 ## ----select1, class.source = "datawizard"-------------------------------------
@@ -60,7 +61,7 @@ starwars <- head(starwars)
 #  starwars %>%
 #    select(hair_color, skin_color, eye_color)
 
-## ----select1, eval = TRUE, echo = FALSE---------------------------------------
+## ----select1, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_select(select = c("hair_color", "skin_color", "eye_color"))
@@ -75,7 +76,7 @@ starwars %>%
 #  starwars %>%
 #    select(-ends_with("color"))
 
-## ----select2, eval = TRUE, echo = FALSE---------------------------------------
+## ----select2, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_select(select = -ends_with("color"))
@@ -90,7 +91,7 @@ starwars %>%
 #  starwars %>%
 #    select(!(hair_color:eye_color))
 
-## ----select3, eval = TRUE, echo = FALSE---------------------------------------
+## ----select3, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_select(select = -hair_color:eye_color)
@@ -105,7 +106,7 @@ starwars %>%
 #  starwars %>%
 #    select(-contains("color$"))
 
-## ----select4, eval = TRUE, echo = FALSE---------------------------------------
+## ----select4, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_select(exclude = regex("color$"))
@@ -120,7 +121,7 @@ starwars %>%
 #  starwars %>%
 #    select(where(is.numeric))
 
-## ----select5, eval = TRUE, echo = FALSE---------------------------------------
+## ----select5, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_select(select = is.numeric)
@@ -135,7 +136,7 @@ starwars %>%
 #  starwars %>%
 #    arrange(hair_color, height)
 
-## ----arrange1, eval = TRUE, echo = FALSE--------------------------------------
+## ----arrange1, eval = evaluate_chunk, echo = FALSE----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_arrange(c("hair_color", "height"))
@@ -150,7 +151,7 @@ starwars %>%
 #  starwars %>%
 #    arrange(desc(hair_color), -height)
 
-## ----arrange2, eval = TRUE, echo = FALSE--------------------------------------
+## ----arrange2, eval = evaluate_chunk, echo = FALSE----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_arrange(c("-hair_color", "-height"))
@@ -165,12 +166,12 @@ starwars %>%
 #  starwars %>%
 #    pull(gender)
 
-## ----extract1, eval = TRUE, echo = FALSE--------------------------------------
+## ----extract1, eval = evaluate_chunk, echo = FALSE----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_extract(gender)
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 starwars %>%
   data_extract(select = contains("color"))
 
@@ -190,7 +191,7 @@ starwars %>%
 #      "Hair Color" = hair_color
 #    )
 
-## ----rename1, eval = TRUE, echo = FALSE---------------------------------------
+## ----rename1, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_rename(
@@ -207,7 +208,7 @@ starwars %>%
 #      replacement = tools::toTitleCase(gsub("_", " ", to_rename))
 #    )
 
-## ----rename2, eval = TRUE, echo = FALSE---------------------------------------
+## ----rename2, eval = evaluate_chunk, echo = FALSE-----------------------------
 to_rename <- names(starwars)
 
 starwars %>%
@@ -227,7 +228,7 @@ starwars %>%
 #      select = -contains("color")
 #    )
 
-## ----rename3, eval = TRUE, echo = FALSE---------------------------------------
+## ----rename3, eval = evaluate_chunk, echo = FALSE-----------------------------
 starwars %>%
   data_addprefix(
     pattern = "OLD.",
@@ -248,17 +249,17 @@ starwars %>%
 #  starwars %>%
 #    relocate(sex:homeworld, .before = height)
 
-## ----relocate1, eval = TRUE, echo = FALSE-------------------------------------
+## ----relocate1, eval = evaluate_chunk, echo = FALSE---------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_relocate(sex:homeworld, before = "height")
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 # ---------- datawizard -----------
 starwars %>%
   data_relocate(sex:homeworld, after = -1)
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 relig_income
 
 ## ----pivot1, class.source = "datawizard"--------------------------------------
@@ -279,7 +280,7 @@ relig_income
 #      values_to = "count"
 #    )
 
-## ----pivot1, eval = TRUE, echo = FALSE----------------------------------------
+## ----pivot1, eval = evaluate_chunk, echo = FALSE------------------------------
 # ---------- datawizard -----------
 relig_income %>%
   data_to_long(
@@ -288,7 +289,7 @@ relig_income %>%
     values_to = "count"
   )
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 billboard
 
 ## ----pivot2, class.source = "datawizard"--------------------------------------
@@ -311,7 +312,7 @@ billboard
 #      values_drop_na = TRUE
 #    )
 
-## ----pivot2, eval = TRUE, echo = FALSE----------------------------------------
+## ----pivot2, eval = evaluate_chunk, echo = FALSE------------------------------
 # ---------- datawizard -----------
 billboard %>%
   data_to_long(
@@ -321,7 +322,7 @@ billboard %>%
     values_drop_na = TRUE
   )
 
-## ----eval=TRUE----------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 fish_encounters
 
 ## ----pivot3, class.source = "datawizard"--------------------------------------
@@ -342,7 +343,7 @@ fish_encounters
 #      values_fill = 0
 #    )
 
-## ----pivot3, eval = TRUE, echo = FALSE----------------------------------------
+## ----pivot3, eval = evaluate_chunk, echo = FALSE------------------------------
 # ---------- datawizard -----------
 fish_encounters %>%
   data_to_wide(
@@ -351,10 +352,10 @@ fish_encounters %>%
     values_fill = 0
   )
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 band_members
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 band_instruments
 
 ## ----join1, class.source = "datawizard"---------------------------------------
@@ -367,7 +368,7 @@ band_instruments
 #  band_members %>%
 #    full_join(band_instruments)
 
-## ----join1, eval = TRUE, echo = FALSE-----------------------------------------
+## ----join1, eval = evaluate_chunk, echo = FALSE-------------------------------
 # ---------- datawizard -----------
 band_members %>%
   data_join(band_instruments, join = "full")
@@ -382,7 +383,7 @@ band_members %>%
 #  band_members %>%
 #    left_join(band_instruments)
 
-## ----join2, eval = TRUE, echo = FALSE-----------------------------------------
+## ----join2, eval = evaluate_chunk, echo = FALSE-------------------------------
 # ---------- datawizard -----------
 band_members %>%
   data_join(band_instruments, join = "left")
@@ -397,7 +398,7 @@ band_members %>%
 #  band_members %>%
 #    right_join(band_instruments)
 
-## ----join3, eval = TRUE, echo = FALSE-----------------------------------------
+## ----join3, eval = evaluate_chunk, echo = FALSE-------------------------------
 # ---------- datawizard -----------
 band_members %>%
   data_join(band_instruments, join = "right")
@@ -412,12 +413,12 @@ band_members %>%
 #  band_members %>%
 #    inner_join(band_instruments)
 
-## ----join4, eval = TRUE, echo = FALSE-----------------------------------------
+## ----join4, eval = evaluate_chunk, echo = FALSE-------------------------------
 # ---------- datawizard -----------
 band_members %>%
   data_join(band_instruments, join = "inner")
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 mtcars <- head(mtcars)
 mtcars
 
@@ -429,7 +430,7 @@ mtcars2
 mtcars2 %>%
   column_as_rownames(var = "model")
 
-## ----eval = TRUE--------------------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 x <- data.frame(
   X_1 = c(NA, "Title", 1:3),
   X_2 = c(NA, "Title2", 4:6)
@@ -450,7 +451,7 @@ x2 %>%
 #  # ---------- tidyverse -----------
 #  glimpse(iris)
 
-## ----glimpse, eval = TRUE, echo = FALSE---------------------------------------
+## ----glimpse, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 data_peek(iris)
 

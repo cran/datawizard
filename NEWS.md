@@ -1,3 +1,30 @@
+# datawizard 0.6.3
+
+MAJOR CHANGES
+
+* There is a new publication about the `{datawizard}` package:
+  <https://joss.theoj.org/papers/10.21105/joss.04684>
+
+* Fixes failing tests due to changes in `R-devel`.
+
+* `data_to_long()` and `data_to_wide()` have had significant performance
+  improvements, sometimes as high as a ten-fold speedup.
+
+MINOR CHANGES
+
+* When column names are misspelled, most functions now suggest which existing
+  columns possibly could be meant.
+
+* Miscellaneous performance gains.
+
+* `convert_to_na()` now requires argument `na` to be of class 'Date' to convert
+  specific dates to `NA`. For example, `convert_to_na(x, na = "2022-10-17")`
+  must be changed to `convert_to_na(x, na = as.Date("2022-10-17"))`.
+
+BUG FIXES
+
+* `data_to_long()` and `data_to_wide()` now correctly keep the `date` format.
+
 # datawizard 0.6.2
 
 BREAKING CHANGES
@@ -10,13 +37,15 @@ BREAKING CHANGES
   `remove_empty_rows()` remove observations that completely have missing or
   empty character values.
 
-CHANGES
-
-* `data_arrange()` now works with data frames that were grouped using
-  `data_group()` (#274).
+MINOR CHANGES
 
 * `data_read()` gains a `convert_factors` argument, to turn off automatic
   conversion from numeric variables into factors.
+
+BUG FIXES
+
+* `data_arrange()` now works with data frames that were grouped using
+  `data_group()` (#274).
 
 # datawizard 0.6.1
 

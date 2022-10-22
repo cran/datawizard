@@ -1,12 +1,22 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----setup, echo=FALSE, message=FALSE-----------------------------------------
+pkgs <- c(
+  "datawizard",
+  "dplyr",
+  "htmltools"
+)
+
+if (!all(sapply(pkgs, requireNamespace, quietly = TRUE))) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
+
+## ----load, echo=FALSE, message=FALSE------------------------------------------
 library(datawizard)
-library(poorman)
+library(dplyr)
 library(htmltools)
 
 set.seed(123)
