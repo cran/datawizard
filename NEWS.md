@@ -1,3 +1,31 @@
+# datawizard 0.6.4
+
+NEW FUNCTIONS
+
+* `data_codebook()`: to generate codebooks of data frames.
+
+* New functions to deal with duplicates: `data_duplicated()` (keep all duplicates,
+  including the first occurrence) and `data_unique()` (returns the data, excluding 
+  all duplicates except one instance of each, based on the selected method).
+
+MINOR CHANGES
+
+* `.data.frame` methods should now preserve custom attributes.
+
+* The `include_bounds` argument in `normalize()` can now also be a numeric
+  value, defining the limit to the upper and lower bound (i.e. the distance
+  to 1 and 0).
+  
+* `data_filter()` now works with grouped data. 
+
+BUG FIXES
+
+* `data_read()` no longer prints message for empty columns when the data
+  actually had no empty columns.
+  
+ * `data_to_wide()` now drops columns that are not in `id_cols` (if specified), 
+  `names_from`, or `values_from`. This is the behaviour observed in `tidyr::pivot_wider()`.
+
 # datawizard 0.6.3
 
 MAJOR CHANGES

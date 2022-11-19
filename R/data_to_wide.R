@@ -115,6 +115,13 @@ data_to_wide <- function(data,
       names_sep <- sep
     }
   }
+  if (is.null(id_cols)) {
+    id_cols <- setdiff(names(data), c(names_from, values_from))
+  }
+
+  # save custom attributes
+  custom_attr <- attributes(data)
+
   current_colnames <- names(data)
 
   # Preserve attributes
@@ -127,8 +134,7 @@ data_to_wide <- function(data,
 
   variable_attr <- lapply(data, attributes)
 
-  not_selected <- setdiff(names(data), c(names_from, values_from))
-  not_unstacked <- data[, not_selected, drop = FALSE]
+  not_unstacked <- data[, id_cols, drop = FALSE]
   not_unstacked <- unique(not_unstacked)
 
   # unstack doesn't create NAs for combinations that don't exist (contrary to
@@ -138,10 +144,10 @@ data_to_wide <- function(data,
 
   # create an id with all variables that are not in names_from or values_from
   # so that we can create missing combinations between this id and names_from
-  if (length(not_selected) > 1) {
-    new_data$temporary_id <- do.call(paste, c(new_data[, not_selected, drop = FALSE], sep = "_"))
-  } else if (length(not_selected) == 1) {
-    new_data$temporary_id <- new_data[[not_selected]]
+  if (length(id_cols) > 1L) {
+    new_data$temporary_id <- do.call(paste, c(new_data[, id_cols, drop = FALSE], sep = "_"))
+  } else if (length(id_cols) == 1L) {
+    new_data$temporary_id <- new_data[[id_cols]]
   } else {
     new_data$temporary_id <- seq_len(nrow(new_data))
   }
@@ -152,20 +158,19 @@ data_to_wide <- function(data,
   n_rows_per_group <- table(new_data$temporary_id)
   n_values_per_group <- insight::n_unique(n_rows_per_group)
 
-  not_all_cols_are_selected <- length(not_selected) > 0
+  not_all_cols_are_selected <- length(id_cols) > 0L
 
   incomplete_groups <-
-    (n_values_per_group > 1 &&
+    (n_values_per_group > 1L &&
       !all(unique(n_rows_per_group) %in% insight::n_unique(new_data[, names_from]))
     ) ||
-      (n_values_per_group == 1 &&
+      (n_values_per_group == 1L &&
         unique(n_rows_per_group) < length(unique(new_data[, names_from]))
       )
 
   # create missing combinations
 
   if (not_all_cols_are_selected && incomplete_groups) {
-
     expanded <- expand.grid(unique(new_data[["temporary_id"]]), unique(new_data[[names_from]]))
     names(expanded) <- c("temporary_id", names_from)
     new_data <- data_merge(new_data, expanded,
@@ -189,12 +194,13 @@ data_to_wide <- function(data,
     )
     lookup$temporary_id_2 <- seq_len(nrow(lookup))
     new_data <- data_merge(
-      new_data, lookup, by = "temporary_id", join = "left"
+      new_data, lookup,
+      by = "temporary_id", join = "left"
     )
 
     # creation of missing combinations was done with a temporary id, so need
     # to fill columns that are not selected in names_from or values_from
-    new_data[, not_selected] <- lapply(not_selected, function(x) {
+    new_data[, id_cols] <- lapply(id_cols, function(x) {
       data <- data_arrange(new_data, c("temporary_id_2", x))
       ind <- which(!is.na(data[[x]]))
       rep_times <- diff(c(ind, length(data[[x]]) + 1))
@@ -210,7 +216,7 @@ data_to_wide <- function(data,
 
   # Fill missing values (before converting to wide)
   if (!is.null(values_fill)) {
-    if (length(values_fill) == 1) {
+    if (length(values_fill) == 1L) {
       if (is.numeric(new_data[[values_from]])) {
         if (!is.numeric(values_fill)) {
           insight::format_error(paste0("`values_fill` must be of type numeric."))
@@ -239,12 +245,14 @@ data_to_wide <- function(data,
 
   # convert to wide format (returns the data and the order in which columns
   # should be ordered)
-  unstacked <- .unstack(new_data, names_from, values_from,
-                        names_sep, names_prefix, names_glue)
+  unstacked <- .unstack(
+    new_data, names_from, values_from,
+    names_sep, names_prefix, names_glue
+  )
 
   out <- unstacked$out
 
-  if (length(values_from) > 1) {
+  if (length(values_from) > 1L) {
     unstacked$col_order <- unique(data[, names_from])
     unstacked$col_order <- sort(
       as.vector(
@@ -258,7 +266,7 @@ data_to_wide <- function(data,
     insight::format_error(
       "Some values of the columns specified in 'names_from' are already present as column names.",
       paste0(
-        "Either use `name_prefix` or rename the following columns: ",
+        "Either use `names_prefix` or rename the following columns: ",
         text_concatenate(current_colnames[which(current_colnames %in% unstacked$col_order)])
       )
     )
@@ -290,6 +298,9 @@ data_to_wide <- function(data,
     }
   }
 
+  # add back attributes
+  out <- .replace_attrs(out, custom_attr)
+
   if (isTRUE(tbl_input)) {
     class(out) <- c("tbl_df", "tbl", "data.frame")
   }
@@ -319,7 +330,7 @@ data_to_wide <- function(data,
   res <- list()
   for (i in seq_along(values_from)) {
     res[[i]] <- c(tapply(x[[values_from[i]]], x$future_colnames, as.vector))
-    if (length(values_from) > 1) {
+    if (length(values_from) > 1L) {
       names(res[[i]]) <- paste0(values_from[i], names_sep, names(res[[i]]))
     }
   }
@@ -327,7 +338,7 @@ data_to_wide <- function(data,
   # if there's a single variable in "values_from" and this variable only has
   # one value, need to make it a dataframe
 
-  if (length(res) == 1 && !is.list(res[[1]])) {
+  if (length(res) == 1L && !is.list(res[[1]])) {
     res <- data.frame(
       matrix(
         res[[1]],
