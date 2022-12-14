@@ -122,7 +122,7 @@ emotion %>%
     Valence_SD = sd(Subjective_Valence)
   )
 
-## -----------------------------------------------------------------------------
+## ---- warning=FALSE-----------------------------------------------------------
 Z_VariableWise <- emotion %>%
   standardize()
 
