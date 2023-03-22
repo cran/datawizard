@@ -82,8 +82,8 @@ data_codebook <- function(data,
         sprintf("Following %i columns were empty and have been removed:", length(empty)),
         text_concatenate(names(empty))
       )
-      select <- select[-empty]
     }
+    select <- select[-empty]
   }
 
   # needed for % NA
@@ -117,7 +117,7 @@ data_codebook <- function(data,
           text_wrap(variable_label, width = variable_label_width),
           "\n",
           fixed = TRUE
-        )))
+        ), use.names = FALSE))
       }
     } else {
       variable_label <- NA
@@ -364,12 +364,14 @@ format.data_codebook <- function(x, format = "text", ...) {
 print.data_codebook <- function(x, ...) {
   caption <- c(.get_codebook_caption(x), "blue")
   x$.row_id <- NULL
-  cat(insight::export_table(format(x),
-    title = caption,
-    empty_line = "-",
-    cross = "+",
-    align = .get_codebook_align(x)
-  ))
+  cat(
+    insight::export_table(format(x),
+      title = caption,
+      empty_line = "-",
+      cross = "+",
+      align = .get_codebook_align(x)
+    )
+  )
 }
 
 

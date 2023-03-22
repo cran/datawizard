@@ -254,13 +254,16 @@ degroup <- function(x,
                     add_attributes = TRUE,
                     verbose = TRUE) {
   # ugly tibbles again...
-  x <- as.data.frame(x)
+  x <- .coerce_to_dataframe(x)
 
   center <- match.arg(tolower(center), choices = c("mean", "median", "mode", "min", "max"))
 
   if (inherits(select, "formula")) {
     # formula to character, remove "~", split at "+"
-    select <- trimws(unlist(strsplit(gsub("~", "", insight::safe_deparse(select), fixed = TRUE), "+", fixed = TRUE)))
+    select <- trimws(unlist(
+      strsplit(gsub("~", "", insight::safe_deparse(select), fixed = TRUE), "+", fixed = TRUE),
+      use.names = FALSE
+    ))
   }
 
   if (inherits(group, "formula")) {
@@ -285,7 +288,7 @@ degroup <- function(x,
       sprintf(
         "%i variables were not found in the dataset: %s\n",
         length(not_found),
-        paste0(not_found, collapse = ", ")
+        toString(not_found)
       )
     )
   }
@@ -297,7 +300,7 @@ degroup <- function(x,
 
 
   # find categorical predictors that are coded as factors
-  categorical_predictors <- sapply(dat[select], is.factor)
+  categorical_predictors <- vapply(dat[select], is.factor, FUN.VALUE = logical(1L))
 
   # convert binary predictors to numeric
   if (any(categorical_predictors)) {
@@ -326,12 +329,12 @@ degroup <- function(x,
     }
     # tell user...
     if (isTRUE(verbose)) {
-      insight::print_color(
-        sprintf(
-          "Categorical predictors (%s) have been coerced to numeric values to compute de- and group-meaned variables.\n",
-          paste0(names(categorical_predictors)[categorical_predictors], collapse = ", ")
-        ),
-        "yellow"
+      insight::format_alert(
+        paste0(
+          "Categorical predictors (",
+          toString(names(categorical_predictors)[categorical_predictors]),
+          ") have been coerced to numeric values to compute de- and group-meaned variables.\n"
+        )
       )
     }
   }

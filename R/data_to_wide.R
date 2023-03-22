@@ -49,14 +49,14 @@
 #'        4   M     cond2        12.9")
 #'
 #'
-#' reshape_wider(
+#' data_to_wide(
 #'   data_long,
 #'   id_cols = "subject",
 #'   names_from = "condition",
 #'   values_from = "measurement"
 #' )
 #'
-#' reshape_wider(
+#' data_to_wide(
 #'   data_long,
 #'   id_cols = "subject",
 #'   names_from = "condition",
@@ -74,7 +74,7 @@
 #'
 #' production$production <- rnorm(nrow(production))
 #'
-#' reshape_wider(
+#' data_to_wide(
 #'   production,
 #'   names_from = c("product", "country"),
 #'   values_from = "production",
@@ -207,7 +207,7 @@ data_to_wide <- function(data,
       rep(data[[x]][ind], times = rep_times)
     })
 
-    new_data <- data_arrange(new_data, c("temporary_id_2"))
+    new_data <- data_arrange(new_data, "temporary_id_2")
   }
 
   # don't need temporary ids anymore
@@ -290,7 +290,7 @@ data_to_wide <- function(data,
 
   # convert back to date if original values were dates
   values_are_dates <- all(
-    vapply(data[, values_from, drop = FALSE], .is_date, FUN.VALUE = logical(1))
+    vapply(data[, values_from, drop = FALSE], .is_date, FUN.VALUE = logical(1L))
   )
   if (values_are_dates) {
     for (i in unstacked$col_order) {
@@ -329,7 +329,7 @@ data_to_wide <- function(data,
   # expand the values for each variable in "values_from"
   res <- list()
   for (i in seq_along(values_from)) {
-    res[[i]] <- c(tapply(x[[values_from[i]]], x$future_colnames, as.vector))
+    res[[i]] <- tapply(x[[values_from[i]]], x$future_colnames, as.vector)
     if (length(values_from) > 1L) {
       names(res[[i]]) <- paste0(values_from[i], names_sep, names(res[[i]]))
     }
@@ -342,7 +342,7 @@ data_to_wide <- function(data,
     res <- data.frame(
       matrix(
         res[[1]],
-        nrow = 1, dimnames = list(c(), names(res[[1]]))
+        nrow = 1, dimnames = list(NULL, names(res[[1]]))
       ),
       stringsAsFactors = FALSE,
       check.names = FALSE

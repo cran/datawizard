@@ -10,7 +10,7 @@ pkgs <- c(
   "htmltools"
 )
 
-if (!all(sapply(pkgs, requireNamespace, quietly = TRUE))) {
+if (!all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L)))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
 
@@ -83,6 +83,9 @@ data_select(iris, -is.numeric)
 data_select(iris, -(1:2))
 
 ## -----------------------------------------------------------------------------
+data_select(iris, -(Petal.Length:Species))
+
+## -----------------------------------------------------------------------------
 data_select(iris, exclude = c("Sepal.Length", "Petal.Width"))
 
 data_select(iris, exclude = starts_with("Sep", "Peta"))
@@ -91,7 +94,7 @@ data_select(iris, exclude = starts_with("Sep", "Peta"))
 my_function <- function(data, selection) {
   find_columns(data, select = selection)
 }
-my_function(iris, c("Sepal.Length"))
+my_function(iris, "Sepal.Length")
 my_function(iris, starts_with("Sep"))
 
 my_function_2 <- function(data, pattern) {

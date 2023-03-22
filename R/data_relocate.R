@@ -27,17 +27,16 @@
 #' head(data_relocate(iris, select = "Species", before = "Sepal.Length"))
 #' head(data_relocate(iris, select = "Species", before = "Sepal.Width"))
 #' head(data_relocate(iris, select = "Sepal.Width", after = "Species"))
-#' # same as
+#' # which is same as
 #' head(data_relocate(iris, select = "Sepal.Width", after = -1))
 #'
-#' # reorder multiple columns
+#' # Reorder multiple columns
 #' head(data_relocate(iris, select = c("Species", "Petal.Length"), after = "Sepal.Width"))
-#' # same as
+#' # which is same as
 #' head(data_relocate(iris, select = c("Species", "Petal.Length"), after = 2))
 #'
 #' # Reorder columns
 #' head(data_reorder(iris, c("Species", "Sepal.Length")))
-#' head(data_reorder(iris, c("Species", "dupa"))) # Safe for non-existing cols
 #'
 #' @export
 data_relocate <- function(data,

@@ -80,6 +80,7 @@ However, unlike \code{subset()}, it preserves label attributes and is useful whe
 working with labelled data.
 }
 \examples{
+# styler: off
 data_match(mtcars, data.frame(vs = 0, am = 1))
 data_match(mtcars, data.frame(vs = 0, am = c(0, 1)))
 
@@ -111,6 +112,7 @@ my_filter(mtcars, "am != 0")
 
 # string can also be used directly as argument
 data_filter(mtcars, "am != 0")
+# styler: on
 }
 \seealso{
 \itemize{

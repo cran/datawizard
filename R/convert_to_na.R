@@ -63,7 +63,7 @@ convert_to_na.default <- function(x, verbose = TRUE, ...) {
 convert_to_na.numeric <- function(x, na = NULL, verbose = TRUE, ...) {
   # if we have a list, use first valid element
   if (is.list(na)) {
-    na <- unlist(na[vapply(na, is.numeric, FUN.VALUE = TRUE)])
+    na <- unlist(na[vapply(na, is.numeric, FUN.VALUE = TRUE)], use.names = FALSE)
   }
 
   if (is_empty_object(na) || !is.numeric(na)) {
@@ -89,7 +89,7 @@ convert_to_na.numeric <- function(x, na = NULL, verbose = TRUE, ...) {
 convert_to_na.factor <- function(x, na = NULL, drop_levels = FALSE, verbose = TRUE, ...) {
   # if we have a list, use first valid element
   if (is.list(na)) {
-    na <- unlist(na[vapply(na, is.character, FUN.VALUE = TRUE)])
+    na <- unlist(na[vapply(na, is.character, FUN.VALUE = TRUE)], use.names = FALSE)
   }
 
   if (is_empty_object(na) || (!is.factor(na) && !is.character(na))) {
@@ -121,7 +121,7 @@ convert_to_na.character <- convert_to_na.factor
 convert_to_na.Date <- function(x, na = NULL, verbose = TRUE, ...) {
   # if we have a list, use first valid element
   if (is.list(na)) {
-    na <- na[vapply(na, .is_date, FUN.VALUE = logical(1))]
+    na <- na[vapply(na, .is_date, FUN.VALUE = logical(1L))]
     if (length(na) > 1) {
       na <- na[[1]]
     }
@@ -146,7 +146,7 @@ convert_to_na.Date <- function(x, na = NULL, verbose = TRUE, ...) {
 convert_to_na.logical <- function(x, na = NULL, verbose = TRUE, ...) {
   # if we have a list, use first valid element
   if (is.list(na)) {
-    na <- unlist(na[vapply(na, is.logical, FUN.VALUE = TRUE)])
+    na <- unlist(na[vapply(na, is.logical, FUN.VALUE = TRUE)], use.names = FALSE)
   }
 
   if (is_empty_object(na) || !is.logical(na)) {

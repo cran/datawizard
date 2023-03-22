@@ -1,4 +1,3 @@
-
 # helper -----------------------------
 
 
@@ -94,10 +93,10 @@
   }
 
   # copy label attributes
-  variable_labels <- compact_list(lapply(x, function(i) attr(i, "label", exact = TRUE)))
+  variable_labels <- compact_list(lapply(x, attr, "label", exact = TRUE))
   value_labels <- NULL
   if (preserve_value_labels) {
-    value_labels <- compact_list(lapply(x, function(i) attr(i, "labels", exact = TRUE)))
+    value_labels <- compact_list(lapply(x, attr, "labels", exact = TRUE))
   }
 
   # drop NAs
@@ -105,8 +104,8 @@
 
   omit <- switch(remove_na,
     none = logical(nrow(x)),
-    selected = rowSums(sapply(x[select], is.na)) > 0,
-    all = rowSums(sapply(x, is.na)) > 0
+    selected = rowSums(vapply(x[select], is.na, FUN.VALUE = logical(nrow(x)))) > 0,
+    all = rowSums(vapply(x, is.na, FUN.VALUE = logical(nrow(x)))) > 0
   )
   x <- x[!omit, , drop = FALSE]
 
@@ -193,24 +192,41 @@
 
 ## retrieve center and scale information ----
 
-.get_center_scale <- function(x, robust = FALSE, weights = NULL, reference = NULL, .center = NULL, .scale = NULL, verbose = TRUE) {
+.get_center_scale <- function(x,
+                              robust = FALSE,
+                              weights = NULL,
+                              reference = NULL,
+                              .center = NULL,
+                              .scale = NULL,
+                              verbose = TRUE) {
   if (is.null(reference)) reference <- x
 
-  # for center(), we have no scale. default to 0
-  if (is.null(.scale) || is.na(.scale)) {
-    .scale <- 1
+  # for center(), we have no scale. default to 1
+  if (is.null(.scale) || is.na(.scale) || isFALSE(.scale)) {
+    scale <- 1
+  } else if (isTRUE(.scale)) {
+    if (robust) {
+      scale <- weighted_mad(reference, weights)
+    } else {
+      scale <- weighted_sd(reference, weights)
+    }
+  } else {
+    # we must have a numeric value here
+    scale <- .scale
   }
 
-  if (!is.null(.center) && !is.na(.center)) {
-    center <- .center
-    scale <- .scale
-  } else if (robust) {
-    center <- weighted_median(reference, weights)
-    scale <- weighted_mad(reference, weights)
+  # process center
+  if (is.null(.center) || is.na(.center) || isFALSE(.center)) {
+    center <- 0
+  } else if (isTRUE(.center)) {
+    if (robust) {
+      center <- weighted_median(reference, weights)
+    } else {
+      center <- weighted_mean(reference, weights)
+    }
   } else {
-    center <- weighted_mean(reference, weights)
-    scale <- weighted_sd(reference, weights)
-    if (is.na(scale)) scale <- 1
+    # we must have a numeric value here
+    center <- .center
   }
 
   if (scale == 0) {
@@ -237,7 +253,7 @@
                                        reference = NULL,
                                        center) {
   # Warning if only one value
-  if (insight::has_single_value(x) && is.null(reference) && is.null(center)) {
+  if (insight::has_single_value(x) && is.null(reference) && (is.null(center) || isTRUE(center))) {
     if (verbose) {
       if (is.null(name)) {
         insight::format_alert(
@@ -253,17 +269,15 @@
   }
 
   # Warning if logical vector
-  if (length(unique(x)) == 2 && !is.factor(x) && !is.character(x)) {
-    if (verbose) {
-      if (is.null(name)) {
-        insight::format_alert(
-          "The variable contains only two different values. Consider converting it to a factor."
-        )
-      } else {
-        insight::format_alert(
-          paste0("Variable `", name, "` contains only two different values. Consider converting it to a factor.")
-        )
-      }
+  if (verbose && insight::n_unique(x) == 2 && !is.factor(x) && !is.character(x)) {
+    if (is.null(name)) {
+      insight::format_alert(
+        "The variable contains only two different values. Consider converting it to a factor."
+      )
+    } else {
+      insight::format_alert(
+        paste0("Variable `", name, "` contains only two different values. Consider converting it to a factor.")
+      )
     }
   }
   x
@@ -284,9 +298,9 @@
 
   if (!force) {
     if (!keep_character) {
-      factors <- sapply(x[select], function(i) is.factor(i) | is.character(i))
+      factors <- vapply(x[select], function(i) is.factor(i) | is.character(i), FUN.VALUE = logical(1L))
     } else {
-      factors <- sapply(x[select], function(i) is.factor(i))
+      factors <- vapply(x[select], is.factor, FUN.VALUE = logical(1L))
     }
     select <- select[!factors]
   }

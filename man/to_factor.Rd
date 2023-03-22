@@ -44,7 +44,7 @@ for which the function returns \code{TRUE} (like: \code{foo <- function(x) mean(
 \item ranges specified via literal variable names, select-helpers (except
 \code{regex()}) and (user-defined) functions can be negated, i.e. return
 non-matching elements, when prefixed with a \code{-}, e.g. \code{-ends_with("")},
-\code{-is.numeric} or \code{-Sepal.Width:Petal.Length}. \strong{Note:} Negation means
+\code{-is.numeric} or \code{-(Sepal.Width:Petal.Length)}. \strong{Note:} Negation means
 that matches are \emph{excluded}, and thus, the \code{exclude} argument can be
 used alternatively. For instance, \code{select=-ends_with("Length")} (with
 \code{-}) is equivalent to \code{exclude=ends_with("Length")} (no \code{-}). In case
@@ -91,9 +91,9 @@ A factor, or a data frame of factors.
 Convert data to factors
 }
 \details{
-Convert data to numeric by converting characters to factors and factors to
-either numeric levels or dummy variables. The "counterpart" to convert
-variables into numeric is \code{to_numeric()}.
+Convert variables or data into factors. If the data is labelled, value labels
+will be used as factor levels. The counterpart to convert variables into
+numeric is \code{to_numeric()}.
 }
 \section{Selection of variables - the \code{select} argument}{
 

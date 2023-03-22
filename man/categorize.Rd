@@ -69,7 +69,8 @@ default minimum is always \code{1}, unless specified otherwise in \code{lowest}.
 
 \item{labels}{Character vector of value labels. If not \code{NULL}, \code{categorize()}
 will returns factors instead of numeric variables, with \code{labels} used
-for labelling the factor levels.}
+for labelling the factor levels. Can also be \code{"mean"} or \code{"median"} for a
+factor with labels as the mean/median of each groups.}
 
 \item{verbose}{Toggle warnings.}
 
@@ -94,7 +95,7 @@ for which the function returns \code{TRUE} (like: \code{foo <- function(x) mean(
 \item ranges specified via literal variable names, select-helpers (except
 \code{regex()}) and (user-defined) functions can be negated, i.e. return
 non-matching elements, when prefixed with a \code{-}, e.g. \code{-ends_with("")},
-\code{-is.numeric} or \code{-Sepal.Width:Petal.Length}. \strong{Note:} Negation means
+\code{-is.numeric} or \code{-(Sepal.Width:Petal.Length)}. \strong{Note:} Negation means
 that matches are \emph{excluded}, and thus, the \code{exclude} argument can be
 used alternatively. For instance, \code{select=-ends_with("Length")} (with
 \code{-}) is equivalent to \code{exclude=ends_with("Length")} (no \code{-}). In case
@@ -211,6 +212,11 @@ set.seed(123)
 x <- sample(1:10, size = 30, replace = TRUE)
 categorize(x, "equal_length", n_groups = 3)
 categorize(x, "equal_length", n_groups = 3, labels = c("low", "mid", "high"))
+
+# cut numeric into groups with the mean or median as a label name
+x <- sample(1:10, size = 30, replace = TRUE)
+categorize(x, "equal_length", n_groups = 3, labels = "mean")
+categorize(x, "equal_length", n_groups = 3, labels = "median")
 }
 \seealso{
 \itemize{

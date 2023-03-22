@@ -646,7 +646,7 @@ column names if we want to select several variables, while
 here and quoting them won't work. Should we comment on that? -->
 <div class="sourceCode" id="cb11"><pre class="sourceCode r datawizard"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- datawizard -----------</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>starwars <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_select</span>(<span class="at">select =</span> <span class="sc">-</span>hair_color<span class="sc">:</span>eye_color)</span></code></pre></div>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data_select</span>(<span class="at">select =</span> <span class="sc">-</span>(hair_color<span class="sc">:</span>eye_color))</span></code></pre></div>
 </div>
 <div>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r tidyverse"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------- tidyverse -----------</span></span>

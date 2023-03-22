@@ -61,7 +61,7 @@ for which the function returns \code{TRUE} (like: \code{foo <- function(x) mean(
 \item ranges specified via literal variable names, select-helpers (except
 \code{regex()}) and (user-defined) functions can be negated, i.e. return
 non-matching elements, when prefixed with a \code{-}, e.g. \code{-ends_with("")},
-\code{-is.numeric} or \code{-Sepal.Width:Petal.Length}. \strong{Note:} Negation means
+\code{-is.numeric} or \code{-(Sepal.Width:Petal.Length)}. \strong{Note:} Negation means
 that matches are \emph{excluded}, and thus, the \code{exclude} argument can be
 used alternatively. For instance, \code{select=-ends_with("Length")} (with
 \code{-}) is equivalent to \code{exclude=ends_with("Length")} (no \code{-}). In case
@@ -115,17 +115,16 @@ be reordered or removed.
 head(data_relocate(iris, select = "Species", before = "Sepal.Length"))
 head(data_relocate(iris, select = "Species", before = "Sepal.Width"))
 head(data_relocate(iris, select = "Sepal.Width", after = "Species"))
-# same as
+# which is same as
 head(data_relocate(iris, select = "Sepal.Width", after = -1))
 
-# reorder multiple columns
+# Reorder multiple columns
 head(data_relocate(iris, select = c("Species", "Petal.Length"), after = "Sepal.Width"))
-# same as
+# which is same as
 head(data_relocate(iris, select = c("Species", "Petal.Length"), after = 2))
 
 # Reorder columns
 head(data_reorder(iris, c("Species", "Sepal.Length")))
-head(data_reorder(iris, c("Species", "dupa"))) # Safe for non-existing cols
 
 # Remove columns
 head(data_remove(iris, "Sepal.Length"))

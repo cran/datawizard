@@ -1,4 +1,3 @@
-# styler: off
 #' Return filtered or sliced data frame, or row indices
 #'
 #' Return a filtered (or sliced) data frame or row indices of a data frame that
@@ -63,6 +62,7 @@
 #' working with labelled data.
 #'
 #' @examples
+#' # styler: off
 #' data_match(mtcars, data.frame(vs = 0, am = 1))
 #' data_match(mtcars, data.frame(vs = 0, am = c(0, 1)))
 #'
@@ -94,6 +94,7 @@
 #'
 #' # string can also be used directly as argument
 #' data_filter(mtcars, "am != 0")
+#' # styler: on
 #' @inherit data_rename seealso
 #' @export
 data_match <- function(x, to, match = "and", return_indices = FALSE, drop_na = TRUE, ...) {
@@ -126,7 +127,7 @@ data_match <- function(x, to, match = "and", return_indices = FALSE, drop_na = T
 
   # prepare
   if (identical(match, "or")) {
-    idx <- c()
+    idx <- vector("numeric", length = 0L)
   } else {
     # remove missings before matching
     if (isTRUE(drop_na)) {
@@ -205,11 +206,11 @@ data_filter.data.frame <- function(x, filter, ...) {
     has_curley <- grepl("{", condition, fixed = TRUE)
 
     if (has_curley) {
-      condition <- gsub("\\{ ", "\\{", condition)
-      condition <- gsub(" \\}", "\\}", condition)
+      condition <- gsub("{ ", "{", condition, fixed = TRUE)
+      condition <- gsub(" }", "}", condition, fixed = TRUE)
 
       curley_vars <- regmatches(condition, gregexpr("[^{\\}]+(?=\\})", condition, perl = TRUE))
-      curley_vars <- unique(unlist(curley_vars))
+      curley_vars <- unique(unlist(curley_vars, use.names = FALSE))
 
       for (i in curley_vars) {
         if (isTRUE(dots$called_from_group)) {
@@ -247,7 +248,6 @@ data_filter.data.frame <- function(x, filter, ...) {
 
 #' @export
 data_filter.grouped_df <- function(x, filter, ...) {
-
   # works only for dplyr >= 0.8.0
   grps <- attr(x, "groups", exact = TRUE)
   grps <- grps[[".rows"]]
@@ -305,4 +305,3 @@ data_filter.grouped_df <- function(x, filter, ...) {
     )
   }
 }
-# styler: on

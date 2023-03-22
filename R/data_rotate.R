@@ -31,11 +31,8 @@
 #' data_rotate(x, colnames = TRUE)
 #' data_rotate(x, rownames = "property", colnames = TRUE)
 #'
-#' # warn that data types are changed
-#' str(data_rotate(iris[1:4, ]))
-#'
 #' # use either first column or specific column for column names
-#' x <- data.frame(a = 1:5, b = 11:15, c = letters[1:5], d = rnorm(5))
+#' x <- data.frame(a = 1:5, b = 11:15, c = 21:25)
 #' data_rotate(x, colnames = TRUE)
 #' data_rotate(x, colnames = "c")
 #'
@@ -58,10 +55,8 @@ data_rotate <- function(data, rownames = NULL, colnames = FALSE, verbose = TRUE)
   }
 
   # warning after possible removal of columns
-  if (length(unique(sapply(data, class))) > 1) {
-    if (verbose) {
-      insight::format_warning("Your data frame contains mixed types of data. After transposition, all variables will be transformed into characters.")
-    }
+  if (verbose && insight::n_unique(vapply(data, typeof, FUN.VALUE = character(1L))) > 1L) {
+    insight::format_warning("Your data frame contains mixed types of data. After transposition, all variables will be transformed into characters.")
   }
 
   # rotate data frame by 90 degrees

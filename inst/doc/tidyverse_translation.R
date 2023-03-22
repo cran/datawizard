@@ -19,7 +19,7 @@ pkgs <- c(
 # a logical that is FALSE only if deps are not installed (cf easystats/easystats#317)
 evaluate_chunk <- TRUE
 
-if (!all(sapply(pkgs, requireNamespace, quietly = TRUE))) {
+if (!all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L)))) {
   evaluate_chunk <- FALSE
 }
 
@@ -84,7 +84,7 @@ starwars %>%
 ## ----select3, class.source = "datawizard"-------------------------------------
 #  # ---------- datawizard -----------
 #  starwars %>%
-#    data_select(select = -hair_color:eye_color)
+#    data_select(select = -(hair_color:eye_color))
 
 ## ---- class.source = "tidyverse"----------------------------------------------
 #  # ---------- tidyverse -----------
@@ -94,7 +94,7 @@ starwars %>%
 ## ----select3, eval = evaluate_chunk, echo = FALSE-----------------------------
 # ---------- datawizard -----------
 starwars %>%
-  data_select(select = -hair_color:eye_color)
+  data_select(select = -(hair_color:eye_color))
 
 ## ----select4, class.source = "datawizard"-------------------------------------
 #  # ---------- datawizard -----------

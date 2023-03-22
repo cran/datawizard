@@ -29,8 +29,14 @@ reverse_scale(x, ...)
 
 \item{...}{Arguments passed to or from other methods.}
 
-\item{range}{Initial (old) range of values. If \code{NULL}, will take the range of
-the input vector (\code{range(x)}).}
+\item{range}{Range of values that is used as reference for reversing the
+scale. For numeric variables, can be \code{NULL} or a numeric vector of length
+two, indicating the lowest and highest value of the reference range. If
+\code{NULL}, will take the range of the input vector (\code{range(x)}). For factors,
+\code{range} can be \code{NULL}, a numeric vector of length two, or a (numeric)
+vector of at least the same length as factor levels (i.e. must be equal
+to or larger than \code{nlevels(x)}). Note that providing a \code{range} for factors
+usually only makes sense when factor levels are numeric, not characters.}
 
 \item{verbose}{Toggle warnings.}
 
@@ -55,7 +61,7 @@ for which the function returns \code{TRUE} (like: \code{foo <- function(x) mean(
 \item ranges specified via literal variable names, select-helpers (except
 \code{regex()}) and (user-defined) functions can be negated, i.e. return
 non-matching elements, when prefixed with a \code{-}, e.g. \code{-ends_with("")},
-\code{-is.numeric} or \code{-Sepal.Width:Petal.Length}. \strong{Note:} Negation means
+\code{-is.numeric} or \code{-(Sepal.Width:Petal.Length)}. \strong{Note:} Negation means
 that matches are \emph{excluded}, and thus, the \code{exclude} argument can be
 used alternatively. For instance, \code{select=-ends_with("Length")} (with
 \code{-}) is equivalent to \code{exclude=ends_with("Length")} (no \code{-}). In case

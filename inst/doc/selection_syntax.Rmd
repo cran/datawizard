@@ -19,7 +19,7 @@ pkgs <- c(
   "htmltools"
 )
 
-if (!all(sapply(pkgs, requireNamespace, quietly = TRUE))) {
+if (!all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L)))) {
   knitr::opts_chunk$set(eval = FALSE)
 }
 ```
@@ -164,6 +164,12 @@ two columns; `select = -1:2` will *not* work:
 data_select(iris, -(1:2))
 ```
 
+Same thing for variable names:
+
+```{r}
+data_select(iris, -(Petal.Length:Species))
+```
+
 The second way is to use the argument `exclude`. This argument has the same 
 possibilities as `select`. Although this may not be required in most contexts, 
 if we wanted to, we could use both `select` and `exclude` arguments at the same 
@@ -187,7 +193,7 @@ For example, if we want to let the user decide the selection they want to use:
 my_function <- function(data, selection) {
   find_columns(data, select = selection)
 }
-my_function(iris, c("Sepal.Length"))
+my_function(iris, "Sepal.Length")
 my_function(iris, starts_with("Sep"))
 
 my_function_2 <- function(data, pattern) {

@@ -29,7 +29,14 @@ data_addsuffix(
   ...
 )
 
-data_rename(data, pattern = NULL, replacement = NULL, safe = TRUE, ...)
+data_rename(
+  data,
+  pattern = NULL,
+  replacement = NULL,
+  safe = TRUE,
+  verbose = TRUE,
+  ...
+)
 
 data_rename_rows(data, rows = NULL)
 }
@@ -62,7 +69,7 @@ for which the function returns \code{TRUE} (like: \code{foo <- function(x) mean(
 \item ranges specified via literal variable names, select-helpers (except
 \code{regex()}) and (user-defined) functions can be negated, i.e. return
 non-matching elements, when prefixed with a \code{-}, e.g. \code{-ends_with("")},
-\code{-is.numeric} or \code{-Sepal.Width:Petal.Length}. \strong{Note:} Negation means
+\code{-is.numeric} or \code{-(Sepal.Width:Petal.Length)}. \strong{Note:} Negation means
 that matches are \emph{excluded}, and thus, the \code{exclude} argument can be
 used alternatively. For instance, \code{select=-ends_with("Length")} (with
 \code{-}) is equivalent to \code{exclude=ends_with("Length")} (no \code{-}). In case
@@ -90,7 +97,7 @@ select-helpers, \code{select = contains("")} or \code{select = regex("")}, howev
 since the select-helpers may not work when called from inside other
 functions (see 'Details'), this argument may be used as workaround.}
 
-\item{verbose}{Toggle warnings.}
+\item{verbose}{Toggle warnings and messages.}
 
 \item{...}{Other arguments passed to or from other functions.}
 

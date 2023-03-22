@@ -105,7 +105,7 @@ standardize.default <- function(x,
     insight::format_error("Cannot standardize a model fit with a 'subset = '.")
   }
 
-  if (m_info$is_bayesian) {
+  if (m_info$is_bayesian && verbose) {
     insight::format_warning(
       "Standardizing variables without adjusting priors may lead to bogus results unless priors are auto-scaled."
     )
@@ -173,12 +173,13 @@ standardize.default <- function(x,
   do_standardize <- setdiff(colnames(data), dont_standardize)
 
   # can't std data$var variables
-  if (any(doller_vars <- grepl("(.*)\\$(.*)", do_standardize))) {
+  doller_vars <- grepl("(.*)\\$(.*)", do_standardize)
+  if (any(doller_vars)) {
     doller_vars <- colnames(data)[doller_vars]
     insight::format_warning(
       "Unable to standardize variables evaluated in the environment (i.e., not in `data`).",
       "The following variables will not be standardizd:",
-      paste0(doller_vars, collapse = ", ")
+      toString(doller_vars)
     )
     do_standardize <- setdiff(do_standardize, doller_vars)
     dont_standardize <- c(dont_standardize, doller_vars)
@@ -263,7 +264,9 @@ standardize.default <- function(x,
   if (isTRUE(verbose)) {
     model_std <- eval(substitute(update_expr))
   } else {
-    utils::capture.output(model_std <- eval(substitute(update_expr)))
+    utils::capture.output({
+      model_std <- eval(substitute(update_expr))
+    })
   }
 
   on.exit() # undo previous on.exit()
@@ -386,7 +389,7 @@ standardize.mediate <- function(x,
   #
   #   control.value <- temp_vals[1]
   #   treat.value <- temp_vals[2]
-  #   if (verbose) message("control and treatment values have been rescaled to their standardized scales.")
+  #   if (verbose) insight::format_alert("control and treatment values have been rescaled to their standardized scales.")
   # }
 
   if (verbose && !all(c(control.value, treat.value) %in% c(0, 1))) {
@@ -397,13 +400,13 @@ standardize.mediate <- function(x,
   }
 
 
-  text <- utils::capture.output(
+  text <- utils::capture.output({
     model_std <- stats::update(x,
       model.y = y_std, model.m = m_std,
       # control.value = control.value, treat.value = treat.value
       covariates = covs
     )
-  )
+  })
 
   model_std
 }
@@ -444,7 +447,7 @@ standardize.biglm <- standardize.wbm
   x <- insight::find_terms(model, flatten = TRUE)
   # log_pattern <- "^log\\((.*)\\)"
   log_pattern <- "(log\\(log|log|log1|log10|log1p|log2)\\(([^,\\+)]*).*"
-  out <- insight::trim_ws(gsub(log_pattern, "\\2", x[grepl(log_pattern, x)]))
+  out <- insight::trim_ws(gsub(log_pattern, "\\2", grep(log_pattern, x, value = TRUE)))
   intersect(colnames(data), out)
 }
 
@@ -452,7 +455,7 @@ standardize.biglm <- standardize.wbm
 .sqrt_terms <- function(model, data) {
   x <- insight::find_terms(model, flatten = TRUE)
   pattern <- "sqrt\\(([^,\\+)]*).*"
-  out <- insight::trim_ws(gsub(pattern, "\\1", x[grepl(pattern, x)]))
+  out <- insight::trim_ws(gsub(pattern, "\\1", grep(pattern, x, value = TRUE)))
   intersect(colnames(data), out)
 }
 

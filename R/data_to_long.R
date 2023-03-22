@@ -56,7 +56,7 @@
 #'   rows_to = "Participant"
 #' )
 #'
-#' reshape_longer(
+#' data_to_long(
 #'   tidyr::who,
 #'   select = new_sp_m014:newrel_f65,
 #'   names_to = c("diagnosis", "gender", "age"),
@@ -181,13 +181,13 @@ data_to_long <- function(data,
   needs_to_rearrange <- length(not_selected) == 0L && is.null(rows_to)
   if (isTRUE(needs_to_rearrange)) {
     # https://stackoverflow.com/questions/73984957/efficient-way-to-reorder-rows-to-have-a-repeated-sequence
-    stacked_data <- stacked_data[c(
+    stacked_data <- stacked_data[
       matrix(
         seq_len(nrow(stacked_data)),
         nrow = length(unique(stacked_data$ind)),
         byrow = TRUE
-      )
-    ), ]
+      ),
+    ]
 
     row.names(stacked_data) <- NULL
   }
@@ -286,12 +286,12 @@ data_to_long <- function(data,
   # can't use do.call("c", ...) all the time because its behavior changed with
   # factors in 4.1.0
   values_are_dates <- all(
-    vapply(x, .is_date, FUN.VALUE = logical(1))
+    vapply(x, .is_date, FUN.VALUE = logical(1L))
   )
   if (values_are_dates) {
     data.frame(values = do.call("c", unname(x)), ind, stringsAsFactors = FALSE)
   } else {
-    data.frame(values = unlist(unname(x)), ind, stringsAsFactors = FALSE)
+    data.frame(values = unlist(x, use.names = FALSE), ind, stringsAsFactors = FALSE)
   }
 }
 

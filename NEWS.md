@@ -1,3 +1,63 @@
+# datawizard 0.7.0
+
+BREAKING CHANGES 
+
+* In selection patterns, expressions like `-var1:var3` to exclude all variables
+  between `var1` and `var3` are no longer accepted. The correct expression is
+  `-(var1:var3)`. This is for 2 reasons:
+  
+  * to be consistent with the behavior for numerics (`-1:2` is not accepted but
+    `-(1:2)` is);
+  * to be consistent with `dplyr::select()`, which throws a warning and only
+    uses the first variable in the first expression.
+
+NEW FUNCTIONS
+
+* `recode_into()`, similar to `dplyr::case_when()`, to recode values from one
+  or more variables into a new variable.
+
+* `mean_sd()` and `median_mad()` for summarizing vectors to their mean (or
+  median) and a range of one SD (or MAD) above and below.  
+  
+* `data_write()` as counterpart to `data_read()`, to write data frames into
+  CSV, SPSS, SAS, Stata files and many other file types. One advantage over
+  existing functions to write data in other packages is that labelled (numeric)
+  data can be converted into factors (with values labels used as factor levels)
+  even for text formats like CSV and similar. This allows exporting "labelled"
+  data into those file formats, too.
+
+* `add_labs()`, to manually add value and variable labels as attributes to
+  variables. These attributes are stored as `"label"` and `"labels"` attributes,
+  similar to the `labelled` class from the _haven_ package.
+
+MINOR CHANGES
+
+* `data_rename()` gets a `verbose` argument.
+* `winsorize()` now errors if the threshold is incorrect (previously, it provided
+  a warning and returned the unchanged data). The argument `verbose` is now 
+  useless but is kept for backward compatibility. The documentation now contains   
+  details about the valid values for `threshold` (#357).
+* In all functions that have arguments `select` and/or `exclude`, there is now
+  one warning per misspelled variable. The previous behavior was to have only one
+  warning.
+* Fixed inconsistent behaviour in `standardize()` when only one of the arguments
+  `center` or `scale` were provided (#365).
+* `unstandardize()` and `replace_nan_inf()` now work with select helpers (#376).
+* Added informative warning and error messages to `reverse()`. Furthermore, the
+  docs now describe the `range` argument more clearly (#380).
+* `unnormalize()` errors with unexpected inputs (#383).
+
+BUG FIXES
+
+* `empty_columns()` (and therefore `remove_empty_columns()`) now correctly detects
+  columns containing only `NA_character_` (#349).
+* Select helpers now work in custom functions when argument is called `select`
+  (#356).
+* Fix unexpected warning in `convert_na_to()` when `select` is a list (#352).
+* Fixed issue with correct labelling of numeric variables with more than nine
+  unique values and associated value labels.
+  
+
 # datawizard 0.6.5
 
 MAJOR CHANGES

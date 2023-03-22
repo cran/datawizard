@@ -6,7 +6,7 @@ test_that("standardize.lm", {
   m0 <- lm(Sepal.Length ~ Species * Petal.Width, data = iris_z)
   m1 <- lm(Sepal.Length ~ Species * Petal.Width, data = iris2)
   model <- standardize(m1)
-  expect_equal(coef(m0), coef(model))
+  expect_identical(coef(m0), coef(model))
 })
 
 test_that("standardize, mlm", {
@@ -14,7 +14,7 @@ test_that("standardize, mlm", {
   m2 <- lm(scale(cbind(mpg, hp)) ~ scale(cyl) + scale(am), data = mtcars)
 
   mz <- standardize(m)
-  expect_equal(coef(mz), coef(m2), ignore_attr = TRUE)
+  expect_identical(coef(mz), coef(m2), ignore_attr = TRUE)
 })
 
 test_that("standardize | errors", {
@@ -33,7 +33,7 @@ test_that("standardize | errors", {
 
 # Transformations ---------------------------------------------------------
 test_that("transformations", {
-  skip_if_not_installed("effectsize")
+  skip_if_not_or_load_if_installed("effectsize")
   # deal with log / sqrt terms
   expect_message(standardize(lm(mpg ~ sqrt(cyl) + log(hp), mtcars)))
   expect_message(standardize(lm(mpg ~ sqrt(cyl), mtcars)))
@@ -55,7 +55,7 @@ test_that("transformations", {
     unname(coef(fit_scale2)[2])
   )
 
-  skip_if_not_installed("insight", minimum_version = "0.10.0")
+  skip_if_not_or_load_if_installed("insight", minimum_version = "0.10.0")
   d <- data.frame(
     time = as.factor(c(1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5)),
     group = c(1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2),
@@ -65,7 +65,7 @@ test_that("transformations", {
 
 
   expect_message(out <- standardize(m))
-  expect_equal(coef(m), c(
+  expect_identical(coef(m), c(
     `(Intercept)` = -0.4575, `as.numeric(time)` = 0.5492, group = 0.3379,
     `as.numeric(time):group` = 0.15779
   ), tolerance = 0.01)
@@ -82,18 +82,18 @@ test_that("weights", {
   m <- lm(mpg ~ wt + hp, weights = cyl, mtcars)
 
   sm <<- standardize(m, weights = TRUE)
-  sm_data <- insight::get_data(sm)
+  sm_data <- insight::get_data(sm, source = "frame")
   sm_data2 <- standardize(mtcars, select = c("mpg", "wt", "hp"), weights = "cyl")
-  expect_equal(sm_data[, c("mpg", "wt", "hp")], sm_data2[, c("mpg", "wt", "hp")])
+  expect_identical(sm_data[, c("mpg", "wt", "hp")], sm_data2[, c("mpg", "wt", "hp")])
 
   expect_error(standardize(m, weights = TRUE, robust = TRUE), NA)
 
   # no weights in stding
   sm_xw <<- standardize(m, weights = FALSE)
-  sm_data_xw <- insight::get_data(sm_xw)
+  sm_data_xw <- insight::get_data(sm_xw, source = "frame")
   expect_false(isTRUE(all.equal(coef(sm)[-1], coef(sm_xw)[-1])))
 
-  skip_if_not_installed("effectsize")
+  skip_if_not_or_load_if_installed("effectsize")
   # refit and posthoc should give same results
   stdREFIT <- effectsize::standardize_parameters(m, method = "refit")
   expect_equal(
@@ -137,18 +137,18 @@ test_that("weights + NA", {
   # weights, missing data, but data isn't weight-stdized
   m2 <- lm(Sepal.Length ~ Species + Petal.Width, data = iris2, weights = weight_me)
   sm2 <- standardize(m1, weights = FALSE)
-  expect_equal(coef(m2), coef(sm2))
+  expect_identical(coef(m2), coef(sm2))
 
   # weights, missing data, and data is weight-stdized
   m3 <- lm(Sepal.Length ~ Species + Petal.Width, data = iris3, weights = weight_me)
   sm3 <- standardize(m1, weights = TRUE)
-  expect_equal(coef(m3), coef(sm3))
+  expect_identical(coef(m3), coef(sm3))
 })
 
 
 # weights + missing data ´+ na.action = na.exclude --------------------------------------------------
 test_that("weights + NA + na.exclude", {
-  skip_if_not_installed("effectsize")
+  skip_if_not_or_load_if_installed("effectsize")
   set.seed(1234)
   data(iris)
 
@@ -161,8 +161,8 @@ test_that("weights + NA + na.exclude", {
   m1 <- lm(Sepal.Length ~ Species + Petal.Width, data = d, weights = weight_me, na.action = na.exclude)
   m2 <- lm(Sepal.Length ~ Species + Petal.Width, data = d, weights = weight_me)
 
-  expect_equal(coef(standardize(m2)), coef(standardize(m1)), tolerance = 1e-3)
-  expect_equal(effectsize::standardize_parameters(m1, method = "basic")[[2]],
+  expect_identical(coef(standardize(m2)), coef(standardize(m1)), tolerance = 1e-3)
+  expect_identical(effectsize::standardize_parameters(m1, method = "basic")[[2]],
     effectsize::standardize_parameters(m2, method = "basic")[[2]],
     tolerance = 1e-3
   )
@@ -184,7 +184,7 @@ test_that("fail with subset", {
 # don't standardize non-Gaussian response ------------------------------------
 test_that("standardize non-Gaussian response", {
   skip_on_cran()
-  skip_if_not_installed("lme4")
+  skip_if_not_or_load_if_installed("lme4")
   set.seed(1234)
   data(sleepstudy, package = "lme4")
 
@@ -192,9 +192,9 @@ test_that("standardize non-Gaussian response", {
   m2 <- glm(Reaction ~ Days, family = Gamma(link = "identity"), data = sleepstudy)
   m3 <- glm(Reaction ~ Days, family = inverse.gaussian(), data = sleepstudy)
 
-  expect_equal(coef(standardize(m1)), c(`(Intercept)` = 0.00338, Days = -0.00034), tolerance = 1e-2)
-  expect_equal(coef(standardize(m2)), c(`(Intercept)` = 298.48571, Days = 29.70754), tolerance = 1e-3)
-  expect_equal(coef(standardize(m3)), c(`(Intercept)` = 1e-05, Days = 0), tolerance = 1e-3)
+  expect_identical(coef(standardize(m1)), c(`(Intercept)` = 0.00338, Days = -0.00034), tolerance = 1e-2)
+  expect_identical(coef(standardize(m2)), c(`(Intercept)` = 298.48571, Days = 29.70754), tolerance = 1e-3)
+  expect_identical(coef(standardize(m3)), c(`(Intercept)` = 1e-05, Days = 0), tolerance = 1e-3)
 })
 
 
@@ -218,7 +218,7 @@ test_that("variables evaluated in the environment", {
 # mediation models --------------------------------------------------------
 test_that("standardize mediation", {
   skip_on_cran()
-  skip_if_not_installed("mediation")
+  skip_if_not_or_load_if_installed("mediation")
   set.seed(444)
   data(jobs, package = "mediation")
   jobs$econ_hard <- jobs$econ_hard * 20
@@ -233,7 +233,7 @@ test_that("standardize mediation", {
 
   out1 <- summary(standardize(med1))
   expect_message(out2 <- summary(standardize(med2)))
-  expect_equal(unlist(out1[c("d0", "d1", "z0", "z1", "n0", "n1", "tau.coef")]),
+  expect_identical(unlist(out1[c("d0", "d1", "z0", "z1", "n0", "n1", "tau.coef")]),
     unlist(out2[c("d0", "d1", "z0", "z1", "n0", "n1", "tau.coef")]),
     tolerance = 0.1
   )
@@ -254,7 +254,7 @@ test_that("standardize mediation", {
     mediator = "job_seek"
   ))
   outz <- summary(medz)
-  expect_equal(unlist(out0[c("d0", "d1", "z0", "z1", "n0", "n1", "tau.coef")]),
+  expect_identical(unlist(out0[c("d0", "d1", "z0", "z1", "n0", "n1", "tau.coef")]),
     unlist(outz[c("d0", "d1", "z0", "z1", "n0", "n1", "tau.coef")]),
     tolerance = 0.1
   )
@@ -263,14 +263,14 @@ test_that("standardize mediation", {
 # Offsets -----------------------------------------------------------------
 
 test_that("offsets", {
-  skip_if_not_installed("effectsize")
-  skip_if_not_installed("parameters")
+  skip_if_not_or_load_if_installed("effectsize")
+  skip_if_not_or_load_if_installed("parameters")
 
   m <- lm(mpg ~ hp + offset(wt), data = mtcars)
 
   expect_warning(mz1 <- standardize(m))
   expect_warning(mz2 <- standardize(m, two_sd = TRUE))
-  expect_equal(c(1, 2) * coef(mz1), coef(mz2))
+  expect_identical(c(1, 2) * coef(mz1), coef(mz2))
 
 
   m <- glm(cyl ~ hp + offset(wt), family = poisson(), data = mtcars)
@@ -278,7 +278,7 @@ test_that("offsets", {
 
   par1 <- parameters::model_parameters(mz)
   par2 <- effectsize::standardize_parameters(m, method = "basic")
-  expect_equal(par2[2, 2], par1[2, 2], tolerance = 0.05)
+  expect_identical(par2[2, 2], par1[2, 2], tolerance = 0.05)
 })
 
 
@@ -286,7 +286,7 @@ test_that("offsets", {
 
 # test_that("brms", {
 #   skip_on_cran()
-#   skip_if_not_installed("brms")
+#   skip_if_not_or_load_if_installed("brms")
 #
 #   mod <- brms::brm(mpg ~ hp, data = mtcars,
 #                    refresh = 0, chains = 1)
