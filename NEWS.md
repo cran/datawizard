@@ -1,3 +1,24 @@
+# datawizard 0.7.1
+
+BREAKING CHANGES
+
+* `add_labs()` was renamed into `assign_labels()`. Since `add_labs()` existed
+  only for a few days, there will be no alias for backwards compatibility.
+
+NEW FUNCTIONS
+
+* `labels_to_levels()`, to use value labels of factors as their levels.
+
+MINOR CHANGES
+
+* `data_read()` now checks if the imported object actually is a data frame (or
+  coercible to a data frame), and if not, no longer errors, but gives an
+  informative warning of the type of object that was imported.
+
+BUG FIXES
+
+* Fix test for CRAN check on Mac OS arm64
+
 # datawizard 0.7.0
 
 BREAKING CHANGES 

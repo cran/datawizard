@@ -30,7 +30,7 @@ It is a convenient function to avoid nested \code{\link[=ifelse]{ifelse()}} stat
 is similar to \code{dplyr::case_when()}.
 }
 \examples{
-x <<- 1:30
+x <- 1:30
 recode_into(
   x > 15 ~ "a",
   x > 10 & x <= 15 ~ "b",
@@ -38,7 +38,7 @@ recode_into(
 )
 
 set.seed(123)
-d <<- data.frame(
+d <- data.frame(
   x = sample(1:5, 30, TRUE),
   y = sample(letters[1:5], 30, TRUE),
   stringsAsFactors = FALSE

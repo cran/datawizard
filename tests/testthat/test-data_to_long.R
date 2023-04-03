@@ -59,8 +59,7 @@ test_that("data_to_long works - using row names as idvar", {
 
 
 test_that("data_to_long works - complex dataset", {
-  skip_if_not_or_load_if_installed("psych")
-
+  skip_if_not_installed("psych")
   data <- psych::bfi
 
   long <- data_to_long(data,
@@ -128,8 +127,7 @@ test_that("data_to_long works - complex dataset", {
 
 
 test_that("data_to_long: arg 'cols' overrides 'select'", {
-  skip_if_not_or_load_if_installed("psych")
-
+  skip_if_not_installed("psych")
   data <- psych::bfi
 
   expect_identical(

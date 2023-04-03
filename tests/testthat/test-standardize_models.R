@@ -14,7 +14,7 @@ test_that("standardize, mlm", {
   m2 <- lm(scale(cbind(mpg, hp)) ~ scale(cyl) + scale(am), data = mtcars)
 
   mz <- standardize(m)
-  expect_identical(coef(mz), coef(m2), ignore_attr = TRUE)
+  expect_equal(coef(mz), coef(m2), ignore_attr = TRUE, tolerance = 1e-4)
 })
 
 test_that("standardize | errors", {
@@ -81,7 +81,7 @@ test_that("weights", {
 
   m <- lm(mpg ~ wt + hp, weights = cyl, mtcars)
 
-  sm <<- standardize(m, weights = TRUE)
+  sm <- standardize(m, weights = TRUE)
   sm_data <- insight::get_data(sm, source = "frame")
   sm_data2 <- standardize(mtcars, select = c("mpg", "wt", "hp"), weights = "cyl")
   expect_identical(sm_data[, c("mpg", "wt", "hp")], sm_data2[, c("mpg", "wt", "hp")])
@@ -89,7 +89,7 @@ test_that("weights", {
   expect_error(standardize(m, weights = TRUE, robust = TRUE), NA)
 
   # no weights in stding
-  sm_xw <<- standardize(m, weights = FALSE)
+  sm_xw <- standardize(m, weights = FALSE)
   sm_data_xw <- insight::get_data(sm_xw, source = "frame")
   expect_false(isTRUE(all.equal(coef(sm)[-1], coef(sm_xw)[-1])))
 
@@ -156,7 +156,7 @@ test_that("weights + NA + na.exclude", {
   iris$weight_me <- runif(nrow(iris))
   iris$Sepal.Length[sample(nrow(iris), size = 25)] <- NA
   iris$weight_me[sample(nrow(iris), size = 15)] <- NA
-  d <<- iris
+  d <- iris
 
   m1 <- lm(Sepal.Length ~ Species + Petal.Width, data = d, weights = weight_me, na.action = na.exclude)
   m2 <- lm(Sepal.Length ~ Species + Petal.Width, data = d, weights = weight_me)
@@ -264,7 +264,7 @@ test_that("standardize mediation", {
 
 test_that("offsets", {
   skip_if_not_or_load_if_installed("effectsize")
-  skip_if_not_or_load_if_installed("parameters")
+  skip_if_not_installed("parameters")
 
   m <- lm(mpg ~ hp + offset(wt), data = mtcars)
 

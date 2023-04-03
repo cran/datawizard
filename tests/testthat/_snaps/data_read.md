@@ -1,6 +1,34 @@
 # data_read, convert many labels correctly
 
     Code
+      data_tabulate(d$selv1)
+    Output
+      d$selv1 <categorical>
+      # total N=2413 valid N=2413
+      
+      Value                                              |   N | Raw % | Valid % | Cumulative %
+      ---------------------------------------------------+-----+-------+---------+-------------
+      Vignette 1 weiblich (Gülsen E. Reinigungskraft B)  | 150 |  6.22 |    6.22 |         6.22
+      Vignette 2 weiblich (Gülsen E. Anwältin B)         | 150 |  6.22 |    6.22 |        12.43
+      Vignette 3 weiblich (Monika E. Reinigungskraft B)  | 150 |  6.22 |    6.22 |        18.65
+      Vignette 4 weiblich (Monika E. Anwältin B)         | 151 |  6.26 |    6.26 |        24.91
+      Vignette 5 männlich (Hasan E. Reinigungskraft B)   | 151 |  6.26 |    6.26 |        31.16
+      Vignette 6 männlich (Hasan E. Anwalt B)            | 153 |  6.34 |    6.34 |        37.51
+      Vignette 7 männlich (Martin E. Reinigungskraft B)  | 150 |  6.22 |    6.22 |        43.72
+      Vignette 8 männlich (Martin E. Anwalt B)           | 150 |  6.22 |    6.22 |        49.94
+      Vignette 9 weiblich (Gülsen E. Reinigungskraft E)  | 151 |  6.26 |    6.26 |        56.20
+      Vignette 10 weiblich (Gülsen E. Anwältin E)        | 150 |  6.22 |    6.22 |        62.41
+      Vignette 11 weiblich (Monika E. Reinigungskraft E) | 150 |  6.22 |    6.22 |        68.63
+      Vignette 12 weiblich (Monika E. Anwältin E)        | 151 |  6.26 |    6.26 |        74.89
+      Vignette 13 männlich (Hasan E. Reinigungskraft E)  | 155 |  6.42 |    6.42 |        81.31
+      Vignette 14 männlich (Hasan E. Anwalt E)           | 150 |  6.22 |    6.22 |        87.53
+      Vignette 15 männlich (Martin E. Reinigungskraft E) | 150 |  6.22 |    6.22 |        93.74
+      Vignette 16 männlich (Martin E. Anwalt E)          | 151 |  6.26 |    6.26 |       100.00
+      <NA>                                               |   0 |  0.00 |    <NA> |         <NA>
+
+---
+
+    Code
       data_tabulate(d$c12)
     Output
       Sind oder waren Sie schon einmal selbst von solchen Beschwerden betroffen? (d$c12) <categorical>

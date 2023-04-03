@@ -79,14 +79,14 @@ test_that("get_columns works with select-functions", {
 
 
 # select-nse with user-function  ---------------------
-testfun <<- function(i) {
+testfun <- function(i) {
   is.numeric(i) && mean(i, na.rm = TRUE) > 3.5
 }
 test_that("get_columns works with user-defined select-functions", {
   expect_identical(get_columns(iris, testfun), iris[sapply(iris, testfun)])
   expect_identical(get_columns(iris, -testfun), iris[!sapply(iris, testfun)])
 
-  testfun2 <<- function(i) {
+  testfun2 <- function(i) {
     is.numeric(i) && mean(i, na.rm = TRUE) < 5
   }
   expect_identical(
@@ -323,7 +323,7 @@ test_that("get_columns from other functions", {
 # preserve attributes --------------------------
 
 test_that("get_columns preserves attributes", {
-  skip_if_not_or_load_if_installed("parameters")
+  skip_if_not_installed("parameters")
 
   m <- lm(Sepal.Length ~ Species, data = iris)
   out <- parameters::parameters(m)
