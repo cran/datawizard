@@ -1,3 +1,69 @@
+# datawizard 0.8.0
+
+BREAKING CHANGES
+
+* The following re-exported functions from `{insight}` have now been removed:
+  `object_has_names()`, `object_has_rownames()`, `is_empty_object()`,
+  `compact_list()`, `compact_character()`.
+
+* Argument `na.rm` was renamed to `remove_na` throughout `{datawizard}` functions.
+  `na.rm` is kept for backward compatibility, but will be deprecated and later
+  removed in future updates.
+
+* The way expressions are defined in `data_filter()` was revised. The `filter`
+  argument was replaced by `...`, allowing to separate multiple expression with
+  a comma (which are then combined with `&`). Furthermore, expressions can now also be
+  defined as strings, or be provided as character vectors, to allow string-friendly
+  programming.
+
+CHANGES
+
+* Weighted-functions (`weighted_sd()`, `weighted_mean()`, ...) gain a `remove_na`
+  argument, to remove or keep missing and infinite values. By default,
+  `remove_na = TRUE`, i.e. missing and infinite values are removed by default.
+
+* `reverse_scale()`, `normalize()` and `rescale()` gain an `append` argument
+  (similar to other data frame methods of transformation functions), to append
+  recoded variables to the input data frame instead of overwriting existing
+  variables.
+  
+NEW FUNCTIONS
+
+* `rowid_as_column()` to complement `rownames_as_column()` (and to mimic 
+  `tibble::rowid_to_column()`). Note that its behavior is different from 
+  `tibble::rowid_to_column()` for grouped data. See the Details section in the
+  docs.
+
+* `data_unite()`, to merge values of multiple variables into one new variable.
+
+* `data_separate()`, as counterpart to `data_unite()`, to separate a single 
+  variable into multiple new variables.
+
+* `data_modify()`, to create new variables, or modify or remove existing
+  variables in a data frame.
+
+MINOR CHANGES
+
+* `to_numeric()` for variables of type `Date`, `POSIXct` and `POSIXlt` now
+  includes the class name in the warning message.
+
+* Added a `print()` method for `center()`, `standardize()`, `normalize()` and
+  `rescale()`.
+
+BUG FIXES
+
+* `standardize_parameters()` now works when the package namespace is in the model
+  formula (#401).
+
+* `data_merge()` no longer yields a warning for `tibbles` when `join = "bind"`.
+
+* `center()` and `standardize()` did not work for grouped data frames (of class
+  `grouped_df`) when `force = TRUE`.
+  
+* The `data.frame` method of `describe_distribution()` returns `NULL` instead of
+  an error if no valid variable were passed (for example a factor variable with
+  `include_factors = FALSE`) (#421).
+
 # datawizard 0.7.1
 
 BREAKING CHANGES

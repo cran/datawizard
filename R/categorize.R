@@ -1,4 +1,4 @@
-#' @title Recode (or "cut") data into groups of values.
+#' @title Recode (or "cut" / "bin") data into groups of values.
 #' @name categorize
 #'
 #' @description
@@ -279,20 +279,20 @@ categorize.data.frame <- function(x,
     verbose = verbose
   )
 
-  # process arguments
-  args <- .process_std_args(
-    x,
-    select,
-    exclude,
-    weights = NULL,
-    append,
-    append_suffix = "_r",
-    force = TRUE
-  )
-
-  # update processed arguments
-  x <- args$x
-  select <- args$select
+  # when we append variables, we call ".process_append()", which will
+  # create the new variables and updates "select", so new variables are processed
+  if (!isFALSE(append)) {
+    # process arguments
+    args <- .process_append(
+      x,
+      select,
+      append,
+      append_suffix = "_r"
+    )
+    # update processed arguments
+    x <- args$x
+    select <- args$select
+  }
 
   x[select] <- lapply(
     x[select],
@@ -334,15 +334,24 @@ categorize.grouped_df <- function(x,
     exclude,
     ignore_case,
     regex = regex,
+    remove_group_var = TRUE,
     verbose = verbose
   )
 
-  # process arguments
-  args <- .process_std_args(x, select, exclude, weights = NULL, append, append_suffix = "_r", force = TRUE)
-
-  # update processed arguments
-  x <- args$x
-  select <- args$select
+  # when we append variables, we call ".process_append()", which will
+  # create the new variables and updates "select", so new variables are processed
+  if (!isFALSE(append)) {
+    # process arguments
+    args <- .process_append(
+      x,
+      select,
+      append,
+      append_suffix = "_r"
+    )
+    # update processed arguments
+    x <- args$x
+    select <- args$select
+  }
 
   x <- as.data.frame(x)
   for (rows in grps) {

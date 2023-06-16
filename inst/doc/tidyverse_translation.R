@@ -28,11 +28,23 @@ library(dplyr)
 library(tidyr)
 library(datawizard)
 
+data(efc)
+efc <- head(efc)
+
 ## ----filter, class.source = "datawizard"--------------------------------------
 #  # ---------- datawizard -----------
 #  starwars %>%
-#    data_filter(skin_color == "light" &
-#      eye_color == "brown")
+#    data_filter(
+#      skin_color == "light",
+#      eye_color == "brown"
+#    )
+#  
+#  # or
+#  starwars %>%
+#    data_filter(
+#      skin_color == "light" &
+#        eye_color == "brown"
+#    )
 
 ## ---- class.source = "tidyverse"----------------------------------------------
 #  # ---------- tidyverse -----------
@@ -45,8 +57,17 @@ library(datawizard)
 ## ----filter, eval = evaluate_chunk, echo = FALSE------------------------------
 # ---------- datawizard -----------
 starwars %>%
-  data_filter(skin_color == "light" &
-    eye_color == "brown")
+  data_filter(
+    skin_color == "light",
+    eye_color == "brown"
+  )
+
+# or
+starwars %>%
+  data_filter(
+    skin_color == "light" &
+      eye_color == "brown"
+  )
 
 ## ---- echo = FALSE, eval = evaluate_chunk-------------------------------------
 starwars <- head(starwars)
@@ -125,6 +146,53 @@ starwars %>%
 # ---------- datawizard -----------
 starwars %>%
   data_select(select = is.numeric)
+
+## ----modify1, class.source = "datawizard"-------------------------------------
+#  # ---------- datawizard -----------
+#  efc %>%
+#    data_modify(
+#      c12hour_c = center(c12hour),
+#      c12hour_z = c12hour_c / sd(c12hour, na.rm = TRUE),
+#      c12hour_z2 = standardize(c12hour)
+#    )
+
+## ---- class.source = "tidyverse"----------------------------------------------
+#  # ---------- tidyverse -----------
+#  efc %>%
+#    mutate(
+#      c12hour_c = center(c12hour),
+#      c12hour_z = c12hour_c / sd(c12hour, na.rm = TRUE),
+#      c12hour_z2 = standardize(c12hour)
+#    )
+
+## ----modify1, eval = evaluate_chunk, echo = FALSE-----------------------------
+# ---------- datawizard -----------
+efc %>%
+  data_modify(
+    c12hour_c = center(c12hour),
+    c12hour_z = c12hour_c / sd(c12hour, na.rm = TRUE),
+    c12hour_z2 = standardize(c12hour)
+  )
+
+## ----eval=evaluate_chunk------------------------------------------------------
+new_exp <- c(
+  "c12hour_c = center(c12hour)",
+  "c12hour_z = c12hour_c / sd(c12hour, na.rm = TRUE)"
+)
+data_modify(efc, new_exp)
+
+## ----eval=evaluate_chunk------------------------------------------------------
+miles_to_km <- function(data, var) {
+  data_modify(
+    data,
+    paste0("km = ", var, "* 1.609344")
+  )
+}
+
+distance <- data.frame(miles = c(1, 8, 233, 88, 9))
+distance
+
+miles_to_km(distance, "miles")
 
 ## ----arrange1, class.source = "datawizard"------------------------------------
 #  # ---------- datawizard -----------
@@ -205,7 +273,7 @@ starwars %>%
 #  starwars %>%
 #    data_rename(
 #      pattern = to_rename,
-#      replacement = tools::toTitleCase(gsub("_", " ", to_rename))
+#      replacement = tools::toTitleCase(gsub("_", " ", to_rename, fixed = TRUE))
 #    )
 
 ## ----rename2, eval = evaluate_chunk, echo = FALSE-----------------------------
@@ -214,7 +282,7 @@ to_rename <- names(starwars)
 starwars %>%
   data_rename(
     pattern = to_rename,
-    replacement = tools::toTitleCase(gsub("_", " ", to_rename))
+    replacement = tools::toTitleCase(gsub("_", " ", to_rename, fixed = TRUE))
   )
 
 ## ----rename3------------------------------------------------------------------
@@ -418,6 +486,113 @@ band_members %>%
 band_members %>%
   data_join(band_instruments, join = "inner")
 
+## ----eval=evaluate_chunk------------------------------------------------------
+test <- data.frame(
+  year = 2002:2004,
+  month = c("02", "03", "09"),
+  day = c("11", "22", "28"),
+  stringsAsFactors = FALSE
+)
+test
+
+## ----unite1, class.source = "datawizard"--------------------------------------
+#  # ---------- datawizard -----------
+#  test %>%
+#    data_unite(
+#      new_column = "date",
+#      select = c("year", "month", "day"),
+#      separator = "-"
+#    )
+
+## ---- class.source = "tidyverse"----------------------------------------------
+#  # ---------- tidyverse -----------
+#  test %>%
+#    unite(
+#      col = "date",
+#      year, month, day,
+#      sep = "-"
+#    )
+
+## ----unite1, eval = evaluate_chunk, echo = FALSE------------------------------
+# ---------- datawizard -----------
+test %>%
+  data_unite(
+    new_column = "date",
+    select = c("year", "month", "day"),
+    separator = "-"
+  )
+
+## ----unite2, class.source = "datawizard"--------------------------------------
+#  # ---------- datawizard -----------
+#  test %>%
+#    data_unite(
+#      new_column = "date",
+#      select = c("year", "month", "day"),
+#      separator = "-",
+#      append = TRUE
+#    )
+
+## ---- class.source = "tidyverse"----------------------------------------------
+#  # ---------- tidyverse -----------
+#  test %>%
+#    unite(
+#      col = "date",
+#      year, month, day,
+#      sep = "-",
+#      remove = FALSE
+#    )
+
+## ----unite2, eval = evaluate_chunk, echo = FALSE------------------------------
+# ---------- datawizard -----------
+test %>%
+  data_unite(
+    new_column = "date",
+    select = c("year", "month", "day"),
+    separator = "-",
+    append = TRUE
+  )
+
+## ----eval=evaluate_chunk------------------------------------------------------
+test <- data.frame(
+  date_arrival = c("2002-02-11", "2003-03-22", "2004-09-28"),
+  date_departure = c("2002-03-15", "2003-03-28", "2004-09-30"),
+  stringsAsFactors = FALSE
+)
+test
+
+## ----separate1, class.source = "datawizard"-----------------------------------
+#  # ---------- datawizard -----------
+#  test %>%
+#    data_separate(
+#      select = "date_arrival",
+#      new_columns = c("Year", "Month", "Day")
+#    )
+
+## ---- class.source = "tidyverse"----------------------------------------------
+#  # ---------- tidyverse -----------
+#  test %>%
+#    separate(
+#      date_arrival,
+#      into = c("Year", "Month", "Day")
+#    )
+
+## ----separate1, eval = evaluate_chunk, echo = FALSE---------------------------
+# ---------- datawizard -----------
+test %>%
+  data_separate(
+    select = "date_arrival",
+    new_columns = c("Year", "Month", "Day")
+  )
+
+## ----eval = evaluate_chunk----------------------------------------------------
+test %>%
+  data_separate(
+    new_columns = list(
+      date_arrival = c("Arr_Year", "Arr_Month", "Arr_Day"),
+      date_departure = c("Dep_Year", "Dep_Month", "Dep_Day")
+    )
+  )
+
 ## ----eval = evaluate_chunk----------------------------------------------------
 mtcars <- head(mtcars)
 mtcars
@@ -429,6 +604,26 @@ mtcars2
 
 mtcars2 %>%
   column_as_rownames(var = "model")
+
+## ----eval=evaluate_chunk------------------------------------------------------
+test <- data.frame(
+  group = c("A", "A", "B", "B"),
+  value = c(3, 5, 8, 1),
+  stringsAsFactors = FALSE
+)
+test
+
+test %>%
+  data_group(group) %>%
+  tibble::rowid_to_column()
+
+test %>%
+  data_group(group) %>%
+  rowid_as_column()
+
+test %>%
+  data_group(group) %>%
+  mutate(id = seq_len(n()))
 
 ## ----eval = evaluate_chunk----------------------------------------------------
 x <- data.frame(

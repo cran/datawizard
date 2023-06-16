@@ -1,14 +1,14 @@
 skip_on_cran()
 skip_if_offline()
 
-skip_if_not_or_load_if_installed("httr")
-skip_if_not_or_load_if_installed("haven")
-skip_if_not_or_load_if_installed("readr")
+skip_if_not_installed("httr")
+skip_if_not_installed("haven")
+skip_if_not_installed("readr")
 
 # prepare data set ---------------
 
 data(efc)
-d <- data_filter(efc, filter = 1:5)
+d <- data_filter(efc, 1:5)
 d$e42dep <- droplevels(d$e42dep)
 
 

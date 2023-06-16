@@ -26,6 +26,14 @@ test_that("center, select", {
     tolerance = 1e-4,
     ignore_attr = TRUE
   )
+  # check class attributes
+  expect_identical(
+    vapply(z, class, character(1)),
+    c(
+      Sepal.Length = "numeric", Sepal.Width = "numeric", Petal.Length = "numeric",
+      Petal.Width = "numeric", Species = "factor"
+    )
+  )
 })
 
 test_that("center, factors", {
@@ -78,83 +86,106 @@ test_that("center works correctly with only one value", {
 # with grouped data -------------------------------------------
 
 test_that("center (grouped data)", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   datawizard <- iris %>%
-    group_by(Species) %>%
+    poorman::group_by(Species) %>%
     center(Sepal.Width) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   manual <- iris %>%
-    group_by(Species) %>%
-    mutate(Sepal.Width = Sepal.Width - mean(Sepal.Width)) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::group_by(Species) %>%
+    poorman::mutate(Sepal.Width = Sepal.Width - mean(Sepal.Width)) %>%
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   expect_identical(datawizard, manual)
 })
 
+test_that("center (grouped data), with force = TRUE", {
+  skip_if_not_installed("poorman")
+
+  datawizard_c <- iris %>%
+    poorman::group_by(Species) %>%
+    center(force = TRUE) %>%
+    poorman::ungroup()
+
+  manual_c <- iris %>%
+    poorman::group_by(Species) %>%
+    poorman::mutate(
+      Sepal.Length = Sepal.Length - mean(Sepal.Length),
+      Sepal.Width = Sepal.Width - mean(Sepal.Width),
+      Petal.Length = Petal.Length - mean(Petal.Length),
+      Petal.Width = Petal.Width - mean(Petal.Width)
+    ) %>%
+    poorman::ungroup()
+
+  expect_equal(datawizard_c, manual_c, ignore_attr = TRUE)
+})
+
 test_that("center, robust (grouped data)", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   datawizard <- iris %>%
-    group_by(Species) %>%
+    poorman::group_by(Species) %>%
     center(Sepal.Width, robust = TRUE) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   manual <- iris %>%
-    group_by(Species) %>%
-    mutate(Sepal.Width = Sepal.Width - median(Sepal.Width)) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::group_by(Species) %>%
+    poorman::mutate(Sepal.Width = Sepal.Width - median(Sepal.Width)) %>%
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   expect_identical(datawizard, manual)
 })
 
 test_that("center, select (grouped data)", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   datawizard <- iris %>%
-    group_by(Species) %>%
+    poorman::group_by(Species) %>%
     center(select = starts_with("Sepal\\.W")) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   manual <- iris %>%
-    group_by(Species) %>%
-    mutate(Sepal.Width = Sepal.Width - mean(Sepal.Width)) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::group_by(Species) %>%
+    poorman::mutate(Sepal.Width = Sepal.Width - mean(Sepal.Width)) %>%
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   expect_identical(datawizard, manual)
 })
 
 test_that("center, factors (grouped data)", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   datawizard <- iris %>%
-    group_by(Species) %>%
+    poorman::group_by(Species) %>%
     center(select = "Species") %>%
-    ungroup() %>%
-    pull(Species)
+    poorman::ungroup() %>%
+    poorman::pull(Species)
 
   manual <- iris %>%
-    pull(Species)
+    poorman::pull(Species)
 
   expect_identical(datawizard, manual)
 })
 
 # select helpers ------------------------------
 test_that("center regex", {
-  expect_identical(
+  expect_equal(
     center(mtcars, select = "pg", regex = TRUE)$mpg,
-    center(mtcars$mpg)
+    center(mtcars$mpg),
+    ignore_attr = TRUE
   )
-  expect_identical(
+  expect_equal(
     center(mtcars, select = "pg$", regex = TRUE)$mpg,
-    center(mtcars$mpg)
+    center(mtcars$mpg),
+    ignore_attr = TRUE
   )
 })
 

@@ -119,6 +119,7 @@ center.numeric <- function(x,
   }
 
   args <- .process_std_center(x, weights, robust, verbose, reference, center, scale = NULL)
+  dot_args <- list(...)
 
   if (is.null(args)) {
     # all NA?
@@ -136,7 +137,10 @@ center.numeric <- function(x,
   attr(centered_x, "robust") <- robust
   # labels
   z <- .set_back_labels(centered_x, x, include_values = FALSE)
-  class(z) <- c("dw_transformer", class(z))
+  # don't add attribute when we call data frame methods
+  if (!isFALSE(dot_args$add_transform_class)) {
+    class(z) <- c("dw_transformer", class(z))
+  }
   z
 }
 
@@ -194,7 +198,7 @@ center.data.frame <- function(x,
 
   # process arguments
   args <- .process_std_args(x, select, exclude, weights, append,
-    append_suffix = "_c", force, remove_na, reference,
+    append_suffix = "_c", keep_factors = force, remove_na, reference,
     .center = center, .scale = NULL
   )
 
@@ -209,7 +213,8 @@ center.data.frame <- function(x,
       verbose = FALSE,
       reference = reference[[var]],
       center = args$center[var],
-      force = force
+      force = force,
+      add_transform_class = FALSE
     )
   }
 
@@ -218,7 +223,6 @@ center.data.frame <- function(x,
   attr(x, "robust") <- robust
   x
 }
-
 
 
 #' @export
@@ -245,9 +249,10 @@ center.grouped_df <- function(x,
     verbose = verbose
   )
 
-  args <- .process_grouped_df(x, select, exclude, append,
+  args <- .process_grouped_df(
+    x, select, exclude, append,
     append_suffix = "_c",
-    reference, weights, force
+    reference, weights, keep_factors = force
   )
 
   for (rows in args$grps) {
@@ -262,10 +267,39 @@ center.grouped_df <- function(x,
       force = force,
       append = FALSE,
       center = center,
+      add_transform_class = FALSE,
       ...
     )
   }
   # set back class, so data frame still works with dplyr
   attributes(args$x) <- args$info
   args$x
+}
+
+
+# methods -------------------------
+
+#' @export
+print.dw_transformer <- function(x, ...) {
+  print(as.vector(x), ...)
+  vector_info <- NULL
+  if (!is.null(attributes(x)$scale)) {
+    # attributes for center() / standardize()
+    vector_info <- sprintf(
+      "(center: %.2g, scale = %.2g)\n",
+      attributes(x)$center,
+      attributes(x)$scale
+    )
+  } else if (!is.null(attributes(x)$range_difference)) {
+    # attributes for normalize() / rescale()
+    vector_info <- sprintf(
+      "(original range = %.2g to %.2g)\n",
+      attributes(x)$min_value,
+      attributes(x)$min_value + attributes(x)$range_difference
+    )
+  }
+  if (!is.null(vector_info)) {
+    insight::print_color(vector_info, color = "grey")
+  }
+  invisible(x)
 }

@@ -159,7 +159,10 @@ normalize.numeric <- function(x, include_bounds = TRUE, verbose = TRUE, ...) {
   attr(out, "min_value") <- min_value
   attr(out, "vector_length") <- vector_length
   attr(out, "range_difference") <- range_difference
-  class(out) <- c("dw_transformer", class(out))
+  # don't add attribute when we call data frame methods
+  if (!isFALSE(dot_args$add_transform_class)) {
+    class(out) <- c("dw_transformer", class(out))
+  }
 
   out
 }
@@ -176,6 +179,7 @@ normalize.grouped_df <- function(x,
                                  select = NULL,
                                  exclude = NULL,
                                  include_bounds = TRUE,
+                                 append = FALSE,
                                  ignore_case = FALSE,
                                  regex = FALSE,
                                  verbose = TRUE,
@@ -186,6 +190,7 @@ normalize.grouped_df <- function(x,
     exclude,
     ignore_case,
     regex = regex,
+    remove_group_var = TRUE,
     verbose = verbose
   )
 
@@ -193,12 +198,19 @@ normalize.grouped_df <- function(x,
   # works only for dplyr >= 0.8.0
   grps <- attr(x, "groups", exact = TRUE)[[".rows"]]
 
-  # check for formula notation, convert to character vector
-  if (inherits(select, "formula")) {
-    select <- all.vars(select)
-  }
-  if (inherits(exclude, "formula")) {
-    exclude <- all.vars(exclude)
+  # when we append variables, we call ".process_append()", which will
+  # create the new variables and updates "select", so new variables are processed
+  if (!isFALSE(append)) {
+    # process arguments
+    args <- .process_append(
+      x,
+      select,
+      append,
+      append_suffix = "_n"
+    )
+    # update processed arguments
+    x <- args$x
+    select <- args$select
   }
 
   x <- as.data.frame(x)
@@ -209,11 +221,13 @@ normalize.grouped_df <- function(x,
       exclude = exclude,
       include_bounds = include_bounds,
       verbose = verbose,
+      append = FALSE, # need to set to FALSE here, else variable will be doubled
+      add_transform_class = FALSE,
       ...
     )
   }
   # set back class, so data frame still works with dplyr
-  attributes(x) <- info
+  attributes(x) <- utils::modifyList(info, attributes(x))
   x
 }
 
@@ -224,6 +238,7 @@ normalize.data.frame <- function(x,
                                  select = NULL,
                                  exclude = NULL,
                                  include_bounds = TRUE,
+                                 append = FALSE,
                                  ignore_case = FALSE,
                                  regex = FALSE,
                                  verbose = TRUE,
@@ -237,11 +252,27 @@ normalize.data.frame <- function(x,
     verbose = verbose
   )
 
+  # when we append variables, we call ".process_append()", which will
+  # create the new variables and updates "select", so new variables are processed
+  if (!isFALSE(append)) {
+    # process arguments
+    args <- .process_append(
+      x,
+      select,
+      append,
+      append_suffix = "_n"
+    )
+    # update processed arguments
+    x <- args$x
+    select <- args$select
+  }
+
   x[select] <- lapply(
     x[select],
     normalize,
     include_bounds = include_bounds,
-    verbose = verbose
+    verbose = verbose,
+    add_transform_class = FALSE
   )
 
   x

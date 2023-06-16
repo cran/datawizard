@@ -34,13 +34,22 @@ test_that("standardize.numeric", {
 # standardize.data.frame --------------------------------------------------
 
 test_that("standardize.data.frame", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   data(iris)
   x <- standardize(iris)
   expect_equal(mean(x$Sepal.Length), 0, tolerance = 0.01)
   expect_length(levels(x$Species), 3)
   expect_equal(mean(subset(x, Species == "virginica")$Sepal.Length), 0.90, tolerance = 0.01)
+
+  # check class attributes
+  expect_identical(
+    vapply(x, class, character(1)),
+    c(
+      Sepal.Length = "numeric", Sepal.Width = "numeric", Petal.Length = "numeric",
+      Petal.Width = "numeric", Species = "factor"
+    )
+  )
 
   x2 <- standardize(x = iris[1, ], reference = iris)
   expect_true(all(x2[1, ] == x[1, ]))
@@ -54,7 +63,7 @@ test_that("standardize.data.frame", {
 
 
 test_that("standardize.data.frame, NAs", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   data(iris)
   iris$Sepal.Width[c(148, 65, 33, 58, 54, 93, 114, 72, 32, 23)] <- NA
@@ -79,7 +88,7 @@ test_that("standardize.data.frame, NAs", {
 
 
 test_that("standardize.data.frame, apend", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   data(iris)
   iris$Sepal.Width[c(26, 43, 56, 11, 66, 132, 23, 133, 131, 28)] <- NA
@@ -109,7 +118,7 @@ test_that("standardize.data.frame, apend", {
 
 
 test_that("standardize.data.frame, weights", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   x <- rexp(30)
   w <- rpois(30, 20) + 1
@@ -122,7 +131,8 @@ test_that("standardize.data.frame, weights", {
   expect_equal(
     standardize(x, weights = w),
     standardize(data.frame(x), weights = w)$x,
-    tolerance = 1e-4
+    tolerance = 1e-4,
+    ignore_attr = TRUE
   )
 
   # name and vector give same results
@@ -167,7 +177,7 @@ test_that("unstandardize, numeric", {
 })
 
 test_that("unstandardize, data frame", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   data(iris)
   x <- standardize(iris)

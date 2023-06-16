@@ -83,7 +83,9 @@ test_that("normalize: only one value", {
     regexp = "Variable `foo` contains only one unique value and will"
   )
   expect_warning(
-    y <- normalize(x = 12),
+    {
+      y <- normalize(x = 12)
+    },
     regexp = "Variable `12` contains only one unique value and will"
   )
   expect_equal(y, 12, ignore_attr = TRUE)
@@ -93,9 +95,9 @@ test_that("normalize: only one value", {
 })
 
 test_that("normalize: only two values", {
-  expect_warning(
+  expect_warning({
     y <- normalize(x = c(1, 2))
-  )
+  })
   expect_equal(y, c(0, 1), ignore_attr = TRUE)
 
   expect_silent(normalize(x = c(1, 2), verbose = FALSE))
@@ -118,20 +120,21 @@ test_that("normalize: matrix", {
 })
 
 test_that("normalize: select", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
-  expect_identical(
+  expect_equal(
     normalize(
       iris,
       select = starts_with("Petal\\.L")
     ) %>%
-      pull(Petal.Length),
-    normalize(iris$Petal.Length)
+      poorman::pull(Petal.Length),
+    normalize(iris$Petal.Length),
+    ignore_attr = TRUE
   )
 })
 
 test_that("normalize: exclude", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   expect_identical(
     normalize(
@@ -143,54 +146,78 @@ test_that("normalize: exclude", {
   )
 })
 
+test_that("normalize, with append", {
+  out_n <- normalize(iris, "Sepal.Width", append = TRUE)
+  manual <- (iris$Sepal.Width - min(iris$Sepal.Width)) / diff(range(iris$Sepal.Width))
+  expect_equal(out_n$Sepal.Width_n, manual, ignore_attr = TRUE)
+})
+
 
 # with grouped data -------------------------------------------
 
 test_that("normalize (grouped data)", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   datawizard <- iris %>%
-    group_by(Species) %>%
+    poorman::group_by(Species) %>%
     normalize(Sepal.Width) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   manual <- iris %>%
-    group_by(Species) %>%
-    mutate(Sepal.Width = (Sepal.Width - min(Sepal.Width)) / diff(range(Sepal.Width))) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::group_by(Species) %>%
+    poorman::mutate(Sepal.Width = (Sepal.Width - min(Sepal.Width)) / diff(range(Sepal.Width))) %>%
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   expect_identical(datawizard, manual)
 })
 
+test_that("normalize (grouped data), with append", {
+  skip_if_not_installed("poorman")
+
+  datawizard_n <- iris %>%
+    poorman::group_by(Species) %>%
+    normalize(Sepal.Width, append = TRUE) %>%
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width_n)
+
+  manual_n <- iris %>%
+    poorman::group_by(Species) %>%
+    poorman::mutate(Sepal.Width = (Sepal.Width - min(Sepal.Width)) / diff(range(Sepal.Width))) %>%
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
+
+  expect_identical(datawizard_n, manual_n)
+})
+
 test_that("normalize, include bounds (grouped data)", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   datawizard <- iris %>%
-    group_by(Species) %>%
+    poorman::group_by(Species) %>%
     normalize(Sepal.Width, include_bounds = TRUE) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   manual <- iris %>%
-    group_by(Species) %>%
-    mutate(Sepal.Width = (Sepal.Width - min(Sepal.Width)) / diff(range(Sepal.Width))) %>%
-    ungroup() %>%
-    pull(Sepal.Width)
+    poorman::group_by(Species) %>%
+    poorman::mutate(Sepal.Width = (Sepal.Width - min(Sepal.Width)) / diff(range(Sepal.Width))) %>%
+    poorman::ungroup() %>%
+    poorman::pull(Sepal.Width)
 
   expect_identical(datawizard, manual)
 })
 
 
 test_that("normalize, factor (grouped data)", {
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   datawizard <- iris %>%
-    group_by(Species) %>%
+    poorman::group_by(Species) %>%
     normalize(Species) %>%
-    ungroup() %>%
-    pull(Species)
+    poorman::ungroup() %>%
+    poorman::pull(Species)
 
   manual <- iris$Species
 

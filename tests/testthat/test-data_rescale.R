@@ -50,11 +50,20 @@ test_that("rescale works with select helpers", {
   expect_equal(head(out$Sepal.Width), c(0.625, 0.41667, 0.5, 0.45833, 0.66667, 0.79167), tolerance = 1e-3)
   expect_equal(head(out$Petal.Length), head(iris$Petal.Length), tolerance = 1e-3)
 
+  # check class attributes
+  expect_identical(
+    vapply(out, class, character(1)),
+    c(
+      Sepal.Length = "numeric", Sepal.Width = "numeric", Petal.Length = "numeric",
+      Petal.Width = "numeric", Species = "factor"
+    )
+  )
+
   out <- rescale(iris, to = c(0, 1), select = starts_with("Sepal"))
   expect_equal(head(out$Sepal.Width), c(0.625, 0.41667, 0.5, 0.45833, 0.66667, 0.79167), tolerance = 1e-3)
   expect_equal(head(out$Petal.Length), head(iris$Petal.Length), tolerance = 1e-3)
 
-  skip_if_not_or_load_if_installed("poorman")
+  skip_if_not_installed("poorman")
 
   x <- poorman::group_by(iris, Species)
   out <- rescale(x, to = c(0, 1), select = starts_with("Sepal"))
@@ -62,10 +71,41 @@ test_that("rescale works with select helpers", {
   expect_equal(head(out$Petal.Length), head(iris$Petal.Length), tolerance = 1e-3)
 })
 
+
+# grouped df ------------------------------
+test_that("rescale works grouped df and append", {
+  out <- rescale(iris, to = c(0, 1), select = c("Sepal.Width", "Sepal.Length"), append = TRUE)
+  expect_equal(head(out$Sepal.Width_r), c(0.625, 0.41667, 0.5, 0.45833, 0.66667, 0.79167), tolerance = 1e-3)
+  expect_equal(head(out$Petal.Length), head(iris$Petal.Length), tolerance = 1e-3)
+  expect_identical(
+    colnames(out),
+    c(
+      "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width",
+      "Species", "Sepal.Width_r", "Sepal.Length_r"
+    )
+  )
+
+  skip_if_not_installed("poorman")
+
+  x <- poorman::group_by(iris, Species)
+  out <- rescale(x, to = c(0, 1), select = starts_with("Sepal"), append = TRUE)
+  expect_equal(head(out$Sepal.Width_r), c(0.57143, 0.33333, 0.42857, 0.38095, 0.61905, 0.7619), tolerance = 1e-3)
+  expect_equal(head(out$Petal.Length), head(iris$Petal.Length), tolerance = 1e-3)
+  expect_identical(
+    colnames(out),
+    c(
+      "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width",
+      "Species", "Sepal.Length_r", "Sepal.Width_r"
+    )
+  )
+})
+
+
 # select helpers ------------------------------
 test_that("data_rescale regex", {
   expect_equal(
     rescale(mtcars, select = "pg", regex = TRUE)$mpg,
-    rescale(mtcars, select = "mpg")$mpg
+    rescale(mtcars, select = "mpg")$mpg,
+    ignore_attr = TRUE
   )
 })
