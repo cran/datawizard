@@ -30,6 +30,29 @@ test_that("data_write, SPSS", {
 })
 
 
+tmp <- tempfile(fileext = ".sav")
+on.exit(unlink(tmp))
+
+test_that("data_write, SPSS, mixed types of labelled vectors", {
+  d <- data.frame(
+    a = 1:3,
+    b = letters[1:3],
+    c = factor(letters[1:3]),
+    d = as.Date(c("2022-01-01", "2022-02-01", "2022-03-01")),
+    e = c(TRUE, FALSE, FALSE),
+    stringsAsFactors = FALSE
+  )
+
+  # Date and Logical cannot be labelled
+  d$a <- assign_labels(d$a, variable = "First", values = c("one", "two", "three"))
+  d$b <- assign_labels(d$b, variable = "Second", values = c("A", "B", "C"))
+  d$c <- assign_labels(d$c, variable = "Third", values = c("ey", "bee", "see"))
+
+  # expect message, but no error
+  expect_message(data_write(d, "test.sav"), regex = "Preparing")
+})
+
+
 
 # Stata -------------------------------------
 
@@ -108,4 +131,24 @@ test_that("data_write, CSV, create labels file", {
 test_that("data_write, no file extension", {
   expect_error(data_write(d, "mytestfile"))
   expect_error(data_write(d, NULL))
+})
+
+
+# writing character vector works for missing value labels ------------------
+
+tmp <- tempfile(fileext = ".sav")
+on.exit(unlink(tmp))
+
+test_that("data_write, existing variable label but missing value labels", {
+  d <- data.frame(
+    a = letters[1:3],
+    stringsAsFactors = FALSE
+  )
+  d$a <- assign_labels(d$a, variable = "First")
+  # expect message, but no error
+  expect_message(data_write(d, tmp), regex = "Preparing")
+
+  # check if data is really the same
+  d2 <- data_read(tmp)
+  expect_identical(d2, d)
 })
