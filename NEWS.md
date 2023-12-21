@@ -1,3 +1,21 @@
+# datawizard 0.9.1
+
+CHANGES
+
+* `rescale()` gains `multiply` and `add` arguments, to expand ranges by a given
+  factor or value.
+
+* `to_factor()` and `to_numeric()` now support class `haven_labelled`.
+
+BUG FIXES
+
+* `to_numeric()` now correctly deals with inversed factor levels when
+  `preserve_levels = TRUE`.
+
+* `to_numeric()` inversed order of value labels when `dummy_factors = FALSE`.
+
+* `convert_to_na()` now preserves attributes for factors when `drop_levels = TRUE`.
+
 # datawizard 0.9.0
 
 NEW FUNCTIONS

@@ -23,7 +23,7 @@ if (!all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L))
   evaluate_chunk <- FALSE
 }
 
-## ---- eval = evaluate_chunk---------------------------------------------------
+## ----eval = evaluate_chunk----------------------------------------------------
 library(dplyr)
 library(tidyr)
 library(datawizard)
@@ -46,7 +46,7 @@ efc <- head(efc)
 #        eye_color == "brown"
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    filter(
@@ -69,7 +69,7 @@ starwars %>%
       eye_color == "brown"
   )
 
-## ---- echo = FALSE, eval = evaluate_chunk-------------------------------------
+## ----echo = FALSE, eval = evaluate_chunk--------------------------------------
 starwars <- head(starwars)
 
 ## ----select1, class.source = "datawizard"-------------------------------------
@@ -77,7 +77,7 @@ starwars <- head(starwars)
 #  starwars %>%
 #    data_select(select = c("hair_color", "skin_color", "eye_color"))
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    select(hair_color, skin_color, eye_color)
@@ -92,7 +92,7 @@ starwars %>%
 #  starwars %>%
 #    data_select(select = -ends_with("color"))
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    select(-ends_with("color"))
@@ -107,7 +107,7 @@ starwars %>%
 #  starwars %>%
 #    data_select(select = -(hair_color:eye_color))
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    select(!(hair_color:eye_color))
@@ -122,7 +122,7 @@ starwars %>%
 #  starwars %>%
 #    data_select(exclude = regex("color$"))
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    select(-contains("color$"))
@@ -137,7 +137,7 @@ starwars %>%
 #  starwars %>%
 #    data_select(select = is.numeric)
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    select(where(is.numeric))
@@ -156,7 +156,7 @@ starwars %>%
 #      c12hour_z2 = standardize(c12hour)
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  efc %>%
 #    mutate(
@@ -199,7 +199,7 @@ miles_to_km(distance, "miles")
 #  starwars %>%
 #    data_arrange(c("hair_color", "height"))
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    arrange(hair_color, height)
@@ -214,7 +214,7 @@ starwars %>%
 #  starwars %>%
 #    data_arrange(c("-hair_color", "-height"))
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    arrange(desc(hair_color), -height)
@@ -229,7 +229,7 @@ starwars %>%
 #  starwars %>%
 #    data_extract(gender)
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    pull(gender)
@@ -251,7 +251,7 @@ starwars %>%
 #      replacement = c("Sex", "Hair Color")
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    rename(
@@ -312,7 +312,7 @@ starwars %>%
 #  starwars %>%
 #    data_relocate(sex:homeworld, before = "height")
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  starwars %>%
 #    relocate(sex:homeworld, .before = height)
@@ -339,7 +339,7 @@ relig_income
 #      values_to = "count"
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  relig_income %>%
 #    pivot_longer(
@@ -370,7 +370,7 @@ billboard
 #      values_drop_na = TRUE
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  billboard %>%
 #    pivot_longer(
@@ -402,7 +402,7 @@ fish_encounters
 #      values_fill = 0
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  fish_encounters %>%
 #    pivot_wider(
@@ -431,7 +431,7 @@ band_instruments
 #  band_members %>%
 #    data_join(band_instruments, join = "full")
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  band_members %>%
 #    full_join(band_instruments)
@@ -446,7 +446,7 @@ band_members %>%
 #  band_members %>%
 #    data_join(band_instruments, join = "left")
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  band_members %>%
 #    left_join(band_instruments)
@@ -461,7 +461,7 @@ band_members %>%
 #  band_members %>%
 #    data_join(band_instruments, join = "right")
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  band_members %>%
 #    right_join(band_instruments)
@@ -476,7 +476,7 @@ band_members %>%
 #  band_members %>%
 #    data_join(band_instruments, join = "inner")
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  band_members %>%
 #    inner_join(band_instruments)
@@ -504,7 +504,7 @@ test
 #      separator = "-"
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  test %>%
 #    unite(
@@ -532,7 +532,7 @@ test %>%
 #      append = TRUE
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  test %>%
 #    unite(
@@ -568,7 +568,7 @@ test
 #      new_columns = c("Year", "Month", "Day")
 #    )
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  test %>%
 #    separate(
@@ -642,7 +642,7 @@ x2 %>%
 #  # ---------- datawizard -----------
 #  data_peek(iris)
 
-## ---- class.source = "tidyverse"----------------------------------------------
+## ----class.source = "tidyverse"-----------------------------------------------
 #  # ---------- tidyverse -----------
 #  glimpse(iris)
 

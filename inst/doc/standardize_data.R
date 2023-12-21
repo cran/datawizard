@@ -13,10 +13,18 @@ pkgs <- c(
   "see",
   "ggplot2",
   "parameters",
-  "lme4"
+  "lme4",
+  "curl"
 )
+pkg_available <- all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L)))
 
-if (!all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L)))) {
+if (pkg_available) {
+  net_available <- curl::has_internet()
+} else {
+  net_available <- FALSE
+}
+
+if (!pkg_available || !net_available) {
   knitr::opts_chunk$set(eval = FALSE)
 }
 
@@ -32,7 +40,7 @@ head(hardlyworking)
 hardlyworking$xtra_hours_z <- standardize(hardlyworking$xtra_hours)
 hardlyworking$xtra_hours_zr <- standardize(hardlyworking$xtra_hours, robust = TRUE)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(dplyr)
 #  
 #  hardlyworking %>%
@@ -46,7 +54,7 @@ hardlyworking$xtra_hours_zr <- standardize(hardlyworking$xtra_hours, robust = TR
 #      mad = mad(Value)
 #    )
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 library(poorman)
 
 hardlyworking %>%
@@ -64,7 +72,7 @@ hardlyworking %>%
 ## -----------------------------------------------------------------------------
 hardlyworking_z <- standardize(hardlyworking)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  hardlyworking_z %>%
 #    select(-xtra_hours_z, -xtra_hours_zr) %>%
 #    data_to_long() %>%
@@ -76,7 +84,7 @@ hardlyworking_z <- standardize(hardlyworking)
 #      mad = mad(Value)
 #    )
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 hardlyworking_z %>%
   select(-xtra_hours_z, -xtra_hours_zr) %>%
   reshape_longer(names_to = "name", values_to = "value") %>%
@@ -89,7 +97,7 @@ hardlyworking_z %>%
   ) %>%
   knitr::kable(digits = 4)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Download the 'emotion' dataset
 #  load(url("https://raw.githubusercontent.com/neuropsychology/psycho.R/master/data/emotion.rda"))
 #  
@@ -106,7 +114,7 @@ hardlyworking_z %>%
 #      Valence_SD = sd(Subjective_Valence)
 #    )
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 load(url("https://raw.githubusercontent.com/neuropsychology/psycho.R/master/data/emotion.rda"))
 
 # Discard neutral pictures (keep only negative)
@@ -122,7 +130,7 @@ emotion %>%
     Valence_SD = sd(Subjective_Valence)
   )
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 Z_VariableWise <- emotion %>%
   standardize()
 
@@ -136,7 +144,7 @@ Z_Full <- emotion %>%
   ungroup() %>%
   standardize()
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Create a convenient function to print
 #  summarise_Subjective_Valence <- function(data) {
 #    df_name <- deparse(substitute(data))
@@ -155,7 +163,7 @@ Z_Full <- emotion %>%
 #    summarise_Subjective_Valence(Z_Full)
 #  )
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 # Create a convenient function to print
 summarise_Subjective_Valence <- function(data) {
   df_name <- deparse(substitute(data))
@@ -175,7 +183,7 @@ rbind(
 ) %>%
   knitr::kable(digits = 2)
 
-## ---- fig.width=7, fig.height=4.5, results='markup', fig.align='center'-------
+## ----fig.width=7, fig.height=4.5, results='markup', fig.align='center'--------
 library(see)
 library(ggplot2)
 
@@ -192,7 +200,7 @@ ggplot() +
   see::theme_modern() +
   labs(color = "")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Create convenient function
 #  print_participants <- function(data) {
 #    df_name <- deparse(substitute(data))
@@ -214,7 +222,7 @@ ggplot() +
 #    print_participants(Z_Full)
 #  )
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 # Create convenient function
 print_participants <- function(data) {
   df_name <- deparse(substitute(data))
@@ -237,7 +245,7 @@ rbind(
 ) %>%
   knitr::kable(digits = 2)
 
-## ---- fig.width=7, fig.height=4.5, results='markup', fig.align='center'-------
+## ----fig.width=7, fig.height=4.5, results='markup', fig.align='center'--------
 r <- cor.test(
   Z_VariableWise$Subjective_Valence,
   Z_ParticipantWise$Subjective_Valence
