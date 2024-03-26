@@ -1,3 +1,30 @@
+# datawizard 0.10.0
+
+BREAKING CHANGES
+
+* The following arguments were deprecated in 0.5.0 and are now removed:
+
+  * in `data_to_wide()`: `colnames_from`, `rows_from`, `sep` 
+  * in `data_to_long()`: `colnames_to` 
+  * in `data_partition()`: `training_proportion`
+
+NEW FUNCTIONS
+
+* `data_summary()`, to compute summary statistics of (grouped) data frames.
+
+* `data_replicate()`, to expand a data frame by replicating rows based on another
+  variable that contains the counts of replications per row.
+
+CHANGES
+
+* `data_modify()` gets three new arguments, `.at`, `.if` and `.modify`, to modify
+  variables at specific positions or based on logical conditions.
+
+* `data_tabulate()` was revised and gets several new arguments: a `weights`
+  argument, to compute weighted frequency tables. `include_na` allows to include
+  or omit missing values from the table. Furthermore, a `by` argument was added,
+  to compute crosstables (#479, #481).
+  
 # datawizard 0.9.1
 
 CHANGES
@@ -105,7 +132,7 @@ CHANGES
   (similar to other data frame methods of transformation functions), to append
   recoded variables to the input data frame instead of overwriting existing
   variables.
-  
+
 NEW FUNCTIONS
 
 * `rowid_as_column()` to complement `rownames_as_column()` (and to mimic 
