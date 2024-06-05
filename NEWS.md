@@ -1,3 +1,35 @@
+# datawizard 0.11.0
+
+BREAKING CHANGES
+
+* Arguments named `group` or `group_by` are deprecated and will be removed
+  in a future release. Please use `by` instead. This affects the following
+  functions in *datawizard* (#502).
+
+  * `data_partition()`
+  * `demean()` and `degroup()`
+  * `means_by_group()`
+  * `rescale_weights()`
+
+* Following aliases are deprecated and will be removed in a future release (#504):
+
+  * `get_columns()`, use `data_select()` instead.
+  * `data_find()` and `find_columns()`, use `extract_column_names()` instead.
+  * `format_text()`, use `text_format()` instead.
+
+CHANGES
+
+* `recode_into()` is more relaxed regarding checking the type of `NA` values.
+  If you recode into a numeric variable, and one of the recode values is `NA`,
+  you no longer need to use `NA_real_` for numeric `NA` values.
+
+* Improved documentation for some functions.
+
+BUG FIXES
+
+* `data_to_long()` did not work for data frame where columns had attributes
+  (like labelled data).
+
 # datawizard 0.10.0
 
 BREAKING CHANGES

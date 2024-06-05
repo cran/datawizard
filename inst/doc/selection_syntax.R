@@ -92,13 +92,13 @@ data_select(iris, exclude = starts_with("Sep", "Peta"))
 
 ## -----------------------------------------------------------------------------
 my_function <- function(data, selection) {
-  find_columns(data, select = selection)
+  extract_column_names(data, select = selection)
 }
 my_function(iris, "Sepal.Length")
 my_function(iris, starts_with("Sep"))
 
 my_function_2 <- function(data, pattern) {
-  find_columns(data, select = starts_with(pattern))
+  extract_column_names(data, select = starts_with(pattern))
 }
 my_function_2(iris, "Sep")
 
