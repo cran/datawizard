@@ -1,7 +1,7 @@
-948bfd108d8bdfe31b77bcd3a4e4ed5c *DESCRIPTION
+a02892bcf1555026647cb4095a3e06eb *DESCRIPTION
 6a75b1953e1468d86c5f782360e3a72f *LICENSE
 0d2ef01fa8dcffff39933c44dbf58695 *NAMESPACE
-4707539e4c7315d986291b697b62bd85 *NEWS.md
+e6e6d121a13f17008bb735119a584194 *NEWS.md
 5e2d54c5972a85f98c0e01891f2165d9 *R/adjust.R
 272319076c3602be46b426431a2b38d0 *R/assign_labels.R
 06af70359027a8f78943540eaf9f00d4 *R/categorize.R
@@ -92,8 +92,8 @@ a5660b3d140910ea51e85fa3a9a0b4ac *inst/doc/selection_syntax.R
 05f98d4a3eade1a6838acb46c1448c65 *inst/doc/standardize_data.R
 7e548cd4eeced3c5cd808b5b5ba25e08 *inst/doc/standardize_data.Rmd
 8a5fe1b34914a5cb8d5319b3bee16053 *inst/doc/standardize_data.html
-cd90246aed535690ffb4d9b5b19bf829 *inst/doc/tidyverse_translation.R
-075c035527da3f72cd463b9509946c65 *inst/doc/tidyverse_translation.Rmd
+f23beaf95b3d12e4505b2efb8ab6b6e2 *inst/doc/tidyverse_translation.R
+b474f857e602bec7701d8a1415c5f264 *inst/doc/tidyverse_translation.Rmd
 42b6832690c66ec8c1c7e70591a6bdee *inst/doc/tidyverse_translation.html
 08748f9c9328662aed94510def336403 *man/adjust.Rd
 d35887b83c227fcdcd29176c3ef7b2ab *man/assign_labels.Rd
@@ -279,4 +279,4 @@ c478d1104eff5298ae6c7876fca418e8 *tests/testthat/test.sav
 4bf86d3cb7c39b926a92dad5ae417d44 *vignettes/bibliography.bib
 1e46f4c3f4ac637ac0f5c158f81cb39d *vignettes/selection_syntax.Rmd
 7e548cd4eeced3c5cd808b5b5ba25e08 *vignettes/standardize_data.Rmd
-075c035527da3f72cd463b9509946c65 *vignettes/tidyverse_translation.Rmd
+b474f857e602bec7701d8a1415c5f264 *vignettes/tidyverse_translation.Rmd

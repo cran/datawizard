@@ -11,7 +11,8 @@ knitr::opts_chunk$set(
 pkgs <- c(
   "dplyr",
   "datawizard",
-  "tidyr"
+  "tidyr",
+  "htmltools"
 )
 
 # since we explicitely put eval = TRUE for some chunks, we can't rely on
@@ -23,8 +24,9 @@ if (!all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L))
   evaluate_chunk <- FALSE
 }
 
+## ----echo=FALSE, message=FALSE, eval=evaluate_chunk---------------------------
 row <- function(...) {
-  div(
+  htmltools::div(
     class = "custom_note",
     ...
   )
