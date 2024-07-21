@@ -1,7 +1,7 @@
 Type: Package
 Package: datawizard
 Title: Easy Data Wrangling and Statistical Transformations
-Version: 0.12.1
+Version: 0.12.2
 Authors@R: c(
     person("Indrajeet", "Patil", , "patilindrajeet.science@gmail.com", role = "aut",
            comment = c(ORCID = "0000-0003-1995-6531", Twitter = "@patilindrajeets")),
@@ -34,19 +34,19 @@ Depends: R (>= 3.6)
 Imports: insight (>= 0.20.1), stats, utils
 Suggests: bayestestR, boot, brms, curl, data.table, dplyr (>= 1.1),
         effectsize, emmeans, gamm4, ggplot2 (>= 3.5.0), gt, haven,
-        htmltools, httr, knitr, lme4, mediation, modelbased, parameters
-        (>= 0.21.7), poorman (>= 0.2.7), psych, readxl, readr, rio,
+        httr, knitr, lme4, mediation, modelbased, parameters (>=
+        0.21.7), poorman (>= 0.2.7), psych, readxl, readr, rio,
         rmarkdown, rstanarm, see, testthat (>= 3.2.1), tibble, tidyr,
         withr
 VignetteBuilder: knitr
 Encoding: UTF-8
 Language: en-US
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/Needs/website: easystats/easystatstemplate
 NeedsCompilation: no
-Packaged: 2024-07-14 19:05:08 UTC; etienne
+Packaged: 2024-07-20 15:26:58 UTC; etienne
 Author: Indrajeet Patil [aut] (<https://orcid.org/0000-0003-1995-6531>,
     @patilindrajeets),
   Etienne Bacher [aut, cre] (<https://orcid.org/0000-0002-9271-5075>),
@@ -62,4 +62,4 @@ Author: Indrajeet Patil [aut] (<https://orcid.org/0000-0003-1995-6531>,
   Thomas J. Faulkenberry [rev],
   Robert Garrett [rev]
 Repository: CRAN
-Date/Publication: 2024-07-15 09:00:02 UTC
+Date/Publication: 2024-07-21 02:30:02 UTC

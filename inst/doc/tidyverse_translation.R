@@ -11,8 +11,7 @@ knitr::opts_chunk$set(
 pkgs <- c(
   "dplyr",
   "datawizard",
-  "tidyr",
-  "htmltools"
+  "tidyr"
 )
 
 # since we explicitely put eval = TRUE for some chunks, we can't rely on
@@ -23,17 +22,6 @@ evaluate_chunk <- TRUE
 if (!all(vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1L))) || getRversion() < "4.1.0") {
   evaluate_chunk <- FALSE
 }
-
-## ----echo=FALSE, message=FALSE, eval=evaluate_chunk---------------------------
-row <- function(...) {
-  htmltools::div(
-    class = "custom_note",
-    ...
-  )
-}
-
-## ----echo=FALSE---------------------------------------------------------------
-#  row("Note: In this vignette, we use the native pipe-operator, `|>`, which was introduced in R 4.1. Users of R version 3.6 or 4.0 should replace the native pipe by magrittr's one (`%>%`) so that examples work.")
 
 ## ----eval = evaluate_chunk----------------------------------------------------
 library(dplyr)

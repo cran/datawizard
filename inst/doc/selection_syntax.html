@@ -510,13 +510,24 @@ expression.</p>
 <span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt; 8           5.5         2.6 versicolor</span></span>
 <span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a><span class="co">#&gt; 9           5.8         2.7  virginica</span></span>
 <span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; 10          6.1         3.0 versicolor</span></span></code></pre></div>
-<div class="custom_note">Note: these functions are not exported by `datawizard` but are detected and
-applied internally. This means that they won&#39;t be detected by autocompletion
-when we write them.</div>
-<div class="custom_note">Note #2: because these functions are not exported, they will not create
-conflicts with the ones that come from the `tidyverse` and that have the same name.
-So we can still use `dplyr` and its friends, it won&#39;t change anything for selection
-in `datawizard` functions!</div>
+<!-- NOTE: use raw HTML so that vignette can compile even if `evaluate_chunk` is FALSE. -->
+<!-- See e.g. #527 -->
+<div class="custom_note">
+<p>
+Note: these functions are not exported by <code>datawizard</code> but
+are detected and applied internally. This means that they won’t be
+detected by autocompletion when we write them.
+</p>
+</div>
+<div class="custom_note">
+<p>
+Note #2: because these functions are not exported, they will not create
+conflicts with the ones that come from the <code>tidyverse</code> and
+that have the same name. Therefore, we can still use <code>dplyr</code>
+and its friends, it won’t change anything for selection in
+<code>datawizard</code> functions!
+</p>
+</div>
 </div>
 </div>
 <div id="excluding-variables" class="section level1">

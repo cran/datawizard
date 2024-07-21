@@ -420,6 +420,16 @@ steps with <code>{datawizard}</code>. We will also compare it to the
 decide to make the switch, you can easily find the translations here.
 This vignette is largely inspired from <code>{dplyr}</code>’s <a href="https://dplyr.tidyverse.org/articles/dplyr.html">Getting started
 vignette</a>.</p>
+<!-- NOTE: use raw HTML so that vignette can compile even if `evaluate_chunk` is FALSE. -->
+<!-- See e.g. #527 -->
+<div class="custom_note">
+<p>
+Note: In this vignette, we use the native pipe-operator,
+<code>|&gt;</code>, which was introduced in R 4.1. Users of R version
+3.6 or 4.0 should replace the native pipe by magrittr’s one
+(<code>%&gt;%</code>) so that examples work.
+</p>
+</div>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(datawizard)</span>
