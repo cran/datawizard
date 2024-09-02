@@ -1,7 +1,7 @@
 Type: Package
 Package: datawizard
 Title: Easy Data Wrangling and Statistical Transformations
-Version: 0.12.2
+Version: 0.12.3
 Authors@R: c(
     person("Indrajeet", "Patil", , "patilindrajeet.science@gmail.com", role = "aut",
            comment = c(ORCID = "0000-0003-1995-6531", Twitter = "@patilindrajeets")),
@@ -31,7 +31,7 @@ License: MIT + file LICENSE
 URL: https://easystats.github.io/datawizard/
 BugReports: https://github.com/easystats/datawizard/issues
 Depends: R (>= 3.6)
-Imports: insight (>= 0.20.1), stats, utils
+Imports: insight (>= 0.20.3), stats, utils
 Suggests: bayestestR, boot, brms, curl, data.table, dplyr (>= 1.1),
         effectsize, emmeans, gamm4, ggplot2 (>= 3.5.0), gt, haven,
         httr, knitr, lme4, mediation, modelbased, parameters (>=
@@ -46,7 +46,7 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/Needs/website: easystats/easystatstemplate
 NeedsCompilation: no
-Packaged: 2024-07-20 15:26:58 UTC; etienne
+Packaged: 2024-09-02 11:13:43 UTC; etienne
 Author: Indrajeet Patil [aut] (<https://orcid.org/0000-0003-1995-6531>,
     @patilindrajeets),
   Etienne Bacher [aut, cre] (<https://orcid.org/0000-0002-9271-5075>),
@@ -62,4 +62,4 @@ Author: Indrajeet Patil [aut] (<https://orcid.org/0000-0003-1995-6531>,
   Thomas J. Faulkenberry [rev],
   Robert Garrett [rev]
 Repository: CRAN
-Date/Publication: 2024-07-21 02:30:02 UTC
+Date/Publication: 2024-09-02 12:30:06 UTC
