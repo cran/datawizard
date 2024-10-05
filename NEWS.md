@@ -1,14 +1,44 @@
+# datawizard 0.13.0
+
+BREAKING CHANGES
+
+* `data_rename()` now errors when the `replacement` argument contains `NA` values
+  or empty strings (#539).
+
+* Removed deprecated functions `get_columns()`, `data_find()`, `format_text()` (#546).
+
+* Removed deprecated arguments `group` and `na.rm` in multiple functions. Use `by` and `remove_na` instead (#546).
+
+* The default value for the argument `dummy_factors` in `to_numeric()` has
+  changed from `TRUE` to `FALSE` (#544).
+
+CHANGES
+
+* The `pattern` argument in `data_rename()` can also be a named vector. In this
+  case, names are used as values for the `replacement` argument (i.e. `pattern`
+  can be a character vector using `<new name> = "<old name>"`).
+
+* `categorize()` gains a new `breaks` argument, to decide whether breaks are
+  inclusive or exclusive (#548).
+
+* The `labels` argument in `categorize()` gets two new options, `"range"` and
+  `"observed"`, to use the range of categorized values as labels (i.e. factor
+  levels) (#548).
+
+* Minor additions to `reshape_ci()` to work with forthcoming changes in the
+  `{bayestestR}` package.
+
 # datawizard 0.12.3
 
 CHANGES
 
 * `demean()` (and `degroup()`) now also work for nested designs, if argument
   `nested = TRUE` and  `by` specifies more than one variable (#533).
-  
+
 * Vignettes are no longer provided in the package, they are now only available
   on the website. There is only one "Overview" vignette available in the package,
   it contains links to the other vignettes on the website. This is because there
-  are CRAN errors occurring when building vignettes on macOS and we couldn't 
+  are CRAN errors occurring when building vignettes on macOS and we couldn't
   determine the cause after multiple patch releases (#534).
 
 # datawizard 0.12.2
