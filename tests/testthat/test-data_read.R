@@ -21,7 +21,6 @@ test_that("data_read - csv", {
 })
 
 
-
 # csv -------------------------
 
 test_that("data_read, skip_empty", {
@@ -32,7 +31,6 @@ test_that("data_read, skip_empty", {
   expect_identical(ncol(d), 3L)
   expect_identical(colnames(d), c("Var1", "Var2", "Var3"))
 })
-
 
 
 # tsv -------------------------
@@ -55,7 +53,6 @@ test_that("data_read - tsv", {
     expect_identical(sum(vapply(d, is.character, FUN.VALUE = logical(1L))), 1L)
   })
 })
-
 
 
 # excel -------------------------
@@ -105,7 +102,6 @@ test_that("data_read - Stata file", {
 })
 
 
-
 # SAS file -----------------------------------
 
 
@@ -131,8 +127,6 @@ test_that("data_read - SAS file", {
 })
 
 
-
-
 # RDS file, matrix, coercible -----------------------------------
 
 test_that("data_read - RDS file, matrix, coercible", {
@@ -141,15 +135,48 @@ test_that("data_read - RDS file, matrix, coercible", {
     httr::stop_for_status(request)
     writeBin(httr::content(request, type = "raw"), temp_file)
 
-    expect_message(expect_message(expect_message({
+    expect_message({
       d <- data_read(
         temp_file,
         verbose = TRUE
       )
-    })), regex = "0 out of 5")
+    })
 
     expect_s3_class(d, "data.frame")
     expect_identical(dim(d), c(2L, 5L))
+  })
+})
+
+
+# RDS file, preserve class /types -----------------------------------
+
+test_that("data_read - RDS file, preserve class", {
+  withr::with_tempfile("temp_file", fileext = ".rds", code = {
+    request <- httr::GET("https://raw.github.com/easystats/circus/main/data/hiv.rds")
+    httr::stop_for_status(request)
+    writeBin(httr::content(request, type = "raw"), temp_file)
+
+    d <- data_read(temp_file)
+    expect_s3_class(d, "data.frame")
+    expect_identical(
+      sapply(d, class),
+      c(
+        village = "integer", outcome = "integer", distance = "numeric",
+        amount = "numeric", incentive = "integer", age = "integer",
+        hiv2004 = "integer", agecat = "factor"
+      )
+    )
+  })
+})
+
+
+# RData -----------------------------------
+
+test_that("data_read - no warning for RData", {
+  withr::with_tempfile("temp_file", fileext = ".RData", code = {
+    data(mtcars)
+    save(mtcars, file = temp_file)
+    expect_silent(data_read(temp_file, verbose = FALSE))
   })
 })
 
@@ -187,8 +214,6 @@ test_that("data_read - SPSS file", {
     )
   })
 })
-
-
 
 
 # SPSS file 2 ---------------------------------
@@ -239,7 +264,6 @@ test_that("data_read - SPSS file 2", {
 })
 
 
-
 # zipped SPSS file -----------------------------------
 
 test_that("data_read - zipped SPSS file", {
@@ -264,7 +288,6 @@ test_that("data_read - zipped SPSS file", {
     expect_identical(sum(vapply(d, is.numeric, FUN.VALUE = logical(1L))), 26L)
   })
 })
-
 
 
 # SPSS file, many value labels  -----------------------------------
@@ -385,8 +408,6 @@ test_that("data_read, convert many labels correctly", {
     )
   })
 })
-
-
 
 
 # invalid file type -------------------------

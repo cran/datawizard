@@ -3,7 +3,7 @@
 
 .select_nse <- function(select, data, exclude, ignore_case, regex = FALSE,
                         remove_group_var = FALSE, allow_rename = FALSE,
-                        verbose = FALSE) {
+                        verbose = FALSE, ifnotfound = "warn") {
   .check_data(data)
   columns <- colnames(data)
 
@@ -38,14 +38,16 @@
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
   excluded <- .eval_expr(
     expr_exclude,
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
 
   selected_has_mix_idx <- any(selected < 0L) && any(selected > 0L)
@@ -113,7 +115,7 @@
 # * cyl:gear -> function (`:`) so find which function it is, then get the
 #   position for each variable, then evaluate the function with the positions
 
-.eval_expr <- function(x, data, ignore_case, regex, verbose) {
+.eval_expr <- function(x, data, ignore_case, regex, verbose, ifnotfound) {
   if (is.null(x)) {
     return(NULL)
   }
@@ -123,9 +125,18 @@
   out <- switch(type,
     integer = x,
     double = as.integer(x),
-    character = .select_char(data, x, ignore_case, regex = regex, verbose),
-    symbol = .select_symbol(data, x, ignore_case, regex = regex, verbose),
-    language = .eval_call(data, x, ignore_case, regex = regex, verbose),
+    character = .select_char(
+      data, x, ignore_case,
+      regex = regex, verbose, ifnotfound
+    ),
+    symbol = .select_symbol(
+      data, x, ignore_case,
+      regex = regex, verbose, ifnotfound
+    ),
+    language = .eval_call(
+      data, x, ignore_case,
+      regex = regex, verbose, ifnotfound
+    ),
     insight::format_error(paste0(
       "Expressions of type <", typeof(x),
       "> cannot be evaluated for use when subsetting."
@@ -139,37 +150,77 @@
 # Possibilities:
 # - quoted variable name
 # - quoted variable name with ignore case
+# - quoted variable name with colon, to indicate range
 # - character that should be regex-ed on variable names
 # - special word "all" to return all vars
 
-.select_char <- function(data, x, ignore_case, regex, verbose) {
+.select_char <- function(data, x, ignore_case, regex, verbose, ifnotfound) {
   # use colnames because names() doesn't work for matrices
   columns <- colnames(data)
   if (isTRUE(regex)) {
+    # string is a regular expression
     grep(x, columns)
   } else if (length(x) == 1L && x == "all") {
+    # string is "all" - select all columns
     seq_along(data)
+  } else if (any(grepl(":", x, fixed = TRUE))) {
+    # special pattern, as string (e.g.select = c("cyl:hp", "am")). However,
+    # this will first go into `.eval_call()` and thus only single elements
+    # are passed in `x` - we have never a character *vector* here
+    # check for valid names
+    colon_vars <- unlist(strsplit(x, ":", fixed = TRUE))
+    colon_match <- match(colon_vars, columns)
+    if (anyNA(colon_match)) {
+      .action_if_not_found(colon_vars, columns, colon_match, verbose, ifnotfound)
+      matches <- NA
+    } else {
+      start_pos <- match(colon_vars[1], columns)
+      end_pos <- match(colon_vars[2], columns)
+      if (!is.na(start_pos) && !is.na(end_pos)) {
+        matches <- start_pos:end_pos
+      } else {
+        matches <- NA
+      }
+    }
+    matches[!is.na(matches)]
   } else if (isTRUE(ignore_case)) {
+    # find columns, case insensitive
     matches <- match(toupper(x), toupper(columns))
     matches[!is.na(matches)]
   } else {
+    # find columns, case sensitive
     matches <- match(x, columns)
-    if (anyNA(matches) && verbose) {
-      insight::format_warning(
-        paste0(
-          "Following variable(s) were not found: ",
-          toString(x[is.na(matches)])
-        ),
-        .misspelled_string(
-          columns,
-          x[is.na(matches)],
-          default_message = "Possibly misspelled?"
-        )
-      )
+    if (anyNA(matches)) {
+      .action_if_not_found(x, columns, matches, verbose, ifnotfound)
     }
     matches[!is.na(matches)]
   }
 }
+
+# small helper, to avoid duplicated code
+
+.action_if_not_found <- function(x,
+                                 columns,
+                                 matches,
+                                 verbose,
+                                 ifnotfound) {
+  msg <- paste0(
+    "Following variable(s) were not found: ",
+    toString(x[is.na(matches)])
+  )
+  msg2 <- .misspelled_string(
+    columns,
+    x[is.na(matches)],
+    default_message = "Possibly misspelled?"
+  )
+  if (ifnotfound == "error") {
+    insight::format_error(msg, msg2)
+  }
+  if (ifnotfound == "warn" && verbose) {
+    insight::format_warning(msg, msg2)
+  }
+}
+
 
 # 3 types of symbols:
 # - unquoted variables
@@ -184,7 +235,7 @@
 # value but it errors because the function doesn't exist then it means that
 # it is a select helper that we grab from the error message.
 
-.select_symbol <- function(data, x, ignore_case, regex, verbose) {
+.select_symbol <- function(data, x, ignore_case, regex, verbose, ifnotfound) {
   try_eval <- try(eval(x), silent = TRUE)
   x_dep <- insight::safe_deparse(x)
   is_select_helper <- FALSE
@@ -238,7 +289,8 @@
         data = data,
         ignore_case = ignore_case,
         regex = regex,
-        verbose = verbose
+        verbose = verbose,
+        ifnotfound = ifnotfound
       )
     } else if (length(new_expr) == 1L && is.function(new_expr)) {
       out <- which(vapply(data, new_expr, FUN.VALUE = logical(1L)))
@@ -249,7 +301,8 @@
         data = data,
         ignore_case = ignore_case,
         regex = regex,
-        verbose = verbose
+        verbose = verbose,
+        ifnotfound = ifnotfound
       ), use.names = FALSE)
     }
   }
@@ -267,54 +320,59 @@
 
 # Dispatch expressions to various select helpers according to the function call.
 
-.eval_call <- function(data, x, ignore_case, regex, verbose) {
+.eval_call <- function(data, x, ignore_case, regex, verbose, ifnotfound) {
   type <- insight::safe_deparse(x[[1]])
   switch(type,
-    `:` = .select_seq(x, data, ignore_case, regex, verbose),
-    `-` = .select_minus(x, data, ignore_case, regex, verbose),
-    `c` = .select_c(x, data, ignore_case, regex, verbose), # nolint
-    `(` = .select_bracket(x, data, ignore_case, regex, verbose),
-    `[` = .select_square_bracket(x, data, ignore_case, regex, verbose),
-    `$` = .select_dollar(x, data, ignore_case, regex, verbose),
-    `~` = .select_tilde(x, data, ignore_case, regex, verbose),
-    list = .select_list(x, data, ignore_case, regex, verbose),
-    names = .select_names(x, data, ignore_case, regex, verbose),
+    `:` = .select_seq(x, data, ignore_case, regex, verbose, ifnotfound),
+    `-` = .select_minus(x, data, ignore_case, regex, verbose, ifnotfound),
+    `c` = .select_c(x, data, ignore_case, regex, verbose, ifnotfound), # nolint
+    `(` = .select_bracket(x, data, ignore_case, regex, verbose, ifnotfound),
+    `[` = .select_square_bracket(
+      x, data, ignore_case, regex, verbose, ifnotfound
+    ),
+    `$` = .select_dollar(x, data, ignore_case, regex, verbose, ifnotfound),
+    `~` = .select_tilde(x, data, ignore_case, regex, verbose, ifnotfound),
+    list = .select_list(x, data, ignore_case, regex, verbose, ifnotfound),
+    names = .select_names(x, data, ignore_case, regex, verbose, ifnotfound),
     starts_with = ,
     ends_with = ,
     matches = ,
     contains = ,
-    regex = .select_helper(x, data, ignore_case, regex, verbose),
-    .select_context(x, data, ignore_case, regex, verbose)
+    regex = .select_helper(x, data, ignore_case, regex, verbose, ifnotfound),
+    .select_context(x, data, ignore_case, regex, verbose, ifnotfound)
   )
 }
 
 # e.g 1:3, or gear:cyl
-.select_seq <- function(expr, data, ignore_case, regex, verbose) {
+.select_seq <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   x <- .eval_expr(
     expr[[2]],
     data = data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
   y <- .eval_expr(
     expr[[3]],
     data = data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
   x:y
 }
 
 # e.g -cyl
-.select_minus <- function(expr, data, ignore_case, regex, verbose) {
+.select_minus <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   x <- .eval_expr(
     expr[[2]],
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
   if (length(x) == 0L) {
     seq_along(data)
@@ -324,7 +382,7 @@
 }
 
 # e.g c("gear", "cyl")
-.select_c <- function(expr, data, ignore_case, regex, verbose) {
+.select_c <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   lst_expr <- as.list(expr)
   lst_expr[[1]] <- NULL
   unlist(lapply(
@@ -333,52 +391,57 @@
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   ), use.names = FALSE)
 }
 
 # e.g -(gear:cyl)
-.select_bracket <- function(expr, data, ignore_case, regex, verbose) {
+.select_bracket <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   .eval_expr(
     expr[[2]],
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
 }
 
 # e.g myvector[3]
-.select_square_bracket <- function(expr, data, ignore_case, regex, verbose) {
+.select_square_bracket <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   first_obj <- .eval_expr(
     expr[[2]],
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
   .eval_expr(
     first_obj[eval(expr[[3]])],
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
 }
 
-.select_names <- function(expr, data, ignore_case, regex, verbose) {
+.select_names <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   first_obj <- .dynEval(expr, inherits = FALSE, minframe = 0L)
   .eval_expr(
     first_obj,
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = FALSE
+    verbose = FALSE,
+    ifnotfound = ifnotfound
   )
 }
 
 # e.g starts_with("Sep")
-.select_helper <- function(expr, data, ignore_case, regex, verbose) {
+.select_helper <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   lst_expr <- as.list(expr)
 
   # need this if condition to distinguish between starts_with("Sep") (that we
@@ -402,7 +465,7 @@
 }
 
 # e.g args$select (happens when we use grouped_data (see center.grouped_df()))
-.select_dollar <- function(expr, data, ignore_case, regex, verbose) {
+.select_dollar <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   first_obj <- .dynGet(expr[[2]], ifnotfound = NULL, inherits = FALSE, minframe = 0L)
   if (is.null(first_obj)) {
     first_obj <- .dynEval(expr[[2]], inherits = FALSE, minframe = 0L)
@@ -412,12 +475,13 @@
     data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   )
 }
 
 # e.g ~ gear + cyl
-.select_tilde <- function(expr, data, ignore_case, regex, verbose) {
+.select_tilde <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   vars <- all.vars(expr)
   unlist(lapply(
     vars,
@@ -425,12 +489,13 @@
     data = data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   ), use.names = FALSE)
 }
 
 # e.g list(gear = 4, cyl = 5)
-.select_list <- function(expr, data, ignore_case, regex, verbose) {
+.select_list <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   vars <- names(.dynEval(expr, inherits = FALSE, minframe = 0L))
   unlist(lapply(
     vars,
@@ -438,12 +503,13 @@
     data = data,
     ignore_case = ignore_case,
     regex = regex,
-    verbose = verbose
+    verbose = verbose,
+    ifnotfound = ifnotfound
   ), use.names = FALSE)
 }
 
 # e.g is.numeric()
-.select_context <- function(expr, data, ignore_case, regex, verbose) {
+.select_context <- function(expr, data, ignore_case, regex, verbose, ifnotfound) {
   x_dep <- insight::safe_deparse(expr)
   if (endsWith(x_dep, "()")) {
     new_expr <- gsub("\\(\\)$", "", x_dep)
@@ -453,7 +519,8 @@
       data = data,
       ignore_case = ignore_case,
       regex = regex,
-      verbose = verbose
+      verbose = verbose,
+      ifnotfound = ifnotfound
     )
   } else {
     out <- .dynEval(expr, inherits = FALSE, minframe = 0L)
@@ -462,7 +529,8 @@
       data = data,
       ignore_case = ignore_case,
       regex = regex,
-      verbose = verbose
+      verbose = verbose,
+      ifnotfound = ifnotfound
     )
   }
 }

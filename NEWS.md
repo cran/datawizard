@@ -1,3 +1,77 @@
+# datawizard 1.0.0
+
+BREAKING CHANGES AND DEPRECATIONS
+
+* *datawizard* now requires R >= 4.0 (#515).
+
+* Argument `drop_na` in `data_match()` is deprecated now. Please use
+  `remove_na` instead (#556).
+
+* In `data_rename()` (#567):
+  - argument `pattern` is deprecated. Use `select` instead.
+  - argument `safe` is deprecated. The function now errors when `select`
+    contains unknown column names.
+  - when `replacement` is `NULL`, an error is now thrown (previously, column
+    indices were used as new names).
+  - if `select` (previously `pattern`) is a named vector, then all elements
+    must be named, e.g. `c(length = "Sepal.Length", "Sepal.Width")` errors.
+
+* Order of arguments `by` and `probability_weights` in `rescale_weights()` has
+  changed, because for `method = "kish"`, the `by` argument is optional (#575).
+
+* The name of the rescaled weights variables in `rescale_weights()` have been
+  renamed. `pweights_a` and `pweights_b` are now named `rescaled_weights_a`
+  and `rescaled_weights_b` (#575).
+
+* `print()` methods for `data_tabulate()` with multiple sub-tables (i.e. when
+  length of `by` was > 1) were revised. Now, an integrated table instead of
+  multiple tables is returned. Furthermore, `print_html()` did not work, which
+  was also fixed now (#577).
+
+* `demean()` (and `degroup()`) gets an `append` argument that defaults to `TRUE`,
+  to append the centered variables to the original data frame, instead of
+  returning the de- and group-meaned variables only. Use `append = FALSE` to
+  for the previous default behaviour (i.e. only returning the newly created
+  variables) (#579).
+
+CHANGES
+
+* `rescale_weights()` gets a `method` argument, to choose method to rescale
+  weights. Options are `"carle"` (the default) and `"kish"` (#575).
+
+* The `select` argument, which is available in different functions to select
+  variables, can now also be a character vector with quoted variable names,
+  including a colon to indicate a range of several variables (e.g. `"cyl:gear"`)
+  (#551).
+
+* New function `row_sums()`, to calculate row sums (optionally with minimum
+  amount of valid values), as complement to `row_means()` (#552).
+
+* New function `row_count()`, to count specific values row-wise (#553).
+
+* `data_read()` no longer shows warning about forthcoming breaking changes
+  in upstream packages when reading `.RData` files (#557).
+
+* `data_modify()` now recognizes `n()`, for example to create an index for data
+  groups with `1:n()` (#535).
+
+* The `replacement` argument in `data_rename()` now supports glue-styled
+  tokens  (#563).
+
+* `data_summary()` also accepts the results of `bayestestR::ci()` as summary
+  function (#483).
+
+* `ranktransform()` has a new argument `zeros` to determine how zeros should be
+  handled when `sign = TRUE` (#573).
+
+BUG FIXES
+
+* `describe_distribution()` no longer errors if the sample was too sparse to compute
+  CIs. Instead, it warns the user and returns `NA` (#550).
+
+* `data_read()` preserves variable types when importing files from `rds` or
+  `rdata` format (#558).
+
 # datawizard 0.13.0
 
 BREAKING CHANGES

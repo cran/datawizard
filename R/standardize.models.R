@@ -78,6 +78,14 @@ standardize.default <- function(x,
     return(x)
   }
 
+  # check model formula. Some notations don't work when standardizing data
+  insight::formula_ok(
+    x,
+    action = "error",
+    prefix_msg = "Model cannot be standardized.",
+    verbose = verbose
+  )
+
   data_std <- NULL # needed to avoid note
   .standardize_models(x,
     robust = robust, two_sd = two_sd,
@@ -99,9 +107,9 @@ standardize.default <- function(x,
                                 update_expr,
                                 ...) {
   m_info <- .get_model_info(x, ...)
-  data <- insight::get_data(x, source = "mf", verbose = FALSE)
+  model_data <- insight::get_data(x, source = "mf", verbose = FALSE)
 
-  if (isTRUE(attr(data, "is_subset"))) {
+  if (isTRUE(attr(model_data, "is_subset"))) {
     insight::format_error("Cannot standardize a model fit with a 'subset = '.")
   }
 
@@ -110,7 +118,6 @@ standardize.default <- function(x,
       "Standardizing variables without adjusting priors may lead to bogus results unless priors are auto-scaled."
     )
   }
-
 
 
   ## ---- Z the RESPONSE? ----
@@ -150,7 +157,6 @@ standardize.default <- function(x,
   }
 
 
-
   ## ---- DO NOT Z: ----
 
   # 1. WEIGHTS:
@@ -158,10 +164,10 @@ standardize.default <- function(x,
   weight_variable <- insight::find_weights(x)
 
   if (!is.null(weight_variable) &&
-    !weight_variable %in% colnames(data) &&
-    "(weights)" %in% colnames(data)) {
-    data$.missing_weight <- data[["(weights)"]]
-    colnames(data)[ncol(data)] <- weight_variable
+    !weight_variable %in% colnames(model_data) &&
+    "(weights)" %in% colnames(model_data)) {
+    model_data$.missing_weight <- model_data[["(weights)"]]
+    colnames(model_data)[ncol(model_data)] <- weight_variable
     weight_variable <- c(weight_variable, "(weights)")
   }
 
@@ -172,12 +178,12 @@ standardize.default <- function(x,
   ## ---- SUMMARY: TO Z OR NOT TO Z? ----
 
   dont_standardize <- c(resp, weight_variable, random_group_factor)
-  do_standardize <- setdiff(colnames(data), dont_standardize)
+  do_standardize <- setdiff(colnames(model_data), dont_standardize)
 
   # can't std data$var variables
   doller_vars <- grepl("(.*)\\$(.*)", do_standardize)
   if (any(doller_vars)) {
-    doller_vars <- colnames(data)[doller_vars]
+    doller_vars <- colnames(model_data)[doller_vars]
     insight::format_warning(
       "Unable to standardize variables evaluated in the environment (i.e., not in `data`).",
       "The following variables will not be standardizd:",
@@ -194,12 +200,11 @@ standardize.default <- function(x,
   }
 
 
-
   ## ---- STANDARDIZE! ----
 
   w <- insight::get_weights(x, remove_na = TRUE)
 
-  data_std <- standardize(data[do_standardize],
+  data_std <- standardize(model_data[do_standardize],
     robust = robust,
     two_sd = two_sd,
     weights = if (weights) w,
@@ -208,7 +213,7 @@ standardize.default <- function(x,
 
   # if two_sd, it must not affect the response!
   if (include_response && two_sd) {
-    data_std[resp] <- standardize(data[resp],
+    data_std[resp] <- standardize(model_data[resp],
       robust = robust,
       two_sd = FALSE,
       weights = if (weights) w,
@@ -247,17 +252,11 @@ standardize.default <- function(x,
   }
 
 
-
-
-
   ## ---- ADD BACK VARS THAT WHERE NOT Z ----
   if (length(dont_standardize)) {
-    remaining_columns <- intersect(colnames(data), dont_standardize)
-    data_std <- cbind(data[, remaining_columns, drop = FALSE], data_std)
+    remaining_columns <- intersect(colnames(model_data), dont_standardize)
+    data_std <- cbind(model_data[, remaining_columns, drop = FALSE], data_std)
   }
-
-
-
 
 
   ## ---- UPDATE MODEL WITH Z DATA ----
@@ -402,7 +401,7 @@ standardize.mediate <- function(x,
   }
 
 
-  text <- utils::capture.output({
+  junk <- utils::capture.output({
     model_std <- stats::update(x,
       model.y = y_std, model.m = m_std,
       # control.value = control.value, treat.value = treat.value
@@ -439,9 +438,6 @@ standardize.biglm <- standardize.wbm
 # biglm doesn't regit the model to new data - it ADDs MORE data to the model.
 
 
-
-
-
 # helper ----------------------------
 
 # Find log-terms inside model formula, and return "clean" term names
@@ -476,7 +472,7 @@ standardize.biglm <- standardize.wbm
 
   # check if model has a response variable that should not be standardized.
   info$is_linear &&
-    !info$family == "inverse.gaussian" &&
+    info$family != "inverse.gaussian" &&
     !info$is_survival &&
     !info$is_censored
 

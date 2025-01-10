@@ -46,7 +46,6 @@ test_that("describe_distribution - NULL for date", {
 })
 
 
-
 # data frame ---------------------------------------
 
 test_that("describe_distribution - data frame: works with basic data frame", {
@@ -88,7 +87,6 @@ test_that("describe_distribution - data frame: works with range", {
 })
 
 
-
 # factor ---------------------------------------
 
 test_that("describe_distribution - factor", {
@@ -98,7 +96,6 @@ test_that("describe_distribution - factor", {
 })
 
 
-
 # character ---------------------------------------
 
 test_that("describe_distribution - character", {
@@ -106,7 +103,6 @@ test_that("describe_distribution - character", {
 
   expect_snapshot(describe_distribution(as.character(ToothGrowth$supp)))
 })
-
 
 
 # list ---------------------------------------
@@ -206,7 +202,6 @@ test_that("describe_distribution - list: works with range", {
 })
 
 
-
 # select ----------------------
 
 test_that("describe_distribution - select", {
@@ -223,7 +218,6 @@ test_that("describe_distribution - select", {
   exp <- describe_distribution(iris$Species)
   expect_identical(out$Range, exp$Range)
 })
-
 
 
 # select and grouped df ----------------------
@@ -285,4 +279,17 @@ test_that("describe_distribution formatting", {
   data(iris)
   x <- describe_distribution(iris$Sepal.Width, quartiles = TRUE)
   expect_snapshot(format(x))
+})
+
+# other -----------------------------------
+
+test_that("return NA in CI if sample is too sparse", {
+  skip_if_not_installed("bayestestR")
+  set.seed(123456)
+  expect_warning(
+    res <- describe_distribution(mtcars[mtcars$cyl == "6", ], wt, centrality = "map", ci = 0.95), # nolint
+    "When bootstrapping CIs, sample was too sparse to find TD"
+  )
+  expect_identical(res$CI_low, NA)
+  expect_identical(res$CI_high, NA)
 })

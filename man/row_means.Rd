@@ -2,7 +2,8 @@
 % Please edit documentation in R/row_means.R
 \name{row_means}
 \alias{row_means}
-\title{Row means (optionally with minimum amount of valid values)}
+\alias{row_sums}
+\title{Row means or sums (optionally with minimum amount of valid values)}
 \usage{
 row_means(
   data,
@@ -15,31 +16,51 @@ row_means(
   remove_na = FALSE,
   verbose = TRUE
 )
+
+row_sums(
+  data,
+  select = NULL,
+  exclude = NULL,
+  min_valid = NULL,
+  digits = NULL,
+  ignore_case = FALSE,
+  regex = FALSE,
+  remove_na = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{data}{A data frame with at least two columns, where row means are applied.}
+\item{data}{A data frame with at least two columns, where row means or row
+sums are applied.}
 
 \item{select}{Variables that will be included when performing the required
 tasks. Can be either
 \itemize{
 \item a variable specified as a literal variable name (e.g., \code{column_name}),
-\item a string with the variable name (e.g., \code{"column_name"}), or a character
-vector of variable names (e.g., \code{c("col1", "col2", "col3")}),
+\item a string with the variable name (e.g., \code{"column_name"}), a character
+vector of variable names (e.g., \code{c("col1", "col2", "col3")}), or a
+character vector of variable names including ranges specified via \code{:}
+(e.g., \code{c("col1:col3", "col5")}),
+\item for some functions, like \code{data_select()} or \code{data_rename()}, \code{select} can
+be a named character vector. In this case, the names are used to rename
+the columns in the output data frame. See 'Details' in the related
+functions to see where this option applies.
 \item a formula with variable names (e.g., \code{~column_1 + column_2}),
 \item a vector of positive integers, giving the positions counting from the left
 (e.g. \code{1} or \code{c(1, 3, 5)}),
 \item a vector of negative integers, giving the positions counting from the
 right (e.g., \code{-1} or \code{-1:-3}),
 \item one of the following select-helpers: \code{starts_with()}, \code{ends_with()},
-\code{contains()}, a range using \code{:} or \code{regex("")}. \code{starts_with()},
+\code{contains()}, a range using \code{:}, or \code{regex()}. \code{starts_with()},
 \code{ends_with()}, and  \code{contains()} accept several patterns, e.g
-\code{starts_with("Sep", "Petal")}.
-\item or a function testing for logical conditions, e.g. \code{is.numeric()} (or
+\code{starts_with("Sep", "Petal")}. \code{regex()} can be used to define regular
+expression patterns.
+\item a function testing for logical conditions, e.g. \code{is.numeric()} (or
 \code{is.numeric}), or any user-defined function that selects the variables
 for which the function returns \code{TRUE} (like: \code{foo <- function(x) mean(x) > 3}),
 \item ranges specified via literal variable names, select-helpers (except
 \code{regex()}) and (user-defined) functions can be negated, i.e. return
-non-matching elements, when prefixed with a \code{-}, e.g. \code{-ends_with("")},
+non-matching elements, when prefixed with a \code{-}, e.g. \code{-ends_with()},
 \code{-is.numeric} or \code{-(Sepal.Width:Petal.Length)}. \strong{Note:} Negation means
 that matches are \emph{excluded}, and thus, the \code{exclude} argument can be
 used alternatively. For instance, \code{select=-ends_with("Length")} (with
@@ -58,9 +79,9 @@ excludes no columns.}
 \item{min_valid}{Optional, a numeric value of length 1. May either be
 \itemize{
 \item a numeric value that indicates the amount of valid values per row to
-calculate the row mean;
+calculate the row mean or row sum;
 \item or a value between \code{0} and \code{1}, indicating a proportion of valid values per
-row to calculate the row mean (see 'Details').
+row to calculate the row mean or row sum (see 'Details').
 \item \code{NULL} (default), in which all cases are considered.
 }
 
@@ -79,33 +100,36 @@ treated as regular expression. When \code{regex = TRUE}, select \emph{must} be a
 character string (or a variable containing a character string) and is not
 allowed to be one of the supported select-helpers or a character vector
 of length > 1. \code{regex = TRUE} is comparable to using one of the two
-select-helpers, \code{select = contains("")} or \code{select = regex("")}, however,
+select-helpers, \code{select = contains()} or \code{select = regex()}, however,
 since the select-helpers may not work when called from inside other
 functions (see 'Details'), this argument may be used as workaround.}
 
 \item{remove_na}{Logical, if \code{TRUE} (default), removes missing (\code{NA}) values
-before calculating row means. Only applies if \code{min_valuid} is not specified.}
+before calculating row means or row sums. Only applies if \code{min_valid} is not
+specified.}
 
 \item{verbose}{Toggle warnings.}
 }
 \value{
-A vector with row means for those rows with at least \code{n} valid values.
+A vector with row means (for \code{row_means()}) or row sums (for
+\code{row_sums()}) for those rows with at least \code{n} valid values.
 }
 \description{
-This function is similar to the SPSS \code{MEAN.n} function and computes
-row means from a data frame or matrix if at least \code{min_valid} values of a row are
-valid (and not \code{NA}).
+This function is similar to the SPSS \code{MEAN.n} or \code{SUM.n}
+function and computes row means or row sums from a data frame or matrix if at
+least \code{min_valid} values of a row are valid (and not \code{NA}).
 }
 \details{
-Rounding to a negative number of \code{digits} means rounding to a power of
-ten, for example \code{row_means(df, 3, digits = -2)} rounds to the nearest hundred.
-For \code{min_valid}, if not \code{NULL}, \code{min_valid} must be a numeric value from \code{0}
-to \code{ncol(data)}. If a row in the data frame has at least \code{min_valid}
-non-missing values, the row mean is returned. If \code{min_valid} is a non-integer
-value from 0 to 1, \code{min_valid} is considered to indicate the proportion of
-required non-missing values per row. E.g., if \code{min_valid = 0.75}, a row must
-have at least \code{ncol(data) * min_valid} non-missing values for the row mean
-to be calculated. See 'Examples'.
+Rounding to a negative number of \code{digits} means rounding to a power
+of ten, for example \code{row_means(df, 3, digits = -2)} rounds to the nearest
+hundred. For \code{min_valid}, if not \code{NULL}, \code{min_valid} must be a numeric value
+from \code{0} to \code{ncol(data)}. If a row in the data frame has at least \code{min_valid}
+non-missing values, the row mean or row sum is returned. If \code{min_valid} is a
+non-integer value from 0 to 1, \code{min_valid} is considered to indicate the
+proportion of required non-missing values per row. E.g., if
+\code{min_valid = 0.75}, a row must have at least \code{ncol(data) * min_valid}
+non-missing values for the row mean or row sum to be calculated. See
+'Examples'.
 }
 \examples{
 dat <- data.frame(
@@ -123,6 +147,7 @@ row_means(dat, remove_na = TRUE)
 
 # needs at least 4 non-missing values per row
 row_means(dat, min_valid = 4) # 1 valid return value
+row_sums(dat, min_valid = 4) # 1 valid return value
 
 # needs at least 3 non-missing values per row
 row_means(dat, min_valid = 3) # 2 valid return values
@@ -135,6 +160,7 @@ row_means(dat, select = c("c1", "c3"), min_valid = 1)
 
 # needs at least 50\% of non-missing values per row
 row_means(dat, min_valid = 0.5) # 3 valid return values
+row_sums(dat, min_valid = 0.5)
 
 # needs at least 75\% of non-missing values per row
 row_means(dat, min_valid = 0.75) # 2 valid return values
