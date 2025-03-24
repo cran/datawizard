@@ -1,7 +1,7 @@
-b4ce7844e4481446a0a3bc8074283a60 *DESCRIPTION
+072af98d4158e09f164d87a361f28af0 *DESCRIPTION
 6fa659d1b1ed1e01f375c78ac820f04d *LICENSE
 848944ddcf85f312c74ccae7aa452427 *NAMESPACE
-e0c46196c00c1b9473e8d96f1d6c9aee *NEWS.md
+934fecd95634cad3b4699084f9774379 *NEWS.md
 0b26d343ca60b9b7a7b1a64114acc7e0 *R/adjust.R
 497e9c7569bdea1b816a21058180ee8d *R/assign_labels.R
 b0ee2cbdef5a56f06d9702d1d6c7068e *R/categorize.R
@@ -86,7 +86,7 @@ a749eb1b8fc61f883a4911ca13d1e6b7 *build/vignette.rds
 c67bf3f1f7f8fb86e202762463341ed6 *data/efc.RData
 ad3f18b79c24699a3c122d8b377b5028 *data/nhanes_sample.RData
 bcf9b1e7e2e0098d5423f5a721993606 *inst/CITATION
-b97f60888e1adc112df2ab7b0887375c *inst/WORDLIST
+ee1f7ce92490d6418e7f3c252adbe572 *inst/WORDLIST
 b2b544acb5292aea7c3f9aa67e9a5221 *inst/doc/overview_of_vignettes.R
 3cf6440be1ec632b49304e86474a59ce *inst/doc/overview_of_vignettes.Rmd
 90d26a1cf39ceb0a308261422769db0f *inst/doc/overview_of_vignettes.html
@@ -195,7 +195,7 @@ e771007716a51756b596219e72d1f6fd *tests/testthat/_snaps/windows/means_by_group.m
 c959d6af148dd335376c619303009bc4 *tests/testthat/_snaps/winsorization.md
 69c9fce293536b6a60164be42f97bb13 *tests/testthat/helper-state.R
 34da5333c1f0ef1714e2effca1e4c8c0 *tests/testthat/helper.R
-0a047e02229b94ce26b1b99cb10fec93 *tests/testthat/test-adjust.R
+c0617bde628bfc88f020fc4eb3d21d9d *tests/testthat/test-adjust.R
 b1e71fec56d13952f40f6ec57a1c1139 *tests/testthat/test-assign_labels.R
 080d9b0f017b981107982f9389422af1 *tests/testthat/test-attributes-grouped-df.R
 f1f0b9826b3377f019ef81a0171353f8 *tests/testthat/test-attributes.R
