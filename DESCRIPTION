@@ -1,7 +1,7 @@
 Type: Package
 Package: datawizard
 Title: Easy Data Wrangling and Statistical Transformations
-Version: 1.0.2
+Version: 1.1.0
 Authors@R: c(
     person("Indrajeet", "Patil", , "patilindrajeet.science@gmail.com", role = "aut",
            comment = c(ORCID = "0000-0003-1995-6531")),
@@ -31,8 +31,8 @@ License: MIT + file LICENSE
 URL: https://easystats.github.io/datawizard/
 BugReports: https://github.com/easystats/datawizard/issues
 Depends: R (>= 4.0)
-Imports: insight (>= 1.0.2), stats, utils
-Suggests: bayestestR, boot, brms, curl, data.table, dplyr (>= 1.1),
+Imports: insight (>= 1.2.0), stats, utils
+Suggests: bayestestR, boot, BH, brms, curl, data.table, dplyr (>= 1.1),
         effectsize, emmeans, gamm4, ggplot2 (>= 3.5.0), gt, haven,
         httr, knitr, lme4, mediation, modelbased, parameters (>=
         0.21.7), poorman (>= 0.2.7), psych, readxl, readr, rio,
@@ -46,15 +46,19 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 Config/Needs/website: easystats/easystatstemplate
 NeedsCompilation: no
-Packaged: 2025-03-24 09:57:49 UTC; etienne
-Author: Indrajeet Patil [aut] (<https://orcid.org/0000-0003-1995-6531>),
-  Etienne Bacher [aut, cre] (<https://orcid.org/0000-0002-9271-5075>),
-  Dominique Makowski [aut] (<https://orcid.org/0000-0001-5375-9967>),
-  Daniel Lüdecke [aut] (<https://orcid.org/0000-0002-8895-3206>),
-  Mattan S. Ben-Shachar [aut] (<https://orcid.org/0000-0002-4287-4801>),
-  Brenton M. Wiernik [aut] (<https://orcid.org/0000-0001-9560-6336>),
-  Rémi Thériault [ctb] (<https://orcid.org/0000-0003-4315-6788>),
+Packaged: 2025-05-09 16:54:52 UTC; etienne
+Author: Indrajeet Patil [aut] (ORCID: <https://orcid.org/0000-0003-1995-6531>),
+  Etienne Bacher [aut, cre] (ORCID:
+    <https://orcid.org/0000-0002-9271-5075>),
+  Dominique Makowski [aut] (ORCID:
+    <https://orcid.org/0000-0001-5375-9967>),
+  Daniel Lüdecke [aut] (ORCID: <https://orcid.org/0000-0002-8895-3206>),
+  Mattan S. Ben-Shachar [aut] (ORCID:
+    <https://orcid.org/0000-0002-4287-4801>),
+  Brenton M. Wiernik [aut] (ORCID:
+    <https://orcid.org/0000-0001-9560-6336>),
+  Rémi Thériault [ctb] (ORCID: <https://orcid.org/0000-0003-4315-6788>),
   Thomas J. Faulkenberry [rev],
   Robert Garrett [rev]
 Repository: CRAN
-Date/Publication: 2025-03-24 16:10:02 UTC
+Date/Publication: 2025-05-09 17:40:02 UTC
