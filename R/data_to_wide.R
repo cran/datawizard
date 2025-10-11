@@ -17,7 +17,10 @@
 #' will be used for naming the new columns created in the widened data. Each
 #' unique value in this column will become the name of one of these new columns.
 #' In case `names_prefix` is provided, column names will be concatenated with
-#' the string given in `names_prefix`.
+#' the string given in `names_prefix`. If `values_from` specifies more than one
+#' variable that should be widened, the new column names are a combination of
+#' the old column names in `values_from` and the *values* from `names_from`, to
+#' avoid duplicate column names.
 #' @param names_prefix String added to the start of every variable name. This is
 #'  particularly useful if `names_from` is a numeric vector and you want to create
 #'  syntactic variable names.
@@ -29,11 +32,13 @@
 #' `names_from` columns to create custom column names. Note that the only
 #' delimiters supported by `names_glue` are curly brackets, `{` and `}`.
 #' @param values_from The name of the columns in the original data that contains
-#' the values used to fill the new columns created in the widened data.
-#' @param values_fill Optionally, a (scalar) value that will be used to replace
-#' missing values in the new columns created.
+#' the values used to fill the new columns created in the widened data. Can also
+#' be one of the selection helpers (see argument `select` in [`data_select()`]).
+#' @param values_fill Defunct argument, which has no function anymore. Will be
+#' removed in future versions.
 #' @param verbose Toggle warnings.
 #' @param ... Not used for now.
+#' @inheritParams data_select
 #'
 #' @return If a tibble was provided as input, `data_to_wide()` also returns a
 #' tibble. Otherwise, it returns a data frame.
@@ -51,7 +56,7 @@
 #'   (`names_from`). Since these values may not necessarily reflect appropriate
 #'   column names, you can use `names_prefix` to add a prefix to each newly
 #'   created column name.
-#' - The name of the column that contains the values (`values_from`) for the
+#' - The name of the column(s) that contain the values (`values_from`) for the
 #'   new columns that are created by `names_from`.
 #'
 #' In other words: repeated measurements, as indicated by `id_cols`, that are
@@ -108,6 +113,27 @@
 #'   names_glue = "prod_{product}_{country}"
 #' )
 #'
+#' # reshaping multiple long columns into wide format. to avoid duplicate
+#' # column names, new names are a combination of the old column names in
+#' # `values_from` and the values from `names_from`
+#' data_long <- read.table(header = TRUE, text = "
+#' subject_id time score anxiety test
+#'          1    1    10       5   NA
+#'          1    2    NA       7   NA
+#'          2    1    15       6   NA
+#'          2    2    12      NA   NA
+#'          3    1    18       8   NA
+#'          5    2    11       4   NA
+#'          4    1    NA       5   NA
+#'          4    2    14      NA   NA")
+#'
+#' data_to_wide(
+#'   data_long,
+#'   id_cols = "subject_id",
+#'   names_from = "time",
+#'   values_from = c("score", "anxiety", "test")
+#' )
+#'
 #' # using the "sleepstudy" dataset
 #' data(sleepstudy, package = "lme4")
 #'
@@ -149,30 +175,58 @@
 #'   values_from = "Reaction",
 #'   names_prefix = "Reaction_Day_"
 #' )
-#'
-#' # filling missing values with 0
-#' data_to_wide(
-#'   d,
-#'   id_cols = "Subject",
-#'   names_from = "Days",
-#'   values_from = "Reaction",
-#'   names_prefix = "Reaction_Day_",
-#'   values_fill = 0
-#' )
 #' @inherit data_rename seealso
 #' @export
-data_to_wide <- function(data,
-                         id_cols = NULL,
-                         values_from = "Value",
-                         names_from = "Name",
-                         names_sep = "_",
-                         names_prefix = "",
-                         names_glue = NULL,
-                         values_fill = NULL,
-                         verbose = TRUE,
-                         ...) {
+data_to_wide <- function(
+  data,
+  id_cols = NULL,
+  values_from = "Value",
+  names_from = "Name",
+  names_sep = "_",
+  names_prefix = "",
+  names_glue = NULL,
+  values_fill = NULL,
+  ignore_case = FALSE,
+  regex = FALSE,
+  verbose = TRUE,
+  ...
+) {
+  ## TODO: remove in a future update (#645)
+  if (!is.null(values_fill)) {
+    insight::format_warning(
+      "`values_fill` is defunct and has no function anymore. It will be removed in future versions.",
+      "To handle missing values after widening, use `convert_na_to()` instead."
+    )
+  }
+
+  if (is.null(names_from) || !all(names_from %in% colnames(data))) {
+    insight::format_error(
+      "`names_from` must be the name of an existing column in `data`."
+    )
+  }
+
+  select <- substitute(values_from)
+  values_from <- .select_nse(
+    select,
+    data,
+    exclude = NULL,
+    ignore_case,
+    regex = regex,
+    verbose = verbose
+  )
+
+  if (is.null(values_from) || !length(values_from)) {
+    insight::format_error(
+      "No variable defined in `values_from` was found in the `data`."
+    )
+  }
+
   if (is.null(id_cols)) {
-    id_cols <- setdiff(names(data), c(names_from, values_from))
+    id_cols <- setdiff(colnames(data), c(names_from, values_from))
+  } else if (!all(id_cols %in% colnames(data))) {
+    insight::format_error(
+      "`id_cols` must be the names of existing columns in `data`."
+    )
   }
 
   # save custom attributes
@@ -201,7 +255,10 @@ data_to_wide <- function(data,
   # create an id with all variables that are not in names_from or values_from
   # so that we can create missing combinations between this id and names_from
   if (length(id_cols) > 1L) {
-    new_data$temporary_id <- do.call(paste, c(new_data[, id_cols, drop = FALSE], sep = "_"))
+    new_data$temporary_id <- do.call(
+      paste,
+      c(new_data[, id_cols, drop = FALSE], sep = "_")
+    )
   } else if (length(id_cols) == 1L) {
     new_data$temporary_id <- new_data[[id_cols]]
   } else {
@@ -218,19 +275,25 @@ data_to_wide <- function(data,
 
   incomplete_groups <-
     (n_values_per_group > 1L &&
-      !all(unique(n_rows_per_group) %in% insight::n_unique(new_data[, names_from]))
-    ) ||
-      (n_values_per_group == 1L &&
-        unique(n_rows_per_group) < length(unique(new_data[, names_from]))
-      )
+      !all(
+        unique(n_rows_per_group) %in% insight::n_unique(new_data[, names_from])
+      )) ||
+    (n_values_per_group == 1L &&
+      unique(n_rows_per_group) < length(unique(new_data[, names_from])))
 
   # create missing combinations
 
   if (not_all_cols_are_selected && incomplete_groups) {
-    expanded <- expand.grid(unique(new_data[["temporary_id"]]), unique(new_data[[names_from]]))
+    expanded <- expand.grid(
+      unique(new_data[["temporary_id"]]),
+      unique(new_data[[names_from]])
+    )
     names(expanded) <- c("temporary_id", names_from)
-    new_data <- data_merge(new_data, expanded,
-      join = "full", by = c("temporary_id", names_from),
+    new_data <- data_merge(
+      new_data,
+      expanded,
+      join = "full",
+      by = c("temporary_id", names_from),
       sort = FALSE
     )
 
@@ -245,13 +308,15 @@ data_to_wide <- function(data,
     # must be rearranged as "B" "B" "A" "A" and not "A" "A" "B" "B"
     lookup <- data.frame(
       temporary_id = unique(
-        new_data[!is.na(new_data[[values_from]]), "temporary_id"]
+        new_data[!is.na(new_data[values_from]), "temporary_id"]
       )
     )
     lookup$temporary_id_2 <- seq_len(nrow(lookup))
     new_data <- data_merge(
-      new_data, lookup,
-      by = "temporary_id", join = "left"
+      new_data,
+      lookup,
+      by = "temporary_id",
+      join = "left"
     )
 
     # creation of missing combinations was done with a temporary id, so need
@@ -270,48 +335,23 @@ data_to_wide <- function(data,
   new_data$temporary_id <- NULL
   new_data$temporary_id_2 <- NULL
 
-  # Fill missing values (before converting to wide)
-  if (!is.null(values_fill)) {
-    if (length(values_fill) == 1L) {
-      if (is.numeric(new_data[[values_from]])) {
-        if (is.numeric(values_fill)) {
-          new_data <- convert_na_to(new_data, replace_num = values_fill)
-        } else {
-          insight::format_error(paste0("`values_fill` must be of type numeric."))
-        }
-      } else if (is.character(new_data[[values_from]])) {
-        if (is.character(values_fill)) {
-          new_data <- convert_na_to(new_data, replace_char = values_fill)
-        } else {
-          insight::format_error(paste0("`values_fill` must be of type character."))
-        }
-      } else if (is.factor(new_data[[values_from]])) {
-        if (is.factor(values_fill)) {
-          new_data <- convert_na_to(new_data, replace_fac = values_fill)
-        } else {
-          insight::format_error(paste0("`values_fill` must be of type factor."))
-        }
-      }
-    } else if (verbose) {
-      insight::format_error("`values_fill` must be of length 1.")
-    }
-  }
-
   # convert to wide format (returns the data and the order in which columns
   # should be ordered)
   unstacked <- .unstack(
-    new_data, names_from, values_from,
-    names_sep, names_prefix, names_glue
+    new_data,
+    names_from,
+    values_from,
+    names_sep,
+    names_prefix,
+    names_glue
   )
 
   out <- unstacked$out
 
   if (length(values_from) > 1L) {
     unstacked$col_order <- unique(data[, names_from])
-    unstacked$col_order <- sort(
-      as.vector(
-        outer(values_from, unstacked$col_order, paste, sep = names_sep)
-      )
+    unstacked$col_order <- as.vector(
+      t(outer(values_from, unstacked$col_order, paste, sep = names_sep))
     )
   }
 
@@ -321,7 +361,9 @@ data_to_wide <- function(data,
       "Some values of the columns specified in `names_from` are already present as column names.",
       paste0(
         "Either use `names_prefix` or rename the following columns: ",
-        text_concatenate(current_colnames[which(current_colnames %in% unstacked$col_order)])
+        text_concatenate(current_colnames[which(
+          current_colnames %in% unstacked$col_order
+        )])
       )
     )
   }
@@ -334,8 +376,6 @@ data_to_wide <- function(data,
     out <- cbind(not_unstacked, out)
   }
   row.names(out) <- NULL
-
-  out <- remove_empty_columns(out)
 
   # add back attributes where possible
   for (i in colnames(out)) {
@@ -367,13 +407,26 @@ data_to_wide <- function(data,
 #'
 #' @noRd
 
-.unstack <- function(x, names_from, values_from, names_sep, names_prefix, names_glue = NULL) {
+.unstack <- function(
+  x,
+  names_from,
+  values_from,
+  names_sep,
+  names_prefix,
+  names_glue = NULL
+) {
   # get values from names_from (future colnames)
 
   if (is.null(names_glue)) {
-    x$future_colnames <- do.call(paste, c(x[, names_from, drop = FALSE], sep = names_sep))
+    x$future_colnames <- do.call(
+      paste,
+      c(x[, names_from, drop = FALSE], sep = names_sep)
+    )
   } else {
-    vars <- regmatches(names_glue, gregexpr("\\{\\K[^{}]+(?=\\})", names_glue, perl = TRUE))[[1]]
+    vars <- regmatches(
+      names_glue,
+      gregexpr("\\{\\K[^{}]+(?=\\})", names_glue, perl = TRUE)
+    )[[1]]
     tmp_data <- x[, vars]
     x$future_colnames <- .gluestick(names_glue, src = tmp_data)
   }
@@ -396,7 +449,8 @@ data_to_wide <- function(data,
     res <- data.frame(
       matrix(
         res[[1]],
-        nrow = 1, dimnames = list(NULL, names(res[[1]]))
+        nrow = 1,
+        dimnames = list(NULL, names(res[[1]]))
       ),
       stringsAsFactors = FALSE,
       check.names = FALSE

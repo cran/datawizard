@@ -23,6 +23,7 @@
 #' @param row_color For HTML tables, the fill color for odd rows.
 #' @inheritParams standardize.data.frame
 #' @inheritParams extract_column_names
+#' @inheritParams data_tabulate
 #'
 #' @return A formatted data frame, summarizing the content of the data frame.
 #' Returned columns include the column index of the variables in the original
@@ -53,21 +54,24 @@
 #' # force all values to be displayed
 #' data_codebook(mtcars, select = starts_with("c"), range_at = 100)
 #' @export
-data_codebook <- function(data,
-                          select = NULL,
-                          exclude = NULL,
-                          variable_label_width = NULL,
-                          value_label_width = NULL,
-                          max_values = 10,
-                          range_at = 6,
-                          ignore_case = FALSE,
-                          regex = FALSE,
-                          verbose = TRUE,
-                          ...) {
+data_codebook <- function(
+  data,
+  select = NULL,
+  exclude = NULL,
+  variable_label_width = NULL,
+  value_label_width = NULL,
+  max_values = 10,
+  range_at = 6,
+  ignore_case = FALSE,
+  regex = FALSE,
+  verbose = TRUE,
+  ...
+) {
   data_name <- insight::safe_deparse(substitute(data))
 
   # evaluate select/exclude, may be select-helpers
-  select <- .select_nse(select,
+  select <- .select_nse(
+    select,
     data,
     exclude,
     ignore_case,
@@ -80,7 +84,10 @@ data_codebook <- function(data,
   if (length(empty)) {
     if (verbose) {
       insight::format_warning(
-        sprintf("Following %i columns were empty and have been removed:", length(empty)),
+        sprintf(
+          "Following %i columns were empty and have been removed:",
+          length(empty)
+        ),
         text_concatenate(names(empty))
       )
     }
@@ -90,7 +97,9 @@ data_codebook <- function(data,
   # check if any columns left, or found
   if (!length(select) || is.null(select)) {
     if (isTRUE(verbose)) {
-      insight::format_warning("No column names that matched the required search pattern were found.")
+      insight::format_warning(
+        "No column names that matched the required search pattern were found."
+      )
     }
     return(NULL)
   }
@@ -260,18 +269,24 @@ data_codebook <- function(data,
 
     # shorten value labels
     if (!is.null(value_label_width)) {
-      value_labels <- insight::format_string(value_labels, length = value_label_width)
+      value_labels <- insight::format_string(
+        value_labels,
+        length = value_label_width
+      )
     }
 
     # add values, value labels and frequencies to data frame
-    d <- cbind(d, data.frame(
-      variable_label,
-      values,
-      value_labels,
-      frq,
-      proportions = frq_proportions,
-      stringsAsFactors = FALSE
-    ))
+    d <- cbind(
+      d,
+      data.frame(
+        variable_label,
+        values,
+        value_labels,
+        frq,
+        proportions = frq_proportions,
+        stringsAsFactors = FALSE
+      )
+    )
 
     # which columns need to be checked for duplicates?
     duplicates <- c("ID", "Name", "Type", "Missings", "variable_label")
@@ -309,19 +324,24 @@ data_codebook <- function(data,
 
 # helper -----------------------
 
-
 #' @keywords internal
 .extract_variable_labels <- function(x, variable_label_width = NULL) {
   varlab <- attr(x, "label", exact = TRUE)
   if (!is.null(varlab) && length(varlab)) {
     variable_label <- varlab
     # if variable labels are too long, split into multiple elements
-    if (!is.null(variable_label_width) && nchar(variable_label) > variable_label_width) {
-      variable_label <- insight::trim_ws(unlist(strsplit(
-        text_wrap(variable_label, width = variable_label_width),
-        "\n",
-        fixed = TRUE
-      ), use.names = FALSE))
+    if (
+      !is.null(variable_label_width) &&
+        nchar(variable_label) > variable_label_width
+    ) {
+      variable_label <- insight::trim_ws(unlist(
+        strsplit(
+          text_wrap(variable_label, width = variable_label_width),
+          "\n",
+          fixed = TRUE
+        ),
+        use.names = FALSE
+      ))
     }
   } else {
     variable_label <- NA
@@ -344,8 +364,16 @@ data_codebook <- function(data,
 
   # reorder
   column_order <- c(
-    "ID", "Name", "Label", "Type", "Missings", "Values",
-    "Value Labels", "N", "Prop", ".row_id"
+    "ID",
+    "Name",
+    "Label",
+    "Type",
+    "Missings",
+    "Values",
+    "Value Labels",
+    "N",
+    "Prop",
+    ".row_id"
   )
   out[union(intersect(column_order, names(out)), names(out))]
 }
@@ -365,7 +393,6 @@ data_codebook <- function(data,
 
 # methods ----------------------
 
-
 #' @export
 format.data_codebook <- function(x, format = "text", ...) {
   # use [["N"]] to avoid partial matching
@@ -380,7 +407,8 @@ format.data_codebook <- function(x, format = "text", ...) {
     if (identical(format, "text")) {
       x$Prop[x$Prop != ""] <- format(x$Prop[x$Prop != ""], justify = "right") # nolint
     }
-    x[["N"]][x$Prop != ""] <- sprintf( # nolint
+    x[["N"]][x$Prop != ""] <- sprintf(
+      # nolint
       "%s (%s)",
       as.character(x[["N"]][x$Prop != ""]), # nolint
       x$Prop[x$Prop != ""] # nolint
@@ -396,7 +424,8 @@ print.data_codebook <- function(x, ...) {
   caption <- c(.get_codebook_caption(x), "blue")
   x$.row_id <- NULL
   cat(
-    insight::export_table(format(x),
+    insight::export_table(
+      format(x),
       title = caption,
       empty_line = "-",
       cross = "+",
@@ -409,12 +438,13 @@ print.data_codebook <- function(x, ...) {
 
 #' @rdname data_codebook
 #' @export
-print_html.data_codebook <- function(x,
-                                     font_size = "100%",
-                                     line_padding = 3,
-                                     row_color = "#eeeeee",
-                                     ...) {
-  insight::check_if_installed("gt")
+print_html.data_codebook <- function(
+  x,
+  font_size = "100%",
+  line_padding = 3,
+  row_color = "#eeeeee",
+  ...
+) {
   caption <- .get_codebook_caption(x)
   attr(x, "table_caption") <- caption
   # since we have each value at its own row, the HTML table contains
@@ -427,12 +457,20 @@ print_html.data_codebook <- function(x,
   odd_rows <- (x$.row_id %% 2 == 1)
   x$.row_id <- NULL
   # create basic table
+  backend <- .check_format_backend(...)
   out <- insight::export_table(
     format(x, format = "html"),
     title = caption,
-    format = "html",
+    format = backend,
     align = .get_codebook_align(x)
   )
+
+  # for tiny table output, we don't need to do any further formatting
+  if (identical(backend, "tt")) {
+    return(out)
+  }
+
+  insight::check_if_installed("gt")
   # no border for rows which are not separator lines
   out <- gt::tab_style(
     out,
@@ -448,10 +486,41 @@ print_html.data_codebook <- function(x,
     )
   }
   # set up additonal HTML options
-  gt::tab_options(out,
+  gt::tab_options(
+    out,
     table.font.size = font_size,
     data_row.padding = gt::px(line_padding)
   )
+}
+
+
+#' @rdname data_codebook
+#' @export
+display.data_codebook <- function(
+  object,
+  format = "markdown",
+  font_size = "100%",
+  line_padding = 3,
+  row_color = "#eeeeee",
+  ...
+) {
+  format <- .display_default_format(format)
+
+  fun_args <- list(
+    x = object,
+    font_size = font_size,
+    line_padding = line_padding,
+    row_color = row_color,
+    ...
+  )
+
+  # print table in HTML or markdown format
+  if (format %in% c("html", "tt")) {
+    fun_args$backend <- format
+    do.call(print_html, fun_args)
+  } else {
+    do.call(print_md, fun_args)
+  }
 }
 
 
@@ -460,7 +529,8 @@ print_md.data_codebook <- function(x, ...) {
   caption <- .get_codebook_caption(x)
   x$.row_id <- NULL
   attr(x, "table_caption") <- caption
-  insight::export_table(format(x, format = "markdown"),
+  insight::export_table(
+    format(x, format = "markdown"),
     title = caption,
     align = .get_codebook_align(x),
     format = "markdown"

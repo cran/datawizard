@@ -1,3 +1,47 @@
+# datawizard 1.3.0
+
+BREAKING CHANGES
+
+* Argument `values_fill` in `data_to_wide()` is now defunct, because it did not
+  work as intended (#645).
+
+* `data_to_wide()` no longer removes empty columns that were created after
+  widening data frames, to behave similarly to `tidyr::pivot_wider()` (#645).
+
+CHANGES
+
+* `data_tabulate()` now saves the table of proportions for crosstables as
+  attribute, accessible via the new `as.prop.table()` method (#656).
+
+* Due to changes in the package `insight`, `data_tabulate()` no longer prints
+  decimals when all values in a column are integers (#641).
+
+* Argument `values_from` in `data_to_wide()` now supports select-helpers like
+  the `select` argument in other `{datawizard}` functions (#645).
+
+* Added a `display()` method for `data_codebook()` (#646).
+
+* `display()` methods now support the `{tinytable}` package. Use `format = "tt"`
+  to export tables as `tinytable` objects (#646).
+
+* Improved performance for several functions that process grouped data frames
+  when the input is a grouped `tibble` (#651).
+
+BUG FIXES
+
+* Fixed an issue when `demean()`ing nested structures with more than 2 grouping
+  variables (#635).
+
+* Fixed an issue when `demean()`ing crossed structures with more than 2 grouping
+  variables (#638).
+
+* Fixed issue in `data_to_wide()` with multiple variables assigned in
+  `values_from` when IDs were not balanced (equally spread across observations)
+  (#644).
+
+* Fixed issue in `data_replicate()` when data frame had only one column to
+  replicate (#654).
+
 # datawizard 1.2.0
 
 BREAKING CHANGES
@@ -64,7 +108,7 @@ CHANGES
 
 * `data_codebook()` gives an informative warning when no column names matched
   the selection pattern (#601).
-  
+
 * `data_to_long()` now errors when columns selected to reshape do not exist in
   the data, to avoid nonsensical results that could be missed (#602).
 

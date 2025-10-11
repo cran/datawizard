@@ -21,15 +21,17 @@
 #' data(mtcars)
 #' data_replicate(head(mtcars), "carb")
 #' @export
-data_replicate <- function(data,
-                           expand = NULL,
-                           select = NULL,
-                           exclude = NULL,
-                           remove_na = FALSE,
-                           ignore_case = FALSE,
-                           verbose = TRUE,
-                           regex = FALSE,
-                           ...) {
+data_replicate <- function(
+  data,
+  expand = NULL,
+  select = NULL,
+  exclude = NULL,
+  remove_na = FALSE,
+  ignore_case = FALSE,
+  verbose = TRUE,
+  regex = FALSE,
+  ...
+) {
   # we need a name for the new column
   if (is.null(expand)) {
     insight::format_error(
@@ -72,7 +74,8 @@ data_replicate <- function(data,
   }
 
   # evaluate select/exclude, may be select-helpers
-  select <- .select_nse(select,
+  select <- .select_nse(
+    select,
     data,
     exclude,
     ignore_case,
@@ -98,11 +101,14 @@ data_replicate <- function(data,
   }
 
   # remove rows where "expand" is NA
-  data <- data[!is.na(replicates), ]
+  data <- data[!is.na(replicates), , drop = FALSE]
   replicates <- replicates[!is.na(replicates)]
 
   # fin
-  as.data.frame(do.call(cbind, lapply(data[select], rep.int, times = replicates)))
+  as.data.frame(do.call(
+    cbind,
+    lapply(data[select], rep.int, times = replicates)
+  ))
 }
 
 

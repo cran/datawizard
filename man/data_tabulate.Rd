@@ -4,9 +4,8 @@
 \alias{data_tabulate}
 \alias{data_tabulate.default}
 \alias{data_tabulate.data.frame}
-\alias{as.data.frame.datawizard_tables}
-\alias{as.table.datawizard_table}
 \alias{print.datawizard_table}
+\alias{display.datawizard_table}
 \title{Create frequency and crosstables of variables}
 \usage{
 data_tabulate(x, ...)
@@ -39,18 +38,9 @@ data_tabulate(x, ...)
   ...
 )
 
-\method{as.data.frame}{datawizard_tables}(
-  x,
-  row.names = NULL,
-  optional = FALSE,
-  ...,
-  stringsAsFactors = FALSE,
-  add_total = FALSE
-)
-
-\method{as.table}{datawizard_table}(x, remove_na = TRUE, simplify = FALSE, verbose = TRUE, ...)
-
 \method{print}{datawizard_table}(x, big_mark = NULL, ...)
+
+\method{display}{datawizard_table}(object, big_mark = NULL, format = "markdown", ...)
 }
 \arguments{
 \item{x}{A (grouped) data frame, a vector or factor.}
@@ -143,34 +133,18 @@ functions (see 'Details'), this argument may be used as workaround.}
 \item{collapse}{Logical, if \code{TRUE} collapses multiple tables into one larger
 table for printing. This affects only printing, not the returned object.}
 
-\item{row.names}{\code{NULL} or a character vector giving the row
-    names for the data frame.  Missing values are not allowed.}
-
-\item{optional}{logical. If \code{TRUE}, setting row names and
-    converting column names (to syntactic names: see
-    \code{\link[base]{make.names}}) is optional.  Note that all of \R's
-    \pkg{base} package \code{as.data.frame()} methods use
-    \code{optional} only for column names treatment, basically with the
-    meaning of \code{\link[base]{data.frame}(*, check.names = !optional)}.
-    See also the \code{make.names} argument of the \code{matrix} method.}
-
-\item{stringsAsFactors}{logical: should the character vector be converted
-    to a factor?}
-
-\item{add_total}{For crosstables (i.e. when \code{by} is not \code{NULL}), a row and
-column with the total N values are added to the data frame. \code{add_total} has
-no effect in \code{as.data.frame()} for simple frequency tables.}
-
-\item{simplify}{Logical, if \code{TRUE}, the returned table is simplified to a
-single table object if there is only one frequency or contingency table
-input. Else, always for multiple table inputs or when \code{simplify = FALSE}, a
-list of tables is returned. This is only relevant for the \code{as.table()}
-methods. To ensure consistent output, the default is \code{FALSE}.}
-
 \item{big_mark}{Optional character string, indicating the big mark that is
 used for large numbers. If \code{NULL} (default), a big mark is added automatically for
 large numbers (i.e. numbers with more than 5 digits). If you want to remove
 the big mark, set \code{big_mark = ""}.}
+
+\item{object}{An object returned by \code{data_tabulate()}.}
+
+\item{format}{String, indicating the output format. Can be \code{"markdown"}
+\code{"html"}, or \code{"tt"}. \code{format = "html"} create an HTML table using the \emph{gt}
+package. \code{format = "tt"} creates a \code{tinytable} object, which is either
+printed as markdown or HTML table, depending on the environment. See
+\code{\link[insight:export_table]{insight::export_table()}} for details.}
 }
 \value{
 A data frame, or a list of data frames, with one frequency table
@@ -187,11 +161,12 @@ There is an \code{as.data.frame()} method, to return the frequency tables as a
 data frame. The structure of the returned object is a nested data frame,
 where the first column contains name of the variable for which frequencies
 were calculated, and the second column is a list column that contains the
-frequency tables as data frame. See 'Examples'.
+frequency tables as data frame. See \link{as.table.datawizard_table}.
 
 There is also an \code{as.table()} method, which returns a table object with the
 frequencies of the variable. This is useful for further statistical analysis,
-e.g. for using \code{chisq.test()} on the frequency table. See 'Examples'.
+e.g. for using \code{chisq.test()} on the frequency table. See
+\link{as.table.datawizard_table}.
 }
 \note{
 There are \code{print_html()} and \code{print_md()} methods available for printing
@@ -212,7 +187,7 @@ for the full table.
 }
 
 \examples{
-\dontshow{if (requireNamespace("poorman")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("poorman")) withAutoprint(\{ # examplesIf}
 # frequency tables -------
 # ------------------------
 data(efc)
@@ -274,27 +249,8 @@ data_tabulate(
 # round percentages
 out <- data_tabulate(efc, "c172code", by = "e16sex", proportions = "column")
 print(out, digits = 0)
-
-# coerce to data frames
-result <- data_tabulate(efc, "c172code", by = "e16sex")
-as.data.frame(result)
-as.data.frame(result)$table
-as.data.frame(result, add_total = TRUE)$table
-
-# post-processing ------
-# ----------------------
-
-out <- data_tabulate(efc, "c172code", by = "e16sex")
-# we need to simplify the output, else we get a list of tables
-suppressWarnings(chisq.test(as.table(out, simplify = TRUE)))
-
-# apply chisq.test to each table
-out <- data_tabulate(efc, c("c172code", "e16sex"))
-suppressWarnings(lapply(as.table(out), chisq.test))
-
-# can also handle grouped data frames
-d <- data_group(mtcars, "am")
-x <- data_tabulate(d, "cyl", by = "gear")
-as.table(x)
 \dontshow{\}) # examplesIf}
+}
+\seealso{
+\link{as.prop.table}
 }

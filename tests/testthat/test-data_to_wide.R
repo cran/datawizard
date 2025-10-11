@@ -2,8 +2,21 @@ test_that("data_to_wide works", {
   long_data <- data.frame(
     Row_ID = c(1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5),
     name = c(
-      "X1", "X1", "X1", "X1", "X1", "X2", "X2", "X2", "X2", "X2",
-      "X3", "X3", "X3", "X3", "X3"
+      "X1",
+      "X1",
+      "X1",
+      "X1",
+      "X1",
+      "X2",
+      "X2",
+      "X2",
+      "X2",
+      "X2",
+      "X3",
+      "X3",
+      "X3",
+      "X3",
+      "X3"
     ),
     value = c(3L, 2L, 5L, 4L, 1L, 3L, 1L, 2L, 5L, 4L, 2L, 3L, 1L, 4L, 5L),
     stringsAsFactors = FALSE
@@ -53,142 +66,40 @@ test_that("data_to_wide, names_prefix works", {
   expect_named(
     out,
     c(
-      "fish", "foo_Release", "foo_I80_1", "foo_Lisbon", "foo_Rstr", "foo_Base_TD",
-      "foo_BCE", "foo_BCW", "foo_BCE2", "foo_BCW2", "foo_MAE", "foo_MAW"
+      "fish",
+      "foo_Release",
+      "foo_I80_1",
+      "foo_Lisbon",
+      "foo_Rstr",
+      "foo_Base_TD",
+      "foo_BCE",
+      "foo_BCW",
+      "foo_BCE2",
+      "foo_BCW2",
+      "foo_MAE",
+      "foo_MAW"
     )
   )
 })
 
-test_that("data_to_wide, values_fill works", {
+
+test_that("data_to_wide, values_fill deprecated", {
   skip_if_not_installed("tidyr")
 
-  data <- tidyr::fish_encounters[c(1:3, 20:25), ]
-
-  ### Should be numeric
-  expect_identical(
-    data_to_wide(
-      data,
-      names_from = "station",
-      values_from = "seen",
-      values_fill = 1
-    ),
-    tidyr::tibble(
-      fish = factor(
-        c("4842", "4843", "4844"),
-        levels = c(
-          "4842", "4843", "4844", "4845", "4847", "4848", "4849", "4850",
-          "4851", "4854", "4855", "4857", "4858", "4859", "4861", "4862",
-          "4863", "4864", "4865"
-        )
-      ),
-      Release = c(1, 1, 1),
-      I80_1 = c(1, 1, 1),
-      Lisbon = c(1, 1, 1),
-      BCW2 = c(1, 1, 1),
-      MAE = c(1, 1, 1),
-      MAW = c(1, 1, 1)
-    )
-  )
-  expect_error(
-    data_to_wide(
-      data,
-      names_from = "station",
-      values_from = "seen",
-      values_fill = "a"
-    ),
-    regexp = "must be of type numeric"
-  )
-  expect_error(
-    data_to_wide(
-      data,
-      names_from = "station",
-      values_from = "seen",
-      values_fill = factor("a")
-    ),
-    regexp = "must be of type numeric"
-  )
-
-  ### Should be character
-  contacts <- tidyr::tribble(
-    ~field, ~value,
-    "name", "Jiena McLellan",
-    "company", "Toyota",
-    "name", "John Smith",
-    "name", "Huxley Ratcliffe"
-  )
-  contacts$person_id <- cumsum(contacts$field == "name")
-
-  expect_identical(
-    data_to_wide(
-      contacts,
-      names_from = "field",
-      values_from = "value",
-      values_fill = "foo"
-    ),
-    tidyr::tibble(
-      person_id = 1:3,
-      name = c("Jiena McLellan", "John Smith", "Huxley Ratcliffe"),
-      company = c("Toyota", "foo", "foo")
-    )
-  )
-  expect_error(
-    data_to_wide(
-      contacts,
-      names_from = "field",
-      values_from = "value",
-      values_fill = 1
-    ),
-    regexp = "must be of type character"
-  )
-  expect_error(
-    data_to_wide(
-      contacts,
-      names_from = "field",
-      values_from = "value",
-      values_fill = factor("a")
-    ),
-    regexp = "must be of type character"
-  )
-
-  ### Should be factor
-  contacts$value <- as.factor(contacts$value)
-  expect_error(
-    data_to_wide(
-      contacts,
-      names_from = "field",
-      values_from = "value",
-      values_fill = "a"
-    ),
-    regexp = "must be of type factor"
-  )
-  expect_error(
-    data_to_wide(
-      contacts,
-      names_from = "field",
-      values_from = "value",
-      values_fill = 1
-    ),
-    regexp = "must be of type factor"
-  )
-})
-
-test_that("data_to_wide, values_fill errors when length > 1", {
-  skip_if_not_installed("tidyr")
-
-  expect_error(
+  expect_warning(
     data_to_wide(
       tidyr::fish_encounters,
       names_from = "station",
       values_from = "seen",
       values_fill = c(1, 2)
     ),
-    regexp = "must be of length 1"
+    regexp = "`values_fill` is defunct",
+    fixed = TRUE
   )
 })
 
 
 # EQUIVALENCE WITH TIDYR - PIVOT_WIDER -----------------------------------------------
-
 
 # Examples coming from: https://tidyr.tidyverse.org/articles/pivot.html#wider
 # and from https://github.com/tidyverse/tidyr/blob/main/tests/testthat/test-pivot-wide.R
@@ -256,14 +167,12 @@ test_that("data_to_wide: fill values, #293", {
     tidyr::pivot_wider(
       daily,
       names_from = type,
-      values_from = value,
-      values_fill = 0
+      values_from = value
     ),
     data_to_wide(
       daily,
       names_from = "type",
-      values_from = "value",
-      values_fill = 0
+      values_from = "value"
     )
   )
 })
@@ -303,15 +212,13 @@ test_that("data_to_wide equivalent to pivot_wider: ex 1", {
   x <- tidyr::pivot_wider(
     tidyr::fish_encounters,
     names_from = "station",
-    values_from = "seen",
-    values_fill = 0
+    values_from = "seen"
   )
 
   y <- data_to_wide(
     tidyr::fish_encounters,
     names_from = "station",
-    values_from = "seen",
-    values_fill = 0
+    values_from = "seen"
   )
 
   expect_equal(x, y, ignore_attr = TRUE)
@@ -437,9 +344,27 @@ test_that("data_to_wide, names_glue works", {
   skip_if_not_installed("tidyr")
 
   df <- data.frame(
-    food = c("banana", "banana", "banana", "banana", "cheese", "cheese", "cheese", "cheese"),
+    food = c(
+      "banana",
+      "banana",
+      "banana",
+      "banana",
+      "cheese",
+      "cheese",
+      "cheese",
+      "cheese"
+    ),
     binary = rep(c("yes", "no"), 4),
-    car = c("toyota", "subaru", "mazda", "skoda", "toyota", "subaru", "mazda", "skoda"),
+    car = c(
+      "toyota",
+      "subaru",
+      "mazda",
+      "skoda",
+      "toyota",
+      "subaru",
+      "mazda",
+      "skoda"
+    ),
     fun = c(2, 4, 3, 6, 2, 4, 2, 3),
     stringsAsFactors = FALSE
   )
@@ -470,17 +395,28 @@ test_that("preserve date format", {
   family <- tidyr::tibble(
     family = c(1L, 1L, 2L, 2L, 3L, 3L),
     child = c(
-      "dob_child1", "dob_child2", "dob_child1", "dob_child2", "dob_child1",
+      "dob_child1",
+      "dob_child2",
+      "dob_child1",
+      "dob_child2",
+      "dob_child1",
       "dob_child2"
     ),
     value = as.Date(c(
-      "1998-11-26", "2000-01-29", "2004-10-10", NA, "2000-12-05",
+      "1998-11-26",
+      "2000-01-29",
+      "2004-10-10",
+      NA,
+      "2000-12-05",
       "2004-04-05"
     ))
   )
 
-
-  tidyr <- tidyr::pivot_wider(family, names_from = "child", values_from = "value")
+  tidyr <- tidyr::pivot_wider(
+    family,
+    names_from = "child",
+    values_from = "value"
+  )
   datawiz <- data_to_wide(family, names_from = "child", values_from = "value")
 
   expect_identical(tidyr, datawiz)
@@ -557,4 +493,151 @@ test_that("Preserve column name when names_from column only has one unique value
   )
   expect_named(out, c("Level", "Intercept", "abc"))
   expect_identical(nrow(out), 10L)
+})
+
+
+test_that("data_to_wide with multiple values_from and unbalanced panel", {
+  skip_if_not_installed("tidyr")
+
+  long_df <- tidyr::tibble(
+    subject_id = c(1, 1, 2, 2, 3, 5, 4, 4),
+    time = rep(c(1, 2), 4),
+    score = c(10, NA, 15, 12, 18, 11, NA, 14),
+    anxiety = c(5, 7, 6, NA, 8, 4, 5, NA)
+  )
+
+  tidyr <- tidyr::pivot_wider(
+    long_df,
+    id_cols = "subject_id",
+    names_from = time,
+    values_from = c(score, anxiety)
+  )
+  datawiz <- data_to_wide(
+    long_df,
+    id_cols = "subject_id",
+    names_from = "time",
+    values_from = c("score", "anxiety")
+  )
+  expect_identical(tidyr, datawiz)
+})
+
+
+test_that("data_to_wide preserves empty columns", {
+  long_df <- data.frame(
+    subject_id = c(1, 1, 2, 2, 3, 5, 4, 4),
+    time = rep(c(1, 2), 4),
+    score = c(10, NA, 15, 12, 18, 11, NA, 14),
+    anxiety = c(5, 7, 6, NA, 8, 4, 5, NA),
+    test = rep(NA_real_, 8)
+  )
+
+  out <- data_to_wide(
+    long_df,
+    id_cols = "subject_id",
+    names_from = "time",
+    values_from = c("score", "anxiety", "test")
+  )
+
+  expect_equal(
+    out,
+    data.frame(
+      subject_id = c(1, 2, 3, 5, 4),
+      score_1 = c(10, 15, 18, NA, NA),
+      score_2 = c(NA, 12, NA, 11, 14),
+      anxiety_1 = c(5, 6, 8, NA, 5),
+      anxiety_2 = c(7, NA, NA, 4, NA),
+      test_1 = as.double(c(NA, NA, NA, NA, NA)),
+      test_2 = as.double(c(NA, NA, NA, NA, NA))
+    ),
+    ignore_attr = TRUE
+  )
+})
+
+
+test_that("data_to_wide, check for valid columns", {
+  long_df <- data.frame(
+    subject_id = c(1, 1, 2, 2, 3, 5, 4, 4),
+    time = rep(c(1, 2), 4),
+    score = c(10, NA, 15, 12, 18, 11, NA, 14),
+    anxiety = c(5, 7, 6, NA, 8, 4, 5, NA),
+    test = rep(NA_real_, 8)
+  )
+
+  expect_error(
+    data_to_wide(
+      long_df,
+      id_cols = "id",
+      names_from = "time",
+      values_from = c("score", "anxiety", "test")
+    ),
+    regexp = "`id_cols` must be the names of",
+    fixed = TRUE
+  )
+
+  expect_error(
+    data_to_wide(
+      long_df,
+      id_cols = "subject_id",
+      names_from = "times",
+      values_from = c("score", "anxiety", "test")
+    ),
+    regexp = "`names_from` must be the name of",
+    fixed = TRUE
+  )
+
+  expect_warning(
+    data_to_wide(
+      long_df,
+      id_cols = "subject_id",
+      names_from = "time",
+      values_from = c("scores", "anxiety", "test")
+    ),
+    regexp = "Following variable(s) were not found",
+    fixed = TRUE
+  )
+
+  expect_error(
+    expect_warning(expect_warning(expect_warning(
+      data_to_wide(
+        long_df,
+        id_cols = "subject_id",
+        names_from = "time",
+        values_from = c("a", "b", "c")
+      )
+    ))),
+    regexp = "No variable defined",
+    fixed = TRUE
+  )
+})
+
+
+test_that("data_to_wide, select helper for values_from", {
+  long_df <- data.frame(
+    subject_id = c(1, 1, 2, 2, 3, 5, 4, 4),
+    time = rep(c(1, 2), 4),
+    score_a = c(10, NA, 15, 12, 18, 11, NA, 14),
+    score_b = c(5, 7, 6, NA, 8, 4, 5, NA),
+    score_c = rep(NA_real_, 8)
+  )
+
+  out <- data_to_wide(
+    long_df,
+    id_cols = "subject_id",
+    names_from = "time",
+    values_from = starts_with("score_")
+  )
+
+  expect_equal(
+    out,
+    data.frame(
+      subject_id = c(1, 2, 3, 5, 4),
+      score_a_1 = c(10, 15, 18, NA, NA),
+      score_a_2 = c(NA, 12, NA, 11, 14),
+      score_a_1 = c(5, 6, 8, NA, 5),
+      score_a_2 = c(7, NA, NA, 4, NA),
+      score_a_1 = as.double(c(NA, NA, NA, NA, NA)),
+      score_a_2 = as.double(c(NA, NA, NA, NA, NA))
+    ),
+    ignore_attr = TRUE
+  )
 })
