@@ -82,103 +82,11 @@ test_that("transformations", {
     ignore_attr = TRUE
   )
 
+  # fmt: skip
   d <- data.frame(
-    time = as.factor(c(
-      1,
-      2,
-      3,
-      4,
-      5,
-      1,
-      2,
-      3,
-      4,
-      5,
-      1,
-      2,
-      3,
-      4,
-      5,
-      1,
-      2,
-      3,
-      4,
-      5,
-      1,
-      2,
-      3,
-      4,
-      5,
-      1,
-      2,
-      3,
-      4,
-      5
-    )),
-    group = c(
-      1,
-      1,
-      1,
-      1,
-      1,
-      2,
-      2,
-      2,
-      2,
-      2,
-      1,
-      1,
-      1,
-      1,
-      1,
-      2,
-      2,
-      2,
-      2,
-      2,
-      1,
-      1,
-      1,
-      1,
-      1,
-      2,
-      2,
-      2,
-      2,
-      2
-    ),
-    sum = c(
-      0,
-      5,
-      10,
-      15,
-      20,
-      0,
-      20,
-      25,
-      45,
-      50,
-      0,
-      5,
-      10,
-      15,
-      20,
-      0,
-      20,
-      25,
-      45,
-      50,
-      0,
-      5,
-      10,
-      15,
-      20,
-      0,
-      20,
-      25,
-      45,
-      50
-    ) # nolint
+    time = factor(rep(c("1", "2", "3", "4", "5"), 6)),
+    group = rep(rep(c(1, 2), 3), each = 5L),
+    sum = rep(c(0, 5, 10, 15, 20, 0, 20, 25, 45, 50), 3)
   )
   m <- lm(log(sum + 1) ~ as.numeric(time) * group, data = d)
 
@@ -491,5 +399,57 @@ test_that("brms", {
   expect_warning(
     standardize(mod),
     regexp = "without adjusting priors may lead to bogus"
+  )
+})
+
+# fixest --------------------------------------------------------------------
+
+test_that("fixest", {
+  skip_if_not_installed("fixest")
+
+  mtcars_stand <- standardize(mtcars)
+  orig <- fixest::feols(
+    drat ~ mpg + hp^2 | cyl + am,
+    data = mtcars,
+    se = "hetero"
+  )
+  # TODO: Remove this suppressWarnings() when a new version of `fixest` that
+  # contains the fix for https://github.com/lrberge/fixest/issues/618 is on CRAN
+  # (CRAN version is 0.13.2 at the time of writing).
+  suppressWarnings({
+    auto_stand <- standardize(orig)
+  })
+  manual_stand <- fixest::feols(
+    drat ~ mpg + hp^2 | cyl + am,
+    data = mtcars_stand,
+    se = "hetero"
+  )
+
+  # Need to unname because I(hp^2) in the manual one becomes I(I(hp ^2)) in the
+  # automated one.
+  expect_identical(
+    unname(auto_stand$coefficients),
+    unname(manual_stand$coefficients)
+  )
+  expect_identical(unname(auto_stand$se), unname(manual_stand$se))
+
+  ### Inform the user if some terms are log() or sqrt()
+  orig <- fixest::feols(
+    drat ~ log(mpg) | cyl + am,
+    data = mtcars
+  )
+  # TODO: same as above
+  expect_message(
+    suppressWarnings(standardize(orig)),
+    "Formula contains log- or sqrt-terms"
+  )
+  orig <- fixest::feols(
+    drat ~ sqrt(mpg) | cyl + am,
+    data = mtcars
+  )
+  # TODO: same as above
+  expect_message(
+    suppressWarnings(standardize(orig)),
+    "Formula contains log- or sqrt-terms"
   )
 })
